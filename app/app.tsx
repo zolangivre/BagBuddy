@@ -5,8 +5,11 @@ import { AuthProvider } from './context/AuthContext'
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Main />
-    </AuthProvider>
+    <>
+      <h1>BagBuddy</h1>
+      <AuthProvider>
+        <Main />
+      </AuthProvider>
+    </>
   )
 }

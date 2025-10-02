@@ -2,22 +2,33 @@ import React, { useContext } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { AuthContext } from '../context/AuthContext'
-import { HomeScreen } from '../screens/Home/HomeScreen'
-import { AboutScreen } from './screens/AboutScreen'
-import { SignInScreen } from '../screens/SignIn/SignInScreen'
+import { HomeScreen } from '../screens/HomeScreen'
+import { ProfileScreen } from '../screens/ProfileScreen'
+import { SignInScreen } from '../screens/SignInScreen'
+import { ManagerScreen } from '../screens/ManagerScreen'
+import { ICScreen } from '../screens/ICScreen'
 
 const NativeStack = createNativeStackNavigator()
 
 const Main = () => {
-  const { state } = useContext(AuthContext)
-  
+  const { hasRole, state } = useContext(AuthContext)
+
   return (
+    <>
+      {state.isSignedIn ? <h1>Bienvenue {state.userInfo?.givenName}!</h1> : <h1>Non connecté !</h1>}
     <NavigationContainer>
       <NativeStack.Navigator>
+        <>{console.log('Auth state:', state)}</>
         {state.isSignedIn ? (
           <>
             <NativeStack.Screen name={'Home'} component={HomeScreen} />
-            <NativeStack.Screen name={'About'} component={AboutScreen} />
+            {hasRole('Manager') && (
+              <NativeStack.Screen name={'Manager'} component={ManagerScreen} />
+            )}
+            {hasRole('IC') && (
+              <NativeStack.Screen name={'IC'} component={ICScreen} />
+            )}
+            <NativeStack.Screen name={'Profile'} component={ProfileScreen} />
           </>
         ) : (
           <NativeStack.Screen
@@ -28,6 +39,7 @@ const Main = () => {
         )}
       </NativeStack.Navigator>
     </NavigationContainer>
+    </>
   )
 }
 
