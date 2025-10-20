@@ -1,0 +1,29 @@
+type Conversation {
+    conversation_id: ID!
+    user_1_id: Int!
+    user_2_id: Int!
+    created_at: String
+}
+
+type Message {
+    message_id: ID!
+    sender_id: Int!
+    receiver_id: Int!
+    conversation_id: Int!
+    content: String!
+    sent_at: String
+    status: String
+}
+
+type Query {
+    conversations: [Conversation]
+    conversation(conversation_id: ID!): Conversation
+    conversationsForUser(userId: Int!): [Conversation]
+    messages: [Message]
+    message(message_id: ID!): Message
+    messagesByConversationId(conversation_id: ID!): [Message]
+}
+
+type Mutation {
+    createConversation(user_1_id: Int!, user_2_id: Int!): Conversation
+    createMessage(sender_id: Int!, receiver_id: Int!, conversation_id: Int!, content: String!, status

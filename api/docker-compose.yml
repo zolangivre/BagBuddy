@@ -1,0 +1,99 @@
+version: "3.9"
+
+services:
+  # ----------------------
+  # PostgreSQL pour User
+  # ----------------------
+  postgres-user:
+    image: postgres:alpine
+    container_name: postgres-user
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_manager_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata-user:/var/lib/postgresql/data
+
+  # ----------------------
+  # PostgreSQL pour Trips
+  # ----------------------
+  postgres-trip:
+    image: postgres:alpine
+    container_name: postgres-trip
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trip_db
+    ports:
+      - "5433:5432"  # port local différent
+    volumes:
+      - pgdata-trip:/var/lib/postgresql/data
+
+  # ----------------------
+  # PostgreSQL pour Transactions
+  # ----------------------
+  postgres-transaction:
+    image: postgres:alpine
+    container_name: postgres-transaction
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: transaction_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata-transaction:/var/lib/postgresql/data
+
+  # ----------------------
+  # PostgreSQL pour Messaging
+  # ----------------------
+  postgres-messaging:
+    image: postgres:alpine
+    container_name: postgres-messaging
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: messaging_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - pgdata-messaging:/var/lib/postgresql/data
+
+  # ----------------------
+  # PostgreSQL pour Reviews
+  # ----------------------
+  postgres-review:
+    image: postgres:alpine
+    container_name: postgres-review
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: review_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata-review:/var/lib/postgresql/data
+
+  # ----------------------
+  # API Gateway (exemple)
+  # ----------------------
+  api-gateway:
+    image: your-api-gateway-image
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-user
+      - postgres-trip
+      - postgres-transaction
+      - postgres-messaging
+      - postgres-review
+
+volumes:
+  pgdata-user:
+  pgdata-trip:
+  pgdata-transaction:
+  pgdata-messaging:
+  pgdata-review:
