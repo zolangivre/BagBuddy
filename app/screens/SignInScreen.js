@@ -1,13 +1,17 @@
+// @ts-check
 import React, { useContext } from 'react'
-import { Button, StyleSheet, Text, View } from 'react-native'
+import { Button, StyleSheet, View } from 'react-native'
 import { AuthContext } from '../context/AuthContext'
 
 const SignInScreen = () => {
   const { signIn } = useContext(AuthContext)
 
+  function promptAsync() {
+    throw new Error('Function not implemented.')
+  }
+
   return (
     <View style={styles.container}>
-      <Text>SignIn-Screen</Text>
       <Button onPress={signIn} title={'Sign in'} />
     </View>
   )
@@ -15,9 +19,9 @@ const SignInScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    flex: 1,
     justifyContent: 'center',
   },
 })

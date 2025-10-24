@@ -1,183 +1,131 @@
-import React, { createContext, useMemo, useReducer, useEffect } from 'react'
-import { makeRedirectUri, useAuthRequest, useAutoDiscovery } from 'expo-auth-session'
-
-/**
- * @typedef {Object} UserInfo
- * @property {string} username
- * @property {string} givenName
- * @property {string} familyName
- * @property {string} email
- * @property {string[]} roles
- */
-
-/**
- * @typedef {Object} AuthState
- * @property {boolean} isSignedIn
- * @property {string|null} accessToken
- * @property {string|null} idToken
- * @property {UserInfo|null} userInfo
- */
-
-/** @type {AuthState} */
+import React, { createContext, useEffect, useMemo, useReducer } from 'react';
+import * as AuthSession from 'expo-auth-session';
+import { useAuthRequest, useAutoDiscovery } from 'expo-auth-session';
 
 const initialState = {
   isSignedIn: false,
   accessToken: null,
   idToken: null,
   userInfo: null,
-}
+};
 
 const AuthContext = createContext({
-    state: initialState,
-    signIn: () => {},
-    signOut: () => {},
-    hasRole: (role) => false,
-})
+  state: initialState,
+  signIn: () => {},
+  signOut: () => {},
+  hasRole: (role) => false,
+});
 
 const AuthProvider = ({ children }) => {
-    const discovery = useAutoDiscovery(process.env.EXPO_PUBLIC_KEYCLOAK_URL)
-    const redirectUri = makeRedirectUri({
-        useProxy: true,  // indispensable pour Expo Go
-    })
-    const [request, response, promptAsync] = useAuthRequest(
-        {
-        clientId: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
-        redirectUri: redirectUri,
-        scopes: ['openid', 'profile'],
-        },
-        discovery
-    )
-    // machine état pour traiter les actions d'authentification
-  const [authState, dispatch] = useReducer((previousState, action) => {
+  const discovery = useAutoDiscovery(process.env.EXPO_PUBLIC_KEYCLOAK_URL);
+
+  const redirectUri = AuthSession.makeRedirectUri({
+    useProxy: false,      // important pour web
+    scheme: 'rn-expo-app',
+  });
+  console.log('redirectUri', redirectUri);
+
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      clientId: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
+      redirectUri,
+      scopes: ['openid', 'profile'],
+      responseType: 'code',
+    },
+    discovery
+  );
+
+  const [authState, dispatch] = useReducer((prev, action) => {
     switch (action.type) {
-        case 'SIGN_IN':
-        return {
-          ...previousState,
-          isSignedIn: true,
-          accessToken: action.payload.access_token,
-          idToken: action.payload.id_token,
-        }
-              case 'USER_INFO':
-        return {
-          ...previousState,
-          userInfo: {
-            username: action.payload.preferred_username,
-            givenName: action.payload.given_name,
-            familyName: action.payload.family_name,
-            email: action.payload.email,
-            roles: action.payload.roles,
-          },
-        }
+      case 'SIGN_IN':
+        return { ...prev, isSignedIn: true, accessToken: action.payload.access_token, idToken: action.payload.id_token };
+      case 'USER_INFO':
+        return { ...prev, userInfo: action.payload };
       case 'SIGN_OUT':
-        return {
-          initialState,
-        }
+        return initialState;
+      default:
+        return prev;
     }
-  }, initialState)
+  }, initialState);
 
-   const authContext = useMemo(
-    () => ({
-      state: authState,
-      signIn: () => {
-        promptAsync()
-      },
-      signOut: async () => {
-        try {
-          const idToken = authState.idToken
-          await fetch(
-            `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${idToken}`
-          )
-          dispatch({ type: 'SIGN_OUT' })
-        } catch (e) {
-          console.warn(e)
-        }
-      },
-      hasRole: (role) => authState.userInfo?.roles.indexOf(role) != -1,
-    }),
-    [authState, promptAsync]
-  )
-
-  // Si on reçoit un code d'autorisation, on l'échange contre un token
+  // Échange le code contre le token
   useEffect(() => {
-    const getToken = async ({ code, codeVerifier, redirectUri }) => {
-      try {
-        const formData = {
-          grant_type: 'authorization_code',
-          client_id: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
-          code: code,
-          code_verifier: codeVerifier,
-          redirect_uri: redirectUri,
-        }
-        const formBody = []
-        for (const property in formData) {
-          var encodedKey = encodeURIComponent(property)
-          var encodedValue = encodeURIComponent(formData[property])
-          formBody.push(encodedKey + '=' + encodedValue)
-        }
+    const getToken = async (code) => {
+      if (!request) return;
 
-        const response = await fetch(
+      const formData = new URLSearchParams();
+      formData.append('grant_type', 'authorization_code');
+      formData.append('client_id', process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID);
+      formData.append('code', code);
+      if (request.codeVerifier) formData.append('code_verifier', request.codeVerifier);
+      formData.append('redirect_uri', redirectUri);
+
+      try {
+        const tokenResponse = await fetch(
           `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/token`,
           {
             method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formBody.join('&'),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString(),
           }
-        )
-        if (response.ok) {
-          const payload = await response.json()
-          dispatch({ type: 'SIGN_IN', payload })
+        );
+
+        if (tokenResponse.ok) {
+          const payload = await tokenResponse.json();
+          dispatch({ type: 'SIGN_IN', payload });
+        } else {
+          console.warn('Token request failed', await tokenResponse.text());
         }
       } catch (e) {
-        console.warn(e)
+        console.warn(e);
       }
-    }
-    if (response?.type === 'success') {
-      const { code } = response.params
-      getToken({
-        code,
-        codeVerifier: request?.codeVerifier,
-        redirectUri,
-      })
-    } else if (response?.type === 'error') {
-      console.warn('Authentication error: ', response.error)
-    }
-  }, [dispatch, redirectUri, request?.codeVerifier, response])
+    };
 
-  // Maintenant qu'on a un token, on peut récupérer les infos utilisateur
+    if (response?.type === 'success') {
+      const { code } = response.params;
+      getToken(code);
+    } else if (response?.type === 'error') {
+      console.warn('Authentication error:', response.error);
+    }
+  }, [response, request, redirectUri]);
+
+  // Récupère les informations utilisateur
   useEffect(() => {
     const getUserInfo = async () => {
+      if (!authState.accessToken) return;
+
       try {
-        const accessToken = authState.accessToken
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/userinfo`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: 'Bearer ' + accessToken,
-              Accept: 'application/json',
-            },
-          }
-        )
-        if (response.ok) {
-          const payload = await response.json()
-          dispatch({ type: 'USER_INFO', payload })
+        const res = await fetch(`${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/userinfo`, {
+          headers: { Authorization: `Bearer ${authState.accessToken}` },
+        });
+        if (res.ok) {
+          const payload = await res.json();
+          dispatch({ type: 'USER_INFO', payload });
         }
       } catch (e) {
-        console.warn(e)
+        console.warn(e);
       }
-    }
-    if (authState.isSignedIn) {
-      getUserInfo()
-    }
-  }, [authState.accessToken, authState.isSignedIn, dispatch])
+    };
+    if (authState.isSignedIn) getUserInfo();
+  }, [authState.accessToken, authState.isSignedIn]);
 
-  return (
-    <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
-  )
-}
+  const authContext = useMemo(() => ({
+    state: authState,
+    signIn: () => promptAsync(),
+    signOut: async () => {
+      try {
+        if (authState.idToken) {
+          await fetch(`${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${authState.idToken}`);
+        }
+        dispatch({ type: 'SIGN_OUT' });
+      } catch (e) {
+        console.warn(e);
+      }
+    },
+    hasRole: (role) => authState.userInfo?.roles?.includes(role),
+  }), [authState, promptAsync]);
 
+  return <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>;
+};
 
-export { AuthContext, AuthProvider }
+export { AuthContext, AuthProvider };

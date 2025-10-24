@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useContext } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -14,11 +15,8 @@ const Main = () => {
   const { hasRole, state } = useContext(AuthContext)
 
   return (
-    <>
-      {state.isSignedIn ? <h1>Bienvenue {state.userInfo?.givenName}!</h1> : <h1>Non connecté !</h1>}
     <NavigationContainer>
       <NativeStack.Navigator>
-        <>{console.log('Auth state:', state)}</>
         {state.isSignedIn ? (
           <>
             <NativeStack.Screen name={'Home'} component={HomeScreen} />
@@ -39,7 +37,6 @@ const Main = () => {
         )}
       </NativeStack.Navigator>
     </NavigationContainer>
-    </>
   )
 }
 

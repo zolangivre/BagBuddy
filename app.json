@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "BagBuddy",
-    "slug": "BagBuddy",
+    "name": "bagbuddy",
+    "slug": "bagbuddy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
