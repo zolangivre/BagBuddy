@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  expo:
+    build: .
+    ports:
+      - "19000:19000"  # Metro
+      - "19001:19001"  # WebSocket / dev tools
+      - "19002:19002"  # Tunnel Expo
+    volumes:
+      - .:/app
+    command: npx expo start --tunnel --non-interactive
