@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Switch,
+  Modal,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -12,115 +14,37 @@ import {
   TrendingUp,
   Activity,
   Shield,
-  Plane,
-  CheckCircle,
-  Clock,
   Pencil,
+  Moon,
+  Sun,
+  LogOut,
+  Languages,
 } from "lucide-react-native";
-import Colors from "../../theme/Colors";
-// import StatCard from "../../components/StatCard";
-import ActionButton from "../../components/ActionButton";
-// import Button from "../../components/Button"
-import ButtonIcon from "../../components/ButtonIcon";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import Colors from "@/theme/Colors";
+import ActionButton from "@/components/ActionButton";
+import ButtonIcon from "@/components/ButtonIcon";
+import Avatar from "@/components/Avatar";
+import StatCard from "@/components/StatCard";
+import Label from "@/components/Label";
+import StatusBadge from "@/components/StatusBadge";
+import mockTransactions from "@/mockData/transactions";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const Profile = () => {
+const ProfileScreen = () => {
+  const { theme: colorScheme, toggleTheme } = useThemeContext();
+  const theme = Colors[colorScheme] || Colors.light;
+
   const [mode, setMode] = useState("overview");
 
-  const transactions = [
-    {
-      id: 1,
-      type: "Buyer",
-      status: "completed",
-      flight: "UA 847 • LAX → NRT",
-      weight: "6kg",
-      date: "Dec 15, 2024",
-      amount: "$72",
-      icon: <Plane size={16} color="#FFFFFF" />,
-      statusText: "Completed",
-    },
-    {
-      id: 2,
-      type: "Seller",
-      status: "confirmed",
-      flight: "AA 123 • JFK → LHR",
-      weight: "10kg",
-      date: "Dec 10, 2024",
-      amount: "$80",
-      icon: <CheckCircle size={16} color="#10B981" />,
-      statusText: "Confirmed",
-    },
-    {
-      id: 3,
-      type: "Buyer",
-      status: "pending",
-      flight: "SQ 25 • SIN → JFK",
-      weight: "3kg",
-      date: "Dec 8, 2024",
-      amount: "$45",
-      icon: <Clock size={16} color="#0EA5E9" />,
-      statusText: "Pending confirmation",
-    },
-  ];
-
-  const renderStatusBadge = (type, status, statusText, icon) => {
-    const typeStyles =
-      type === "Seller"
-        ? { backgroundColor: Colors.primary_color, color: "#FFFFFF" }
-        : {
-            backgroundColor: "rgba(0, 0, 0, 0.10)",
-            color: Colors.tertiary_color,
-          };
-
-    const statusStyles =
-      status === "completed"
-        ? {
-            backgroundColor: "#10B981",
-            borderColor: "transparent",
-            color: "#FFFFFF",
-          }
-        : status === "confirmed"
-        ? {
-            backgroundColor: "rgba(16, 185, 129, 0.10)",
-            borderColor: "rgba(16, 185, 129, 0.20)",
-            color: "#10B981",
-          }
-        : {
-            backgroundColor: "rgba(14, 165, 233, 0.10)",
-            borderColor: "rgba(14, 165, 233, 0.20)",
-            color: "#0EA5E9",
-          };
-
-    return (
-      <View style={styles.badgeContainer}>
-        <View style={[styles.typeBadge, typeStyles]}>
-          <Text style={[styles.badgeText, { color: typeStyles.color }]}>
-            {type}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor: statusStyles.backgroundColor,
-              borderColor: statusStyles.borderColor,
-            },
-          ]}
-        >
-          {icon}
-          <Text style={[styles.badgeText, { color: statusStyles.color }]}>
-            {statusText}
-          </Text>
-        </View>
-      </View>
-    );
-  };
+  const transactions = mockTransactions;
+  const [isEnabled, setIsEnabled] = useState(false);
+  const isDark = colorScheme === "dark";
+  const { language, changeLanguage, i18n } = useLanguage();
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
+    <View style={{ backgroundColor: theme.background }}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <LinearGradient
           colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
@@ -131,8 +55,10 @@ const Profile = () => {
         >
           <View style={styles.headerContent}>
             <View style={styles.headerText}>
-              <Text style={styles.headerTitle}>Profile</Text>
-              <Text style={styles.headerSubtitle}>Manage your account</Text>
+              <Text style={styles.headerTitle}>{i18n.t("profile")}</Text>
+              <Text style={styles.headerSubtitle}>
+                {i18n.t("manage_your_account")}
+              </Text>
             </View>
             <ButtonIcon
               href="edit-profile"
@@ -144,56 +70,57 @@ const Profile = () => {
         {/* Main Content */}
         <View style={styles.content}>
           {/* Profile Card */}
-          <View style={styles.profileCard}>
+          <View
+            style={[
+              styles.profileCard,
+              { backgroundColor: theme.background_card },
+            ]}
+          >
             <View style={styles.profileInfo}>
-              <View style={styles.avatarContainer}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>JB</Text>
-                </View>
-              </View>
+              <Avatar initials="JB" size={80} />
+
               <View style={styles.userDetails}>
                 <View style={styles.nameRow}>
-                  <Text style={styles.userName}>Jalil Baroudi</Text>
-                  <View style={styles.verifiedBadge}>
-                    <Shield size={16} color="#10B981" />
-                    <Text style={styles.verifiedText}>Verified</Text>
-                  </View>
+                  <Text style={[styles.userName, { color: theme.title }]}>
+                    Jalil Baroudi
+                  </Text>
+                  <Label
+                    text={i18n.t("verified")}
+                    icon={<Shield size={16} color={Colors.light_green} />}
+                    backgroundColor={Colors.light_green_translucent}
+                    colorText={Colors.light_green}
+                  />
                 </View>
-                <Text style={styles.userEmail}>jalil.baroudi@gmail.com</Text>
-                <Text style={styles.transactionCount}>12 transactions</Text>
+                <Text style={[styles.userEmail, { color: theme.text }]}>
+                  jalil.baroudi@gmail.com
+                </Text>
+                <Text style={[styles.transactionCount, { color: theme.text }]}>
+                  12 {i18n.t("transactions_1")}
+                </Text>
               </View>
             </View>
 
             {/* Stats Row */}
             <View style={styles.statsRow}>
-              <View style={styles.statCard}>
-                <View style={styles.statIconContainer}>
-                  <TrendingUp size={20} color="#10B981" />
-                </View>
-                <Text style={styles.statValue}>$0</Text>
-                <Text style={styles.statLabel}>Total Earned</Text>
-              </View>
-              <View style={[styles.statCard, styles.statCardBlue]}>
-                <View style={styles.statIconContainerBlue}>
-                  <Activity size={20} color="#0EA5E9" />
-                </View>
-                <Text style={styles.statValueBlue}>$72</Text>
-                <Text style={styles.statLabel}>Total Spent</Text>
-              </View>
-            </View>
-            {/* <View style={styles.statsRow}>
               <StatCard
-                icon={<TrendingUp size={20} color="#FFFFFF" />}
+                icon={<TrendingUp size={20} color={Colors.light_green} />}
                 value="$0"
-                label="Total Earned"
-                style
+                label={i18n.t("total_earned")}
+                backgroundColor={Colors.light_green_translucent}
+                borderColor={Colors.light_green_translucent_2}
+                textColor={Colors.light_green}
+                labelColor={Colors.dark_grey}
               />
               <StatCard
-                icon={<Activity size={20} color="#FFFFFF" />}
+                icon={<Activity size={20} color={Colors.primary_color} />}
                 value="$72"
-                label="Total Spent"
+                label={i18n.t("total_spent")}
+                backgroundColor={Colors.dark_cyan_translucent}
+                borderColor={Colors.dark_cyan_translucent_2}
+                textColor={Colors.primary_color}
+                labelColor={Colors.dark_grey}
               />
-            </View> */}
+            </View>
           </View>
 
           {/* Tab Navigation */}
@@ -201,61 +128,89 @@ const Profile = () => {
 
           {/* Recent Transactions */}
           {mode === "overview" && (
-            <View style={styles.transactionsCard}>
+            <View
+              style={[
+                styles.transactionsCard,
+                { backgroundColor: theme.background_card },
+              ]}
+            >
               <View style={styles.transactionsHeader}>
-                <Text style={styles.transactionsTitle}>
-                  Recent Transactions
+                <Text
+                  style={[styles.transactionsTitle, { color: theme.title }]}
+                >
+                  {i18n.t("recent_transactions")}
                 </Text>
                 <TouchableOpacity>
-                  <Text style={styles.viewAllButton}>View all</Text>
+                  <Text style={styles.viewAllButton}>{i18n.t("view_all")}</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={styles.transactionsList}>
                 {transactions.map((transaction) => (
-                  <View key={transaction.id} style={styles.transactionItem}>
+                  <View
+                    key={transaction.id}
+                    style={[
+                      styles.transactionItem,
+                      { backgroundColor: theme.flightCard },
+                    ]}
+                  >
                     <View style={styles.transactionContent}>
-                      {renderStatusBadge(
-                        transaction.type,
-                        transaction.status,
-                        transaction.statusText,
-                        transaction.icon
-                      )}
-                      <Text style={styles.flightText}>
-                        {transaction.flight}
+                      <StatusBadge status={transaction.status} />
+                      <Text
+                        style={[styles.primaryText, { color: theme.title }]}
+                      >
+                        {transaction.flightNumber} • {transaction.departure} →
+                        {transaction.arrival}
                       </Text>
-                      <Text style={styles.weightDateText}>
+                      <Text style={[styles.subText, { color: theme.text }]}>
                         {transaction.weight} • {transaction.date}
                       </Text>
                     </View>
-                    <Text style={styles.amountText}>{transaction.amount}</Text>
+                    <Text style={styles.amountText}>{transaction.total}</Text>
                   </View>
                 ))}
               </View>
             </View>
           )}
           {mode === "listings" && (
-            <View style={styles.transactionsCard}>
+            <View
+              style={[
+                styles.transactionsCard,
+                { backgroundColor: theme.background_card },
+              ]}
+            >
               <View style={styles.transactionsHeader}>
-                <Text style={styles.transactionsTitle}>Active Listings</Text>
-                {/* <TouchableOpacity>
-                  <Text style={styles.viewAllButton}>View all</Text>
-                </TouchableOpacity> */}
-                {/* <Button
-                  // href=""
-                  text="New listing"
-                /> */}
+                <Text
+                  style={[styles.transactionsTitle, { color: theme.title }]}
+                >
+                  {i18n.t("active_listings")}
+                </Text>
+                <TouchableOpacity>
+                  <Text style={styles.viewAllButton}>
+                    {i18n.t("new_listing")}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.transactionsList}>
                 {transactions.map((transaction) => (
-                  <View key={transaction.id} style={styles.transactionItem}>
+                  <View
+                    key={transaction.id}
+                    style={[
+                      styles.transactionItem,
+                      { backgroundColor: theme.flightCard },
+                    ]}
+                  >
                     <View style={styles.transactionContent}>
-                      <Text style={styles.flightText}>
-                        {transaction.flight}
+                      <Text
+                        style={[styles.primaryText, { color: theme.title }]}
+                      >
+                        {transaction.flightNumber} • {transaction.departure} →{" "}
+                        {transaction.arrival}
                       </Text>
-                      <Text style={styles.weightDateText}>
-                        {transaction.weight} • {transaction.date}
+                      <Text style={[styles.subText, { color: theme.text }]}>
+                        {transaction.weight} • {transaction.rate} •{" "}
+                        {transaction.date}
                       </Text>
                     </View>
                     <ButtonIcon
@@ -268,6 +223,97 @@ const Profile = () => {
               </View>
             </View>
           )}
+          {mode === "settings" && (
+            <View
+              style={[
+                styles.transactionsCard,
+                { backgroundColor: theme.background_card },
+              ]}
+            >
+              <View style={styles.transactionsHeader}>
+                <Text
+                  style={[styles.transactionsTitle, { color: theme.title }]}
+                >
+                  {i18n.t("settings")}
+                </Text>
+              </View>
+              <View style={styles.settingsContainer}>
+                {theme === Colors.dark ? (
+                  <Moon size={24} color={Colors.primary_color} />
+                ) : (
+                  <Sun size={24} color={Colors.primary_color} />
+                )}
+                <View
+                  style={{
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <Text style={[styles.primaryText, { color: theme.title }]}>
+                    {i18n.t("dark_mode")}
+                  </Text>
+                  <Text style={[styles.subText, { color: theme.text }]}>
+                    {i18n.t("toggle_dark_mode")}
+                  </Text>
+                </View>
+                <Switch
+                  trackColor={{ false: "#767577", true: "#81b0ff" }}
+                  thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={toggleTheme}
+                  value={isDark}
+                />
+              </View>
+              <View style={styles.settingsContainer}>
+                <Languages size={24} color={Colors.primary_color} />
+                <Text style={[styles.primaryText, { color: theme.title }]}>
+                  {i18n.t("change_language") || "Langue"}
+                </Text>
+
+                <View style={styles.options}>
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      language === "en" && styles.selectedButton,
+                    ]}
+                    onPress={() => changeLanguage("en")}
+                  >
+                    <Text
+                      style={[
+                        styles.text,
+                        language === "en" && styles.selectedText,
+                      ]}
+                    >
+                      English
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.button,
+                      language === "fr" && styles.selectedButton,
+                    ]}
+                    onPress={() => changeLanguage("fr")}
+                  >
+                    <Text
+                      style={[
+                        styles.text,
+                        language === "fr" && styles.selectedText,
+                      ]}
+                    >
+                      Français
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={styles.settingsContainer}>
+                <LogOut size={24} color={Colors.red} />
+                <Text style={[styles.primaryText, { color: Colors.red }]}>
+                  {i18n.t("log_out")}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -275,13 +321,6 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollView: {
-    flex: 1,
-  },
   header: {
     paddingHorizontal: 24,
     paddingTop: 70,
@@ -298,34 +337,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    color: "#FFFFFF",
+    color: Colors.white,
     fontSize: 24,
     fontWeight: "700",
-    lineHeight: 32,
-    letterSpacing: 0.07,
   },
   headerSubtitle: {
-    color: "rgba(255, 255, 255, 0.80)",
+    color: Colors.very_light_grey,
     fontSize: 16,
     fontWeight: "400",
-    lineHeight: 24,
-    letterSpacing: -0.312,
-  },
-  editButton: {
-    padding: 18,
-    borderRadius: 16,
-    backgroundColor: "rgba(224, 242, 254, 0.10)",
   },
   content: {
     flex: 1,
-    marginTop: -15,
+    marginTop: -50,
     paddingHorizontal: 15,
     gap: 25,
   },
   profileCard: {
     padding: 25,
     borderRadius: 16,
-    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
@@ -339,31 +368,6 @@ const styles = StyleSheet.create({
     gap: 15,
     paddingVertical: 14,
   },
-  avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.00)",
-    borderWidth: 4,
-    borderColor: "rgba(14, 165, 233, 0.10)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "rgba(14, 165, 233, 0.10)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  avatarText: {
-    color: Colors.primary_color,
-    fontSize: 24,
-    fontWeight: "700",
-    lineHeight: 32,
-    letterSpacing: 0.07,
-  },
   userDetails: {
     flex: 1,
     gap: 4,
@@ -374,106 +378,25 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   userName: {
-    color: Colors.secondary_color,
     fontSize: 24,
     fontWeight: "700",
-    lineHeight: 32,
-    letterSpacing: 0.07,
-  },
-  verifiedBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    borderWidth: 0.612,
-    borderColor: "rgba(0, 0, 0, 0.00)",
-    backgroundColor: "rgba(16, 185, 129, 0.10)",
-  },
-  verifiedText: {
-    color: "#10B981",
-    fontSize: 12,
-    fontWeight: "500",
-    lineHeight: 16,
   },
   userEmail: {
-    color: Colors.tertiary_color,
     fontSize: 16,
     fontWeight: "400",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   transactionCount: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
     marginTop: 10,
   },
   statsRow: {
     flexDirection: "row",
     gap: 16,
   },
-  statCard: {
-    flex: 1,
-    padding: 17,
-    borderRadius: 16,
-    borderWidth: 0.612,
-    borderColor: "rgba(16, 185, 129, 0.10)",
-    backgroundColor: "rgba(16, 185, 129, 0.05)",
-    alignItems: "center",
-    gap: 4,
-  },
-  statCardBlue: {
-    borderColor: "rgba(14, 165, 233, 0.10)",
-    backgroundColor: "rgba(14, 165, 233, 0.05)",
-  },
-  statIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(16, 185, 129, 0.10)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  statIconContainerBlue: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(14, 165, 233, 0.10)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  statValue: {
-    color: "#10B981",
-    fontSize: 24,
-    fontWeight: "700",
-    lineHeight: 32,
-    letterSpacing: 0.07,
-    textAlign: "center",
-  },
-  statValueBlue: {
-    color: Colors.primary_color,
-    fontSize: 24,
-    fontWeight: "700",
-    lineHeight: 32,
-    letterSpacing: 0.07,
-    textAlign: "center",
-  },
-  statLabel: {
-    color: Colors.tertiary_color,
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
-    textAlign: "center",
-  },
   transactionsCard: {
     padding: 25,
     borderRadius: 16,
-    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -491,15 +414,11 @@ const styles = StyleSheet.create({
     color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   viewAllButton: {
     color: Colors.primary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
   },
   transactionsList: {
     gap: 12,
@@ -510,62 +429,43 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 12,
     borderRadius: 16,
-    backgroundColor: "rgba(224, 242, 254, 0.30)",
   },
   transactionContent: {
-    flex: 1,
     gap: 4,
   },
-  badgeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 4,
-  },
-  typeBadge: {
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 999,
-    minHeight: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 999,
-    borderWidth: 1,
-    gap: 4,
-    minHeight: 20,
-  },
-  badgeText: {
-    fontSize: 12,
-    fontWeight: "500",
-    textAlign: "center",
-  },
-  flightText: {
-    color: Colors.secondary_color,
+  primaryText: {
     fontSize: 14,
     fontWeight: "500",
-    lineHeight: 20,
-    letterSpacing: -0.15,
   },
-  weightDateText: {
-    color: Colors.tertiary_color,
+  subText: {
     fontSize: 12,
     fontWeight: "400",
-    lineHeight: 16,
   },
   amountText: {
     color: Colors.primary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
     textAlign: "right",
   },
+  settingsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  options: { flexDirection: "colum", gap: 10,  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: Colors.tertiary_color,
+    borderRadius: 12,
+  },
+  selectedButton: {
+    backgroundColor: Colors.primary_color,
+    borderColor: Colors.primary_color,
+  },
+  text: { color: Colors.tertiary_color, textAlign: "center" },
+  selectedText: { color: "#FFF" },
 });
 
-export default Profile;
+export default ProfileScreen;

@@ -1,32 +1,35 @@
 import React from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, DollarSign, Shield, ArrowRightIcon } from "lucide-react-native";
 import Colors from "../theme/Colors";
 import Button from "../components/Button";
+import RoundIconText from "../components/RoundIconText";
+import HowStep from "../components/HowStep";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import i18n from "@/i18n";
 
 export default function StartScreen() {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
+  const FeatureIconWrap = ({ title, subtitle, icon, backgroundColor }) => (
+    <View style={styles.featureItem}>
+      <RoundIconText icon={icon} backgroundColor={backgroundColor} size={48} />
+      <Text style={[styles.featureTitle, { color: theme.title }]}>{title}</Text>
+      <Text style={[styles.featureSubtitle, { color: theme.text }]}>{subtitle}</Text>
+    </View>
+  );
+
   return (
     <LinearGradient
-      colors={[
-        "rgba(14, 165, 233, 0.05)",
-        "#FFFFFF",
-        "rgba(224, 242, 254, 0.10)",
-      ]}
+      colors={theme.startBackground}
       locations={[0, 0.5, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.scrollContainer}>
         <View style={styles.wrapper}>
           {/* Header Section */}
           <View style={styles.headerContainer}>
@@ -34,123 +37,86 @@ export default function StartScreen() {
             <View style={[styles.logoWrapper, styles.logoShadow]}>
               <Image
                 source={require("../images/logo.png")}
-                style={{ width: 72, height: 72, borderRadius: 24 }}
+                style={{ width: 115, height: 115, borderRadius: 24 }}
                 resizeMode="contain"
               />
             </View>
 
             {/* Title */}
-            <Text style={styles.title}>BagBuddy</Text>
+            <Text style={[styles.title, { color: theme.title }]}>BagBuddy</Text>
 
             {/* Subtitle */}
-            <Text style={styles.subtitle}>Turn spare weight into cash</Text>
+            <Text style={styles.subtitle}>{i18n.t("start_subtitle")}</Text>
 
             {/* Description */}
-            <Text style={styles.description}>
-              The smart way to share luggage allowance
+            <Text style={[styles.description, { color: theme.text }]}>
+              {i18n.t("start_description")}
             </Text>
           </View>
 
           {/* Features Card */}
-          <View style={styles.card}>
+          <View
+            style={[styles.card, { backgroundColor: theme.background_card }]}
+          >
             <View style={styles.rowBetween}>
-              {/* Same Flight */}
-              <View style={styles.featureItem}>
-                <View style={styles.featureIconWrap}>
-                  <Plane
-                    width={24}
-                    height={24}
-                    viewBox="0 0 25 25"
-                    fill="none"
-                    color={Colors.primary_color}
-                  />
-                </View>
-                <Text style={styles.featureTitle}>Same Flight</Text>
-                <Text style={styles.featureSubtitle}>Meet at the airport</Text>
-              </View>
-
-              {/* Fair Price */}
-              <View style={styles.featureItem}>
-                <View style={styles.featureIconWrapAlt}>
-                  <DollarSign
-                    width={24}
-                    height={24}
-                    viewBox="0 0 25 25"
-                    fill="none"
-                    color={Colors.success_color}
-                  />
-                </View>
-                <Text style={styles.featureTitle}>Fair Price</Text>
-                <Text style={styles.featureSubtitle}>Market rates</Text>
-              </View>
-
-              {/* Secure */}
-              <View style={styles.featureItem}>
-                <View style={styles.featureIconWrapAlt2}>
-                  <Shield
-                    width={24}
-                    height={24}
-                    viewBox="0 0 25 25"
-                    fill="none"
-                    color={Colors.loading_background_color}
-                  />
-                </View>
-                <Text style={styles.featureTitle}>Secure</Text>
-                <Text style={styles.featureSubtitle}>Verified users</Text>
-              </View>
+              <FeatureIconWrap
+                title={i18n.t("feature_one_title")}
+                subtitle={i18n.t("feature_one_description")}
+                icon={<Plane size={24} color={Colors.dark_cyan} />}
+                backgroundColor={Colors.dark_cyan_translucent}
+              />
+              <FeatureIconWrap
+                title={i18n.t("feature_two_title")}
+                subtitle={i18n.t("feature_two_description")}
+                icon={<DollarSign size={24} color={Colors.light_green} />}
+                backgroundColor={Colors.light_green_translucent}
+              />
+              <FeatureIconWrap
+                title={i18n.t("feature_three_title")}
+                subtitle={i18n.t("feature_three_description")}
+                icon={<Shield size={24} color={Colors.light_yellow} />}
+                backgroundColor={Colors.light_yellow_translucent}
+              />
             </View>
           </View>
 
           {/* How it Works Card */}
-          <View style={styles.cardAlt}>
-            <Text style={styles.cardTitle}>How it works</Text>
+          <View
+            style={[styles.card, { backgroundColor: theme.background_card }]}
+          >
+            <Text style={[styles.cardTitle, { color: theme.title }]}>
+              {i18n.t("how_card_title")}
+            </Text>
 
             <View style={styles.gapContainer}>
-              {/* Step 1 */}
-              <View style={styles.stepRow}>
-                <View style={styles.stepNumberWrap}>
-                  <Text style={styles.stepNumber}>1</Text>
-                </View>
-                <View>
-                  <Text style={styles.stepTitle}>Browse or List</Text>
-                  <Text style={styles.stepSubtitle}>
-                    Check your weight or spare space
-                  </Text>
-                </View>
-              </View>
-
-              {/* Step 2 */}
-              <View style={styles.stepRow}>
-                <View style={styles.stepNumberWrap}>
-                  <Text style={styles.stepNumber}>2</Text>
-                </View>
-                <View style={styles.stepTextWrap}>
-                  <Text style={styles.stepTitle}>Connect & Agree</Text>
-                  <Text style={styles.stepSubtitle}>
-                    Message travelers and confirm the details
-                  </Text>
-                </View>
-              </View>
-
-              {/* Step 3 */}
-              <View style={styles.stepRow}>
-                <View style={styles.stepNumberWrapAlt}>
-                  <Text style={styles.stepNumberAlt}>3</Text>
-                </View>
-                <View style={styles.stepTextWrap}>
-                  <Text style={styles.stepTitle}>Meet & Trade</Text>
-                  <Text style={styles.stepSubtitle}>
-                    Meet at check-in and complete the transaction
-                  </Text>
-                </View>
-              </View>
+              <HowStep
+                number={1}
+                title={i18n.t("step_one_title")}
+                subtitle={i18n.t("step_one_description")}
+                color={Colors.primary_color}
+                backgroundColor={Colors.dark_cyan_translucent}
+              />
+              <HowStep
+                number={2}
+                title={i18n.t("step_two_title")}
+                subtitle={i18n.t("step_two_description")}
+                color={Colors.primary_color}
+                backgroundColor={Colors.dark_cyan_translucent}
+              />
+              <HowStep
+                number={3}
+                title={i18n.t("step_three_title")}
+                subtitle={i18n.t("step_three_description")}
+                color={Colors.light_green}
+                backgroundColor={Colors.light_green_translucent}
+              />
             </View>
           </View>
 
           {/* Start Button */}
           <Button
             href="/(tabs)/home"
-            text="Start your journey"
+            text={i18n.t("start_button")}
             rightIcon={
               <ArrowRightIcon
                 width={24}
@@ -162,7 +128,7 @@ export default function StartScreen() {
             }
           />
         </View>
-      </ScrollView>
+      </View>
     </LinearGradient>
   );
 }
@@ -170,8 +136,7 @@ export default function StartScreen() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 48,
+    padding: 20,
     paddingBottom: 24,
     justifyContent: "center",
     alignItems: "center",
@@ -203,7 +168,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary_color,
   },
   title: {
-    color: Colors.secondary_color,
     fontSize: 36,
     fontWeight: "700",
     textAlign: "center",
@@ -215,13 +179,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   description: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     textAlign: "center",
   },
   card: {
     width: "100%",
-    backgroundColor: "rgba(255,255,255,0.8)",
     borderRadius: 16,
     padding: 16,
     shadowColor: "#000",
@@ -235,55 +197,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
-  featureItem: { alignItems: "center", gap: 8 },
-  featureIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(14,165,233,0.1)",
-  },
-  featureIconWrapAlt: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(16,185,129,0.1)",
-  },
-  featureIconWrapAlt2: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(245,158,11,0.1)",
-  },
+  featureItem: { alignItems: "center", gap: 8, width: "30%" },
   featureTitle: {
-    color: Colors.secondary_color,
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
   },
   featureSubtitle: {
-    color: Colors.tertiary_color,
     fontSize: 12,
     textAlign: "center",
   },
-  cardAlt: {
-    width: "100%",
-    backgroundColor: "rgba(255,255,255,0.6)",
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
-  },
   cardTitle: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "700",
     textAlign: "center",
@@ -292,50 +216,4 @@ const styles = StyleSheet.create({
   gapContainer: {
     gap: 16,
   },
-  stepRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    marginBottom: 12,
-  },
-  stepNumberWrap: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(14,165,233,0.1)",
-  },
-  stepNumberWrapAlt: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(16,185,129,0.1)",
-  },
-  stepNumber: { color: Colors.primary_color, fontSize: 14, fontWeight: "700" },
-  stepNumberAlt: {
-    color: Colors.success_color,
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  stepTitle: { color: Colors.secondary_color, fontSize: 14, fontWeight: "600" },
-  stepSubtitle: { color: Colors.tertiary_color, fontSize: 12, lineHeight: 18 },
-  startButton: {
-    width: "100%",
-    height: 48,
-    backgroundColor: Colors.primary_color,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  startButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "600" },
 });

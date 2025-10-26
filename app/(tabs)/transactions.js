@@ -1,71 +1,24 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Filter, Search, TrendingUp, Activity } from "lucide-react-native";
-import Colors from "../../theme/Colors";
-import TransactionCard from "../../components/TransactionCard";
+import { TrendingUp, Activity } from "lucide-react-native";
+import Colors from "@/theme/Colors";
+import TransactionCard from "@/components/TransactionCard";
 import ActionButton from "@/components/ActionButton";
 import StatCard from "@/components/StatCard";
+import SearchBar from "@/components/SearchBar";
+import mockTransactions from "@/mockData/transactions";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import Label from "@/components/Label";
 
 export default function TransactionsScreen() {
-  const [mode, setMode] = useState("active");
+  const { i18n } = useLanguage();
 
-  const mockTransactions = [
-    {
-      id: 1,
-      userName: "Sarah Chen",
-      userInitials: "SC",
-      type: "buying",
-      status: "confirmed",
-      statusText: "Confirmed",
-      flightNumber: "UA 847",
-      date: "Dec 15",
-      departure: "LAX",
-      arrival: "NRT",
-      time: "11:30 PM",
-      weight: "6kg",
-      rate: "$12/kg",
-      total: "$72",
-    },
-    {
-      id: 2,
-      userName: "Mike Rodriguez",
-      userInitials: "MR",
-      type: "selling",
-      status: "pending",
-      statusText: "Pending confirmation",
-      flightNumber: "AA 123",
-      date: "Dec 16",
-      departure: "JFK",
-      arrival: "LHR",
-      time: "8:15 AM",
-      weight: "10kg",
-      rate: "$8/kg",
-      total: "$80",
-    },
-    {
-      id: 3,
-      userName: "Alex Thompson",
-      userInitials: "AT",
-      type: "selling",
-      status: "sent",
-      statusText: "Reservation sent",
-      flightNumber: "DL 456",
-      date: "Dec 20",
-      departure: "ATL",
-      arrival: "CDG",
-      time: "6:45 AM",
-      weight: "8kg",
-      rate: "$12/kg",
-      total: "$96",
-    },
-  ];
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
+  const [mode, setMode] = useState("active");
 
   const activeTransactions = mockTransactions.filter(
     (transaction) => transaction.status !== "completed"
@@ -75,71 +28,80 @@ export default function TransactionsScreen() {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Header Section */}
-      <LinearGradient
-        colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
-        style={styles.header}
-      >
-        <View style={styles.headerContent}>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Transactions</Text>
-            <Text style={styles.headerSubtitle}>Manage your weight trades</Text>
-          </View>
-          <View style={styles.totalBadge}>
-            <Text style={styles.totalBadgeText}>4 total</Text>
-          </View>
-        </View>
-
-        {/* Stats Cards */}
-        <View style={styles.statsContainer}>
-          <StatCard
-            icon={<TrendingUp size={20} color="#FFFFFF" />}
-            value="$0"
-            label="Total Earned"
-          />
-          <StatCard
-            icon={<Activity size={20} color="#FFFFFF" />}
-            value="$45"
-            label="Total Spent"
-          />
-        </View>
-
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Filter size={20} color={Colors.tertiary_color} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search routes, flights, or destinations..."
-              placeholderTextColor={Colors.tertiary_color}
+    <View
+      style={{ backgroundColor: theme.background }}
+      showsVerticalScrollIndicator={false}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header Section */}
+        <LinearGradient
+          colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
+          style={styles.header}
+        >
+          <View style={styles.headerContent}>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerTitle}>
+                {i18n.t("transactions_title")}
+              </Text>
+              <Text style={styles.headerSubtitle}>
+                {i18n.t("transactions_subtitle")}
+              </Text>
+            </View>
+            <Label 
+              text={`4 ${i18n.t("total")}`}
+              backgroundColor={"rgba(255, 255, 255, 0.10)"}
+              borderColor="transparent"
+              colorText={Colors.white}
             />
-            <Search size={20} color={Colors.tertiary_color} />
           </View>
+
+          {/* Stats Cards */}
+          <View style={styles.statsContainer}>
+            <StatCard
+              icon={<TrendingUp size={20} color="#FFFFFF" />}
+              value="$0"
+              label={i18n.t("total_earned")}
+            />
+            <StatCard
+              icon={<Activity size={20} color="#FFFFFF" />}
+              value="$45"
+              label={i18n.t("total_spent")}
+            />
+          </View>
+
+          {/* Search Bar */}
+          <View style={styles.searchContainer}>
+            <SearchBar />
+          </View>
+        </LinearGradient>
+
+        {/* Tab Buttons */}
+        <ActionButton onSelectionChange={setMode} type="transactions" />
+
+        {/* Transactions List */}
+        <View style={styles.transactionsContainer}>
+          {mode === "active"
+            ? activeTransactions.map((transaction) => (
+                <TransactionCard
+                  key={transaction.id}
+                  transaction={transaction}
+                />
+              ))
+            : completedTransactions.map((transaction) => (
+                <TransactionCard
+                  key={transaction.id}
+                  transaction={transaction}
+                />
+              ))}
         </View>
-      </LinearGradient>
-
-      {/* Tab Buttons */}
-      <ActionButton onSelectionChange={setMode} type="transactions" />
-
-      {/* Transactions List */}
-      <View style={styles.transactionsContainer}>
-        {mode === "active"
-          ? activeTransactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
-            ))
-          : completedTransactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
-            ))}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   header: {
     paddingTop: 70,
@@ -156,33 +118,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    color: "#FFFFFF",
+    color: Colors.white,
     fontSize: 24,
     fontWeight: "700",
     lineHeight: 32,
-    letterSpacing: 0.07,
-    marginBottom: 4,
   },
   headerSubtitle: {
-    color: "rgba(255, 255, 255, 0.80)",
+    color: Colors.very_light_grey,
     fontSize: 16,
     fontWeight: "400",
     lineHeight: 24,
-    letterSpacing: -0.312,
-  },
-  totalBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: "rgba(255, 255, 255, 0.10)",
-    borderRadius: 10,
-    borderWidth: 0.612,
-    borderColor: "rgba(0, 0, 0, 0.00)",
-  },
-  totalBadgeText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "500",
-    lineHeight: 16,
   },
   statsContainer: {
     flexDirection: "row",
@@ -191,27 +136,6 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     paddingHorizontal: 8,
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: "#F8FAFC",
-    borderRadius: 16,
-    gap: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: "400",
-    letterSpacing: -0.312,
-    color: Colors.tertiary_color,
   },
   transactionsContainer: {
     paddingHorizontal: 25,
