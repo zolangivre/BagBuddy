@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, StyleSheet, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Save } from "lucide-react-native";
+import { ArrowLeft, Save, Trash } from "lucide-react-native";
 import Colors from "../theme/Colors";
 import Button from "../components/Button";
 import ButtonIcon from "../components/ButtonIcon";
 import Input from "../components/Input";
+import { useThemeContext } from "../contexts/ThemeContext";
+import i18n from "@/i18n";
 
 export default function EditProfileScreen() {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
   const router = useRouter();
   const [firstName, setFirstName] = useState("John");
   const [lastName, setLastName] = useState("Doe");
@@ -30,21 +35,33 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: theme.background_card,
+            borderBottomColor: theme.navTopBorder,
+          },
+        ]}
+      >
         <View style={styles.headerContent}>
           <ButtonIcon
             onPress={handleGoBack}
-            icon={<ArrowLeft size={20} color={Colors.secondary_color} />}
+            icon={<ArrowLeft size={20} color={theme.title} />}
           />
           <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>Edit Profile</Text>
+            <Text style={[styles.headerTitle, { color: theme.title }]}>
+              {i18n.t("edit_profile")}
+            </Text>
           </View>
         </View>
         <ButtonIcon
-          onPress={handleUpdateProfile}
-          icon={<Save size={24} color={Colors.error_color} />}
+          onPress={handleDelete}
+          icon={<Trash size={24} color={Colors.error_color} />}
         />
       </View>
 
@@ -54,52 +71,65 @@ export default function EditProfileScreen() {
       >
         <View style={styles.content}>
           {/* Flight Information Card */}
-          <View style={styles.card}>
+          <View
+            style={[styles.card, { backgroundColor: theme.background_card }]}
+          >
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Personal Information</Text>
+              <Text style={[styles.cardTitle, { color: theme.title }]}>
+                {i18n.t("personal_information")}
+              </Text>
             </View>
 
             <View style={styles.cardContent}>
               {/* Flight Number */}
               <Input
-                label="First Name"
+                label={i18n.t("first_name")}
                 value={firstName}
                 onChangeText={setFirstName}
-                placeholder="Enter first name"
+                placeholder={i18n.t("first_name_placeholder")}
               />
               <Input
-                label="Last Name"
+                label={i18n.t("last_name")}
                 value={lastName}
                 onChangeText={setLastName}
-                placeholder="Enter last name"
+                placeholder={i18n.t("last_name_placeholder")}
               />
               <Input
-                label="Email"
+                label={i18n.t("email")}
                 value={email}
                 onChangeText={setEmail}
-                placeholder="Enter email"
+                placeholder={i18n.t("email_placeholder")}
                 keyboardType="email-address"
               />
               <Input
-                label="Phone"
+                label={i18n.t("phone_number")}
                 value={phone}
                 onChangeText={setPhone}
-                placeholder="Enter phone number"
+                placeholder={i18n.t("phone_number_placeholder")}
                 keyboardType="phone-pad"
               />
               <Input
-                label="Bio"
+                label={i18n.t("location")}
+                value={location}
+                onChangeText={setLocation}
+                placeholder={i18n.t("location_placeholder")}
+              />
+              <Input
+                label={i18n.t("bio")}
                 value={bio}
                 onChangeText={setBio}
-                placeholder="Enter bio"
+                placeholder={i18n.t("bio_placeholder")}
                 multiline
                 numberOfLines={4}
               />
             </View>
           </View>
-
-          {/* Delete Button */}
-          <Button text="Delete account" onPress={handleDelete} />
+          <Button
+            text={i18n.t("save_changes")}
+            onPress={handleUpdateProfile}
+            leftIcon={<Save size={24} color="#FFFFFF" />}
+            color={Colors.blue}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -109,7 +139,6 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   header: {
     height: 60,
@@ -117,9 +146,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    borderBottomWidth: 0.612,
-    borderBottomColor: Colors.very_light_grey,
-    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -136,11 +163,8 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   headerTitle: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   scrollView: {
     flex: 1,
@@ -148,10 +172,8 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     gap: 24,
-    paddingBottom: 120,
   },
   card: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -168,108 +190,12 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   cardTitle: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   cardContent: {
     padding: 24,
     paddingTop: 16,
     gap: 16,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  rowInputGroup: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  totalContainer: {
-    backgroundColor: "rgba(224, 242, 254, 0.20)",
-    borderRadius: 16,
-    padding: 16,
-    gap: 4,
-  },
-  totalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  totalLabel: {
-    color: Colors.tertiary_color,
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
-  },
-  totalValue: {
-    color: Colors.primary_color,
-    fontSize: 18,
-    fontWeight: "700",
-    lineHeight: 28,
-    letterSpacing: -0.439,
-  },
-  feeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  feeText: {
-    color: Colors.tertiary_color,
-    fontSize: 12,
-    fontWeight: "400",
-    lineHeight: 16,
-  },
-  textArea: {
-    backgroundColor: Colors.very_light_blue,
-    borderRadius: 16,
-    padding: 15,
-    fontSize: 16,
-    fontWeight: "400",
-    color: Colors.secondary_color,
-    minHeight: 95,
-  },
-  helperText: {
-    color: Colors.tertiary_color,
-    fontSize: 12,
-    fontWeight: "400",
-    lineHeight: 16,
-  },
-  tipsCard: {
-    backgroundColor: "rgba(14, 165, 233, 0.05)",
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  tipsTitle: {
-    color: Colors.primary_color,
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
-  },
-  tipsContent: {
-    padding: 24,
-    paddingTop: 16,
-    gap: 10,
-  },
-  tipItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 8,
-  },
-  tipText: {
-    flex: 1,
-    color: Colors.tertiary_color,
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
   },
 });

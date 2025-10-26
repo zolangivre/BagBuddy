@@ -14,17 +14,25 @@ import {
   Weight,
   FileText,
   Luggage,
-  Calendar,
   DollarSign,
   Clock,
   Users,
+  Scale,
 } from "lucide-react-native";
-import Colors from "../theme/Colors";
-import Button from "../components/Button";
-import ButtonIcon from "../components/ButtonIcon";
-import Input from "../components/Input";
+import Colors from "@/theme/Colors";
+import Button from "@/components/Button";
+import ButtonIcon from "@/components/ButtonIcon";
+import AirportInputModal from "@/components/AirportInputModal";
+import DateInputModal from "@/components/DateInputModal";
+import NumberInput from "@/components/NumberInput";
+import Input from "@/components/Input";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import i18n from "@/i18n";
 
 export default function EditListingScreen() {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
   const router = useRouter();
   const [flightNumber, setFlightNumber] = useState("AF345");
   const [departure, setDeparture] = useState("JFK");
@@ -63,16 +71,28 @@ export default function EditListingScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       {/* Header */}
-      <View style={styles.header}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: theme.background_card,
+            borderBottomColor: theme.navTopBorder,
+          },
+        ]}
+      >
         <View style={styles.headerContent}>
           <ButtonIcon
             onPress={handleGoBack}
-            icon={<ArrowLeft size={20} color={Colors.secondary_color} />}
+            icon={<ArrowLeft size={20} color={theme.title} />}
           />
           <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>Edit Listing</Text>
+            <Text style={[styles.headerTitle, { color: theme.title }]}>
+              {i18n.t("edit_listing")}
+            </Text>
           </View>
         </View>
         <ButtonIcon
@@ -87,89 +107,100 @@ export default function EditListingScreen() {
       >
         <View style={styles.content}>
           {/* Flight Information Card */}
-          <View style={styles.card}>
+          <View
+            style={[styles.card, { backgroundColor: theme.background_card }]}
+          >
             <View style={styles.cardHeader}>
               <Plane size={20} color={Colors.primary_color} />
-              <Text style={styles.cardTitle}>Flight Information</Text>
+              <Text style={[styles.cardTitle, { color: theme.title }]}>
+                {i18n.t("flight_information")}
+              </Text>
             </View>
 
             <View style={styles.cardContent}>
               {/* Flight Number */}
               <Input
-                label="Flight Number"
+                label={i18n.t("flight_number")}
                 value={flightNumber}
                 onChangeText={setFlightNumber}
-                placeholder="Enter flight number"
+                placeholder={i18n.t("flight_number_placeholder")}
               />
 
               {/* Departure and Arrival */}
               <View style={styles.rowInputGroup}>
-                <Input
-                  label="Departure"
+                <AirportInputModal
+                  label={i18n.t("departure")}
                   value={departure}
                   onChangeText={setDeparture}
                   placeholder="JFK"
-                  // style={styles.halfInput}
                 />
-                <Input
-                  label="Arrival"
+                <AirportInputModal
+                  label={i18n.t("arrival")}
                   value={arrival}
                   onChangeText={setArrival}
                   placeholder="CDG"
-                  // style={styles.halfInput}
                 />
               </View>
 
               {/* Flight Date */}
-              <Input
-                label="Flight Date"
+              <DateInputModal
+                label={i18n.t("flight_date")}
                 value={flightDate}
                 onChangeText={setFlightDate}
-                placeholder="Select flight date"
-                leftIcon={<Calendar size={20} color={Colors.tertiary_color} />}
+                placeholder="YYYY-MM-DD"
               />
             </View>
           </View>
 
           {/* Weight & Pricing Card */}
-          <View style={styles.card}>
+          <View
+            style={[styles.card, { backgroundColor: theme.background_card }]}
+          >
             <View style={styles.cardHeader}>
               <Weight size={20} color={Colors.primary_color} />
-              <Text style={styles.cardTitle}>Weight & Pricing</Text>
+              <Text style={[styles.cardTitle, { color: theme.title }]}>
+                {i18n.t("weight_and_pricing")}
+              </Text>
             </View>
 
             <View style={styles.cardContent}>
               {/* Available Kilos and Price per Kilo */}
               <View style={styles.rowInputGroup}>
-                <Input
-                  label="Available Kilos"
+                <NumberInput
+                  label={i18n.t("available_weight")}
                   value={availableKilos}
                   onChangeText={setAvailableKilos}
-                  placeholder="12"
-                  keyboardType="numeric"
+                  placeholder="0"
+                  icon={<Scale size={16} color={theme.text} />}
                 />
-                <Input
-                  label="Price per Kilo"
+                <NumberInput
+                  label={i18n.t("price_per_kilo")}
                   value={pricePerKilo}
                   onChangeText={setPricePerKilo}
-                  placeholder="10"
-                  keyboardType="numeric"
-                  // leftIcon={<DollarSign size={20} color={Colors.tertiary_color} />}
+                  placeholder="0"
+                  icon={<DollarSign size={16} color={theme.text} />}
                 />
               </View>
 
               {/* Total Calculation */}
-              <View style={styles.totalContainer}>
+              <View
+                style={[
+                  styles.totalContainer,
+                  { backgroundColor: theme.flightCard },
+                ]}
+              >
                 <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Total Value</Text>
+                  <Text style={[styles.totalLabel, { color: theme.title }]}>
+                    {i18n.t("total_value")}
+                  </Text>
                   <Text style={styles.totalValue}>${total.toFixed(2)}</Text>
                 </View>
                 <View style={styles.feeRow}>
-                  <Text style={styles.feeText}>
+                  <Text style={[styles.text, { color: theme.text }]}>
                     {availableKilos}kg × ${pricePerKilo}/kg
                   </Text>
-                  <Text style={styles.feeText}>
-                    BagBuddy fee: ${fee.toFixed(2)}
+                  <Text style={[styles.text, { color: theme.text }]}>
+                    {i18n.t("bagbuddy_fee")}: ${fee.toFixed(2)}
                   </Text>
                 </View>
               </View>
@@ -177,18 +208,22 @@ export default function EditListingScreen() {
           </View>
 
           {/* Conditions & Notes Card */}
-          <View style={styles.card}>
+          <View
+            style={[styles.card, { backgroundColor: theme.background_card }]}
+          >
             <View style={styles.cardHeader}>
               <FileText size={20} color={Colors.primary_color} />
-              <Text style={styles.cardTitle}>Conditions & Notes</Text>
+              <Text style={[styles.cardTitle, { color: theme.title }]}>
+                {i18n.t("conditions_and_notes")}
+              </Text>
             </View>
 
             <View style={styles.cardContent}>
               <Input
-                label="Special Conditions (Optional)"
+                label={i18n.t("special_conditions_optional")}
                 value={specialConditions}
                 onChangeText={setSpecialConditions}
-                placeholder="e.g., Meet at check-in counter, no fragile items, cash payment preferred..."
+                placeholder={i18n.t("special_conditions_optional_placeholder")}
                 multiline
                 numberOfLines={8}
                 textAlignVertical="top"
@@ -200,26 +235,26 @@ export default function EditListingScreen() {
           <View style={styles.tipsCard}>
             <View style={styles.cardHeader}>
               <Luggage size={20} color={Colors.primary_color} />
-              <Text style={styles.tipsTitle}>Listing Tips</Text>
+              <Text style={styles.tipsTitle}>{i18n.t("listing_tips")}</Text>
             </View>
 
             <View style={styles.tipsContent}>
               <View style={styles.tipItem}>
-                <Clock size={20} color={Colors.tertiary_color} />
-                <Text style={styles.tipText}>
-                  List your weight at least 24 hours before your flight
+                <Clock size={20} color={Colors.primary_color} />
+                <Text style={[styles.tipText, { color: theme.text }]}>
+                  {i18n.t("listing_tips_1")}
                 </Text>
               </View>
               <View style={styles.tipItem}>
-                <Users size={20} color={Colors.tertiary_color} />
-                <Text style={styles.tipText}>
-                  Be specific about meeting location and payment method
+                <Users size={20} color={Colors.primary_color} />
+                <Text style={[styles.tipText, { color: theme.text }]}>
+                  {i18n.t("listing_tips_2")}
                 </Text>
               </View>
               <View style={styles.tipItem}>
-                <DollarSign size={20} color={Colors.tertiary_color} />
-                <Text style={styles.tipText}>
-                  Check current market rates for your route
+                <DollarSign size={20} color={Colors.primary_color} />
+                <Text style={[styles.tipText, { color: theme.text }]}>
+                  {i18n.t("listing_tips_3")}
                 </Text>
               </View>
             </View>
@@ -227,7 +262,7 @@ export default function EditListingScreen() {
 
           {/* Update Button */}
           <Button
-            text="Update listing"
+            text={i18n.t("update_listing")}
             onPress={handleUpdateListing}
           />
         </View>
@@ -239,7 +274,6 @@ export default function EditListingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   header: {
     height: 60,
@@ -247,9 +281,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    borderBottomWidth: 0.612,
-    borderBottomColor: Colors.very_light_grey,
-    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -266,11 +298,8 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   headerTitle: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   scrollView: {
     flex: 1,
@@ -278,10 +307,8 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     gap: 24,
-    paddingBottom: 120,
   },
   card: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -295,18 +322,13 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 24,
     paddingTop: 24,
-    paddingBottom: 0,
   },
   cardTitle: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   cardContent: {
     padding: 24,
-    paddingTop: 16,
     gap: 16,
   },
   inputGroup: {
@@ -318,7 +340,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   totalContainer: {
-    backgroundColor: "rgba(224, 242, 254, 0.20)",
     borderRadius: 16,
     padding: 16,
     gap: 4,
@@ -329,47 +350,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalLabel: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
   },
   totalValue: {
     color: Colors.primary_color,
     fontSize: 18,
     fontWeight: "700",
-    lineHeight: 28,
-    letterSpacing: -0.439,
   },
   feeRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  feeText: {
-    color: Colors.tertiary_color,
+  text: {
     fontSize: 12,
     fontWeight: "400",
-    lineHeight: 16,
-  },
-  textArea: {
-    backgroundColor: Colors.very_light_blue,
-    borderRadius: 16,
-    padding: 15,
-    fontSize: 16,
-    fontWeight: "400",
-    color: Colors.secondary_color,
-    minHeight: 95,
-  },
-  helperText: {
-    color: Colors.tertiary_color,
-    fontSize: 12,
-    fontWeight: "400",
-    lineHeight: 16,
   },
   tipsCard: {
-    backgroundColor: "rgba(14, 165, 233, 0.05)",
+    backgroundColor: Colors.dark_cyan_translucent,
     borderRadius: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -381,12 +380,9 @@ const styles = StyleSheet.create({
     color: Colors.primary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   tipsContent: {
     padding: 24,
-    paddingTop: 16,
     gap: 10,
   },
   tipItem: {
@@ -400,6 +396,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "400",
     lineHeight: 20,
-    letterSpacing: -0.15,
   },
 });
