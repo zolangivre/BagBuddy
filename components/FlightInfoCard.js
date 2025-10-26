@@ -2,40 +2,85 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Plane, ArrowRight, Clock } from "lucide-react-native";
 import Colors from "../theme/Colors";
+import RoundIconText from "./RoundIconText";
+import { useThemeContext } from "../contexts/ThemeContext";
+import i18n from "@/i18n";
+import Label from "./Label";
+import LocalizedDateTime,{
+  formatLocalizedDate,
+  formatLocalizedTime,
+} from "@/components/LocalizedDateTime";
+import { useLanguage } from "@/contexts/LanguageContext";
+
 
 const FlightInfoCard = ({ item }) => {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+  const { language } = useLanguage();
+
+  const dateText = formatLocalizedDate("2025-12-20T23:30:00Z", language);
+
   return (
-    <View style={styles.flightInfoContainer}>
+    <View
+      style={[
+        styles.flightInfoContainer,
+        { backgroundColor: theme.flightCard },
+      ]}
+    >
       <View style={styles.flightHeader}>
         <View style={styles.flightNumberContainer}>
-          <View style={styles.flightIcon}>
-            <Plane size={20} color={Colors.primary_color} />
-          </View>
-          <Text style={styles.flightNumber}>{item.flight}</Text>
+          <RoundIconText
+            icon={<Plane size={20} color={Colors.primary_color} />}
+            backgroundColor={Colors.dark_cyan_translucent}
+            size={32}
+          />
+          <Text style={[styles.flightNumber, { color: theme.title }]}>
+            {item.flightNumber}
+          </Text>
         </View>
-        <View style={styles.dateBadge}>
-          <Text style={styles.dateText}>{item.date}</Text>
-        </View>
+        <Label
+          text={dateText}
+          backgroundColor={theme.background_card}
+          colorText={theme.title}
+          borderColor={Colors.dark_blue_grey}
+        />
       </View>
 
       <View style={styles.routeContainer}>
         <View style={styles.routeInfo}>
           <View style={styles.airportContainer}>
-            <Text style={styles.airportCode}>{item.departure}</Text>
-            <Text style={styles.routeLabel}>Departure</Text>
+            <Text style={[styles.airportCode, { color: theme.title }]}>
+              {item.departure}
+            </Text>
+            <Text style={[styles.routeLabel, { color: theme.text }]}>
+              {i18n.t("departure")}
+            </Text>
           </View>
           <View style={styles.arrowContainer}>
             <ArrowRight size={20} color={Colors.primary_color} />
             <View style={styles.routeLine} />
           </View>
           <View style={styles.airportContainer}>
-            <Text style={styles.airportCode}>{item.arrival}</Text>
-            <Text style={styles.routeLabel}>Arrival</Text>
+            <Text style={[styles.airportCode, { color: theme.title }]}>
+              {item.arrival}
+            </Text>
+            <Text style={[styles.routeLabel, { color: theme.text }]}>
+              {i18n.t("arrival")}
+            </Text>
           </View>
         </View>
         <View style={styles.timeContainer}>
           <Clock size={16} color={Colors.tertiary_color} />
-          <Text style={styles.timeText}>{item.time}</Text>
+          {/* <Text style={{ color: theme.text }}>
+            {item.date}
+          </Text> */}
+          <LocalizedDateTime
+            date={item.date}
+            showDate={false}
+            showTime={true}
+            options={{ hour: "2-digit", minute: "2-digit",  }}
+            style={{ color: theme.text }}
+          />
         </View>
       </View>
     </View>
@@ -46,52 +91,28 @@ const styles = StyleSheet.create({
   flightInfoContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor:
-      "linear-gradient(90deg, rgba(224, 242, 254, 0.30) 0%, rgba(224, 242, 254, 0.20) 50%, rgba(224, 242, 254, 0.30) 100%)",
     borderRadius: 16,
-    borderWidth: 0.612,
-    borderColor: "rgba(224, 242, 254, 0.20)",
-    marginBottom: 10,
   },
   flightHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   flightNumberContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-  flightIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(14, 165, 233, 0.10)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   flightNumber: {
     color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "700",
-    lineHeight: 24,
-    letterSpacing: -0.312,
-  },
-  dateBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    backgroundColor: "rgba(255, 255, 255, 0.50)",
-    borderRadius: 10,
-    borderWidth: 0.612,
-    borderColor: "#E2E8F0",
   },
   dateText: {
     color: Colors.secondary_color,
     fontSize: 12,
     fontWeight: "500",
-    lineHeight: 16,
   },
   routeContainer: {
     flexDirection: "row",
@@ -110,14 +131,11 @@ const styles = StyleSheet.create({
     color: Colors.secondary_color,
     fontSize: 18,
     fontWeight: "700",
-    lineHeight: 28,
-    letterSpacing: -0.439,
   },
   routeLabel: {
     color: Colors.tertiary_color,
     fontSize: 12,
     fontWeight: "400",
-    lineHeight: 16,
   },
   arrowContainer: {
     alignItems: "center",
@@ -126,7 +144,7 @@ const styles = StyleSheet.create({
   routeLine: {
     width: 32,
     height: 1,
-    backgroundColor: "rgba(14, 165, 233, 0.30)",
+    backgroundColor: Colors.dark_cyan_translucent_2,
   },
   timeContainer: {
     flexDirection: "row",

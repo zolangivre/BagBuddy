@@ -2,9 +2,9 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import Colors from "../theme/Colors";
 
-const ProgressBar = ({ step = 0 }) => {
-  const clamped = Math.max(0, Math.min(step, 4));
-  const percent = (clamped / 4) * 100;
+const ProgressBar = ({ step = 0, totalSteps = 4 }) => {
+  const clamped = Math.max(0, Math.min(step, totalSteps));
+  const percent = (clamped / totalSteps) * 100;
   return (
     <View style={styles.progressBarContainer}>
       <View style={styles.progressBarTrail} />

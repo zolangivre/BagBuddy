@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Colors from "../theme/Colors";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 const Input = ({
   label,
@@ -23,9 +24,14 @@ const Input = ({
   error = null,
   ...props
 }) => {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
   return (
     <View style={styles.container}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? (
+        <Text style={[styles.label, { color: theme.text }]}> {label}</Text>
+      ) : null}
 
       <View style={[styles.inputRow, error && styles.inputErrorRow]}>
         {leftIcon ? <View style={styles.leftIcon}>{leftIcon}</View> : null}
@@ -38,6 +44,9 @@ const Input = ({
           keyboardType={keyboardType}
           multiline={multiline}
           numberOfLines={numberOfLines}
+          placeholderTextColor={theme.text}
+          backgroundColor={theme.flightCard}
+          color={theme.title}
           {...props}
         />
 
@@ -62,7 +71,6 @@ const Input = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
     flex: 1,
     minWidth: 0,
     alignSelf: "stretch",

@@ -3,85 +3,129 @@ import { View, Text, StyleSheet } from "react-native";
 import Colors from "../theme/Colors";
 import ProgressBar from "./ProgressBar";
 import { Dot, Check } from "lucide-react-native";
+import { useThemeContext } from "../contexts/ThemeContext";
+import i18n from "@/i18n";
 
-const Step = ({ number, title, description, isActive, isSuccess }) => (
-  <View style={styles.progressStep}>
-    <View
-      style={
-        isSuccess
-          ? [styles.stepNumber, styles.stepSuccess]
-          : isActive
-          ? [styles.stepNumber, styles.stepNumberActive]
-          : styles.stepNumber
-      }
-    >
-      {isSuccess ? (
-        <Check size={20} color="#FFFFFF" />
-      ) : (
-        <Text
-          style={isActive ? styles.stepNumberTextActive : styles.stepNumberText}
-        >
-          {number}
-        </Text>
-      )}
-    </View>
-    <View style={styles.stepContent}>
-      <Text
+const TransactionProgressCard = ({ step, buyer }) => {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
+  const Step = ({ number, title, description, isActive, isSuccess }) => (
+    <View style={styles.progressStep}>
+      <View
         style={
-          isActive
-            ? [styles.stepTitle, styles.stepTitleActive]
-            : styles.stepTitle
+          isSuccess
+            ? [styles.stepNumber, { backgroundColor: Colors.success_color }]
+            : isActive
+            ? [styles.stepNumber, { backgroundColor: Colors.primary_color }]
+            : [styles.stepNumber, { backgroundColor: theme.flightCard }]
         }
       >
-        {title}
-      </Text>
-      <Text style={styles.stepDescription}>{description}</Text>
+        {isSuccess ? (
+          <Check size={20} color="#FFFFFF" />
+        ) : (
+          <Text
+            style={
+              isActive
+                ? [styles.stepNumberText, { color: theme.title_inverse }]
+                : [styles.stepNumberText, { color: theme.title }]
+            }
+          >
+            {number}
+          </Text>
+        )}
+      </View>
+      <View style={styles.stepContent}>
+        <Text
+          style={
+            isActive
+              ? [styles.stepTitle, { color: Colors.primary_color }]
+              : [styles.stepTitle, { color: theme.title }]
+          }
+        >
+          {title}
+        </Text>
+        <Text style={[styles.stepDescription, { color: theme.text }]}>
+          {description}
+        </Text>
+      </View>
+      {isActive && <Dot size={20} color={Colors.primary_color} />}
     </View>
-    {isActive && <Dot size={20} color={Colors.primary_color} />}
-  </View>
-);
+  );
 
-const TransactionProgressCard = ({ step }) => {
+  const totalSteps = buyer ? 4 : 3;
   return (
     <>
       <View style={styles.progressHeader}>
-        <Text style={styles.cardTitle}>Transaction Progress</Text>
-        <Text style={styles.progressCount}>{step} of 4</Text>
+        <Text style={[styles.cardTitle, { color: theme.title }]}>
+          {i18n.t("transaction_progress")}
+        </Text>
+        <Text style={[styles.progressCount, { color: theme.text }]}>
+          {step} of {totalSteps}
+        </Text>
       </View>
 
       {/* Progress Bar */}
-      <ProgressBar step={step} />
+      <ProgressBar step={step} totalSteps={totalSteps} />
 
       {/* Progress Steps */}
       <View style={styles.progressSteps}>
-        <Step
-          number={1}
-          title="Browse Listings"
-          description="Find the perfect weight match"
-          isActive={step === 0}
-          isSuccess={step > 0}
-        />
-        <Step
-          number={2}
-          title="Waiting for Seller Response"
-          description="Request sent. Awaiting seller reply."
-          isActive={step === 1}
-          isSuccess={step > 1}
-        />
-        <Step
-          number={3}
-          title="Payment"
-          description="Approved. Complete your payment."
-          isActive={step === 2}
-          isSuccess={step > 2}
-        />
-        <Step
-          number={4}
-          title="Completed"
-          description="Transaction successful"
-          isActive={step === 3}
-          isSuccess={step > 3}
-        />
+        {buyer ? (
+          <>
+            <Step
+              number={1}
+              title={i18n.t("step_one_title_buyer")}
+              description={i18n.t("step_one_description_buyer")}
+              isActive={step === 0}
+              isSuccess={step > 0}
+            />
+            <Step
+              number={2}
+              title={i18n.t("step_two_title_buyer")}
+              description={i18n.t("step_two_description_buyer")}
+              isActive={step === 1}
+              isSuccess={step > 1}
+            />
+            <Step
+              number={3}
+              title={i18n.t("step_three_title_buyer")}
+              description={i18n.t("step_three_description_buyer")}
+              isActive={step === 2}
+              isSuccess={step > 2}
+            />
+            <Step
+              number={4}
+              title={i18n.t("step_four_title_buyer")}
+              description={i18n.t("step_four_description_buyer")}
+              isActive={step === 3}
+              isSuccess={step > 3}
+            />
+          </>
+        ) : (
+          <>
+            <Step
+              number={1}
+              title={i18n.t("step_one_title_seller")}
+              description={i18n.t("step_one_description_seller")}
+              isActive={step === 0}
+              isSuccess={step > 0}
+            />
+            <Step
+              number={2}
+              title={i18n.t("step_two_title_seller")}
+              description={i18n.t("step_two_description_seller")}
+              isActive={step === 1}
+              isSuccess={step > 1}
+            />
+            <Step
+              number={3}
+              title={i18n.t("step_three_title_seller")}
+              description={i18n.t("step_three_description_seller")}
+              isActive={step === 2}
+              isSuccess={step > 2}
+            />
+          </>
+        )}
       </View>
     </>
   );
@@ -95,18 +139,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardTitle: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
   },
   progressCount: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
   },
   progressSteps: {
     gap: 10,
@@ -120,49 +158,24 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#F8FAFC",
     justifyContent: "center",
     alignItems: "center",
   },
-  stepNumberActive: {
-    backgroundColor: Colors.primary_color,
-  },
   stepNumberText: {
-    color: Colors.tertiary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 20,
-    letterSpacing: -0.15,
-  },
-  stepNumberTextActive: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 20,
-    letterSpacing: -0.15,
   },
   stepContent: {
     flex: 1,
   },
   stepTitle: {
-    color: Colors.tertiary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
-    letterSpacing: -0.312,
-  },
-  stepTitleActive: {
-    color: Colors.primary_color,
   },
   stepDescription: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-    letterSpacing: -0.15,
-  },
-  stepSuccess: {
-    backgroundColor: Colors.success_color,
+    lineHeight: 24,
   },
 });
 

@@ -11,41 +11,54 @@ import {
   Scale,
 } from "lucide-react-native";
 import ButtonIcon from "./ButtonIcon";
+import { TRANSACTION_STATUS } from "@/constants/transaction-status";
+import { useThemeContext } from "../contexts/ThemeContext";
 
-const SellerInformationCard = () => {
+const SellerInformationCard = ({ status }) => {
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
+
   return (
-    <View style={styles.card}>
-      <View style={styles.sellerCard}>
+    <>
+      <View style={[styles.sellerCard, { backgroundColor: theme.flightCard }]}>
         <View style={styles.sellerAvatar}>
           <Text style={styles.sellerInitials}>KB</Text>
         </View>
         <View style={styles.sellerInfo}>
-          <Text style={styles.sellerName}>Karim Benzema</Text>
-          <Text style={styles.sellerRating}>★ 4.9 • Seller</Text>
+          <Text style={[styles.sellerName, { color: theme.title }]}>
+            Karim Benzema
+          </Text>
+          <Text style={[styles.sellerRating, { color: theme.text }]}>
+            ★ 4.9 • Seller
+          </Text>
         </View>
         <ButtonIcon
           //   onPress={}
-          icon={<MessageCircle size={16} color={Colors.secondary_color} />}
+          icon={<MessageCircle size={16} color={theme.title} />}
         />
         <ButtonIcon
           //   onPress={}
-          icon={<Phone size={16} color={Colors.secondary_color} />}
+          icon={<Phone size={16} color={theme.title} />}
         />
       </View>
 
       {/* Flight Details */}
       <View style={styles.flightDetailsRow}>
         <Plane size={16} color={Colors.primary_color} />
-        <Text style={styles.airlineName}>Emirates</Text>
+        <Text style={[styles.airlineName, { color: theme.title }]}>
+          Emirates
+        </Text>
         <Dot size={20} color={Colors.tertiary_color} />
-        <Text style={styles.flightNumber}>EK 203</Text>
+        <Text style={[styles.flightNumber, { color: theme.text }]}>EK 203</Text>
       </View>
 
       {/* Route Information */}
       <View style={styles.routeContainer}>
         <View style={styles.airportSection}>
-          <Text style={styles.airportCode}>DXB</Text>
-          <Text style={styles.airportName}>Dubai International Airport</Text>
+          <Text style={[styles.airportCode, { color: theme.title }]}>DXB</Text>
+          <Text style={[styles.airportName, { color: theme.text }]}>
+            Dubai International Airport
+          </Text>
         </View>
 
         <View style={styles.arrowSection}>
@@ -53,8 +66,20 @@ const SellerInformationCard = () => {
         </View>
 
         <View style={styles.airportSection}>
-          <Text style={[styles.airportCode, styles.airportCodeRight]}>JFK</Text>
-          <Text style={[styles.airportName, styles.airportNameRight]}>
+          <Text
+            style={[
+              styles.airportCode,
+              { textAlign: "right", color: theme.title },
+            ]}
+          >
+            JFK
+          </Text>
+          <Text
+            style={[
+              styles.airportName,
+              { textAlign: "right", width: 107, color: theme.text },
+            ]}
+          >
             John F. Kennedy International Airport
           </Text>
         </View>
@@ -64,27 +89,32 @@ const SellerInformationCard = () => {
       <View style={styles.timeRow}>
         <View style={styles.timeSection}>
           <Clock size={16} color={Colors.primary_color} />
-          <Text style={styles.timeText}>14:30</Text>
+          <Text style={[styles.timeText, { color: theme.title }]}>14:30</Text>
         </View>
         <View style={styles.dateSection}>
-          <Text style={styles.dateText}>Dec 25, 2024</Text>
+          <Text style={[styles.dateText, { color: theme.text }]}>Dec 25, 2024</Text>
         </View>
         <View style={styles.timeSection}>
-          <Text style={styles.timeText}>20:15</Text>
+          <Text style={[styles.timeText, { color: theme.title }]}>20:15</Text>
         </View>
       </View>
 
       {/* Weight and Price */}
-      <View style={styles.weightPriceRow}>
-        <View style={styles.weightSection}>
-          <Scale size={16} color={Colors.success_color} />
-          <Text style={styles.weightText}>15kg available</Text>
-        </View>
-        <View style={styles.priceSection}>
-          <Text style={styles.priceText}>$12/kg</Text>
-        </View>
-      </View>
-    </View>
+      {status !== TRANSACTION_STATUS.CONFIRMED &&
+      status !== TRANSACTION_STATUS.COMPLETED ? (
+        <>
+          <View style={styles.weightPriceRow}>
+            <View style={styles.weightSection}>
+              <Scale size={16} color={Colors.success_color} />
+              <Text style={[styles.weightText, { color: theme.title }]}>15kg available</Text>
+            </View>
+            <View style={styles.priceSection}>
+              <Text style={styles.priceText}>$12/kg</Text>
+            </View>
+          </View>
+        </>
+      ) : null}
+    </>
   );
 };
 
@@ -95,7 +125,6 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 12,
     borderRadius: 16,
-    backgroundColor: "rgba(224, 242, 254, 0.30)",
     marginBottom: 20,
   },
   sellerAvatar: {
@@ -110,7 +139,6 @@ const styles = StyleSheet.create({
     color: Colors.primary_color,
     fontSize: 16,
     fontWeight: "400",
-    lineHeight: 24,
   },
   sellerInfo: {
     flex: 1,
@@ -119,23 +147,11 @@ const styles = StyleSheet.create({
     color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
   },
   sellerRating: {
     color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-  },
-  contactButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    borderWidth: 0.612,
-    borderColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center",
   },
   flightDetailsRow: {
     flexDirection: "row",
@@ -144,16 +160,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   airlineName: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
   },
   flightNumber: {
-    color: Colors.tertiary_color,
     fontSize: 16,
     fontWeight: "400",
-    lineHeight: 24,
   },
   routeContainer: {
     flexDirection: "row",
@@ -162,6 +174,7 @@ const styles = StyleSheet.create({
   },
   airportSection: {
     flex: 1,
+    justifyContent: "space-between",
   },
   arrowSection: {
     justifyContent: "center",
@@ -169,24 +182,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   airportCode: {
-    color: Colors.secondary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
   },
   airportCodeRight: {
     textAlign: "right",
   },
   airportName: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
-    width: 81,
-  },
-  airportNameRight: {
-    textAlign: "right",
-    width: 107,
   },
   timeRow: {
     flexDirection: "row",
@@ -206,16 +210,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   timeText: {
-    color: Colors.secondary_color,
     fontSize: 14,
     fontWeight: "500",
-    lineHeight: 20,
   },
   dateText: {
-    color: Colors.tertiary_color,
     fontSize: 14,
     fontWeight: "400",
-    lineHeight: 20,
   },
   weightPriceRow: {
     flexDirection: "row",
@@ -232,10 +232,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   weightText: {
-    color: Colors.secondary_color,
     fontSize: 14,
     fontWeight: "500",
-    lineHeight: 20,
   },
   priceSection: {
     flex: 1,
@@ -245,7 +243,6 @@ const styles = StyleSheet.create({
     color: Colors.primary_color,
     fontSize: 16,
     fontWeight: "500",
-    lineHeight: 24,
   },
 });
 
