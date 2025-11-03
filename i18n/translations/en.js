@@ -23,7 +23,7 @@ export default {
   start_button: "Start your journey",
 
   //Home screen
-  welcome_back: "Welcome back {{name}}",
+  welcome_back: "Welcome back {{name}}!",
   find_luggage_space: "Find luggage space or earn from your extra weight",
   active_routes: "Active Routes",
   available: "available",
@@ -70,12 +70,14 @@ export default {
   view_all: "View all",
   transactions_1: "transactions",
   verified: "Verified",
+  not_verified: "Not verified",
   active_listings: "Active listings",
   new_listing: "New listing",
   dark_mode: "Dark mode",
   toggle_dark_mode: "Toggle dark mode",
   change_language: "Change language",
   log_out: "Log out",
+  reviews: "Reviews",
 
   //Edit Profile
   edit_profile: "Edit profile",
@@ -99,8 +101,8 @@ export default {
   flight_information: "Flight information",
   flight_number: "Flight number",
   flight_number_placeholder: "Enter flight number",
-  flight_date: "Flight date",
-  flight_date_placeholder: "Select flight date",
+  flight_date_placeholder_departure: "Select flight date departure",
+  flight_date_placeholder_arrival: "Select flight date arrival",
   weight_and_pricing: "Weight & pricing",
   available_kilos: "Available kilos",
   price_per_kilo: "Price per kilo",
@@ -115,9 +117,12 @@ export default {
   listing_tips_2: "Be specific about meeting location and payment method.",
   listing_tips_3: "Check current market rates for your route.",
   update_listing: "Update listing",
+  create_listing: "Create listing",
   confirm: "Confirm",
   close: "Close",
   search_airport: "Search airport...",
+  flight_date_departure: "Flight date departure",
+  flight_date_arrival: "Flight date arrival",
 
   //Status
   browse_listings: "Browse Listings",
@@ -176,7 +181,7 @@ export default {
   request_rejected_description:
     "{{seller}} declined your request for {{weight}}.",
   reject_request: "Reject request",
-  try_a_different_amount: "Try a different amount",
+  try_a_different_amount: "Try a different amount?",
   try_a_different_amount_description:
     "Maybe {{seller}} would accept a different weight amount. You can send another request with adjusted terms.",
   payment_required_title: "Request approved!",
@@ -206,10 +211,28 @@ export default {
   completed_description:
     "Excellent! Your weight reservation was successful. Thank you for using BagBuddy.",
   transaction_total: "Transaction total",
+  cancelled_title: "Transaction cancelled",
+  cancelled_description:
+    "This transaction has been cancelled. Don't worry, there are plenty of other opportunities!",
 
   //Modal
   cancel_transaction_modal_title: "Do you want to cancel this transaction?",
   cancel_transaction_modal_message: "This action is irreversible.",
   cancel_transaction_modal_cancel: "Cancel",
   cancel_transaction_modal_confirm: "Delete",
+
+  //Errors
+  error: "Error",
+  success: "Success",
+  error_fields_required: "Please fill in all required fields.",
+  error_departure_required: "Departure field is required.",
+  error_arrival_required: "Arrival field is required.",
+  error_departure_date_required: "Departure date is required.",
+  error_arrival_date_required: "Arrival date is required.",
+  error_arrival_before_departure:
+    "Arrival date cannot be earlier than departure date.",
+  error_weight_required: "Available weight is required.",
+  error_price_required: "Price per kilo is required.",
+  listing_updated_successfully: "Listing updated successfully.",
+  listing_created_successfully: "Listing created successfully.",
 };

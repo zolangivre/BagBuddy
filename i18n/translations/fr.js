@@ -73,12 +73,14 @@ export default {
   view_all: "Voir tout",
   transactions_1: "transactions",
   verified: "Vérifié",
+  not_verified: "Non vérifié",
   active_listings: "Annonces actives",
   new_listing: "Nouvelle annonce",
   dark_mode: "Mode sombre",
   toggle_dark_mode: "Activer/désactiver le mode sombre",
   change_language: "Changer de langue",
   log_out: "Déconnexion",
+  reviews: "Avis",
 
   //Edit Profile
   edit_profile: "Modifier le profil",
@@ -102,7 +104,8 @@ export default {
   flight_information: "Informations sur le vol",
   flight_number: "Numéro de vol",
   flight_number_placeholder: "Entrez le numéro de vol",
-  flight_date: "Date de vol",
+  flight_date_placeholder_departure: "Sélectionnez la date de vol de départ",
+  flight_date_placeholder_arrival: "Sélectionnez la date de vol d'arrivée",
   flight_date_placeholder: "Sélectionnez la date de vol",
   weight_and_pricing: "Poids & tarification",
   available_kilos: "Kilos disponibles",
@@ -120,9 +123,12 @@ export default {
   listing_tips_3:
     "Vérifiez les tarifs du marché actuels pour votre itinéraire.",
   update_listing: "Mettre à jour l'annonce",
+  create_listing: "Créer l'annonce",
   close: "Fermer",
   confirm: "Confirmer",
   search_airport: "Rechercher un aéroport...",
+  flight_date_departure: "Date de vol de départ",
+  flight_date_arrival: "Date de vol d'arrivée",
 
   //Status
   browse_listings: "Parcourir les annonces",
@@ -143,7 +149,7 @@ export default {
   send_reservation_request: "Envoyer une demande de réservation",
   send_new_request: "Envoyer une nouvelle demande",
 
-  //Étapes de la transaction pour le vendeur
+  //Transaction progress steps for seller
   step_one_title_seller: "Réservation reçue",
   step_one_description_seller: "Demande reçue. Vérifiez-la.",
   step_two_title_seller: "En attente de paiement",
@@ -151,7 +157,7 @@ export default {
   step_three_title_seller: "Terminée",
   step_three_description_seller: "Transaction réussie.",
 
-  //Étapes de la transaction pour l’acheteur
+  //Transaction progress steps for buyer
   step_one_title_buyer: "Parcourir les annonces",
   step_one_description_buyer: "Trouvez le bon poids.",
   step_two_title_buyer: "En attente du vendeur",
@@ -161,7 +167,7 @@ export default {
   step_four_title_buyer: "Terminée",
   step_four_description_buyer: "Transaction réussie !",
 
-  //Carte de statut
+  //Status Card
   awaiting_payment_title: "En attente de paiement",
   awaiting_payment_description:
     "Vous avez approuvé la demande. En attente du paiement de {{buyer}}.",
@@ -213,10 +219,28 @@ export default {
   completed_description:
     "Félicitations ! Votre réservation de poids a été effectuée avec succès. Merci d’utiliser BagBuddy.",
   transaction_total: "Total de la transaction",
+  cancelled_title: "Transaction annulée",
+  cancelled_description:
+    "Cette transaction a été annulée. Ne vous inquiétez pas, il y a beaucoup d'autres opportunités !",
 
   //Modal
   cancel_transaction_modal_title: "Voulez-vous annuler cette transaction ?",
   cancel_transaction_modal_message: "Cette action est irréversible.",
   cancel_transaction_modal_cancel: "Annuler",
   cancel_transaction_modal_confirm: "Confirmer",
+
+  //Errors
+  error: "Erreur",
+  success: "Succès",
+  error_fields_required: "Veuillez remplir tous les champs obligatoires.",
+  error_departure_required: "Le champ départ est obligatoire.",
+  error_arrival_required: "Le champ arrivée est obligatoire.",
+  error_departure_date_required: "La date de départ est obligatoire.",
+  error_arrival_date_required: "La date d'arrivée est obligatoire.",
+  error_arrival_before_departure:
+    "La date d'arrivée ne peut pas être antérieure à la date de départ.",
+  error_weight_required: "Le poids disponible est obligatoire.",
+  error_price_required: "Le prix par kilo est obligatoire.",
+  listing_updated_successfully: "Annonce mise à jour avec succès.",
+  listing_created_successfully: "Annonce créée avec succès.",
 };
