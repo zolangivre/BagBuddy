@@ -8,16 +8,32 @@ import RoundIconText from "../components/RoundIconText";
 import HowStep from "../components/HowStep";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
+import { globalStyles } from "@/theme/Styles";
+// import { gql } from "@apollo/client";
+// import { useQuery } from "@apollo/client/react";
+// import axios from "axios";
+
+// const GET_USERS = gql`
+//   query {
+//     users {
+//       id
+//       firstName
+//       lastName
+//     }
+//   }
+// `;
 
 export default function StartScreen() {
+  // const { loading, error, data } = useQuery(GET_USERS);
+  // console.log(data);
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
   const FeatureIconWrap = ({ title, subtitle, icon, backgroundColor }) => (
     <View style={styles.featureItem}>
       <RoundIconText icon={icon} backgroundColor={backgroundColor} size={48} />
-      <Text style={[styles.featureTitle, { color: theme.title }]}>{title}</Text>
-      <Text style={[styles.featureSubtitle, { color: theme.text }]}>{subtitle}</Text>
+      <Text style={[theme.textStyles.cardTitle, { textAlign: "center" }]}>{title}</Text>
+      <Text style={[theme.textStyles.cardSubtitle, { textAlign: "center" }]}>{subtitle}</Text>
     </View>
   );
 
@@ -43,20 +59,25 @@ export default function StartScreen() {
             </View>
 
             {/* Title */}
-            <Text style={[styles.title, { color: theme.title }]}>BagBuddy</Text>
+            <Text style={theme.textStyles.display}>BagBuddy</Text>
 
             {/* Subtitle */}
-            <Text style={styles.subtitle}>{i18n.t("start_subtitle")}</Text>
+            <Text style={theme.textStyles.highlight}>
+              {i18n.t("start_subtitle")}
+            </Text>
 
             {/* Description */}
-            <Text style={[styles.description, { color: theme.text }]}>
+            <Text style={theme.textStyles.bodyMedium}>
               {i18n.t("start_description")}
             </Text>
           </View>
 
           {/* Features Card */}
           <View
-            style={[styles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
             <View style={styles.rowBetween}>
               <FeatureIconWrap
@@ -82,9 +103,12 @@ export default function StartScreen() {
 
           {/* How it Works Card */}
           <View
-            style={[styles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
-            <Text style={[styles.cardTitle, { color: theme.title }]}>
+            <Text style={[theme.textStyles.cardTitle, { textAlign: "center", marginBottom: 10 }]}>
               {i18n.t("how_card_title")}
             </Text>
 
@@ -144,7 +168,7 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 25,
+    gap: 20,
     marginLeft: 25,
     marginRight: 25,
     marginBottom: 25,
@@ -167,52 +191,12 @@ const styles = StyleSheet.create({
     elevation: 25,
     backgroundColor: Colors.primary_color,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  subtitle: {
-    color: Colors.primary_color,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  description: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  card: {
-    width: "100%",
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
-  },
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
   featureItem: { alignItems: "center", gap: 8, width: "30%" },
-  featureTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  featureSubtitle: {
-    fontSize: 12,
-    textAlign: "center",
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 12,
-  },
   gapContainer: {
     gap: 16,
   },

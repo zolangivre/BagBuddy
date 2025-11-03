@@ -1,6 +1,13 @@
-import { NativeTabs, Icon, Label } from "expo-router/unstable-native-tabs";
+import {
+  NativeTabs,
+  Icon,
+  Label,
+  VectorIcon,
+} from "expo-router/unstable-native-tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
+import { Platform } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function TabsLayout() {
   const { i18n, language } = useLanguage();
@@ -19,17 +26,36 @@ export default function TabsLayout() {
   }, [language, i18n]);
 
   return (
-    <NativeTabs key={language}>
+    <NativeTabs
+      key={language}
+      minimizeBehavior="onScrollDown"
+      style={{ backgroundColor: "white", color: "red" }}
+    >
       <NativeTabs.Trigger name="home">
         <Label>{tabLabels.home}</Label>
-        <Icon sf="house.fill" drawable="custom_android_drawable" />
+        {Platform.select({
+          ios: <Icon sf="house.fill" drawable="custom_ios_drawable" />,
+          android: (
+            <Icon src={<VectorIcon family={MaterialIcons} name="home" />} />
+          ),
+        })}
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="transactions">
-        <Icon sf="creditcard" drawable="custom_creditcard_drawable" />
+        {Platform.select({
+          ios: <Icon sf="creditcard" drawable="custom_ios_drawable" />,
+          android: (
+            <Icon src={<VectorIcon family={MaterialIcons} name="credit-card" />} />
+          ),
+        })}
         <Label>{tabLabels.transactions}</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profile">
-        <Icon sf="person" drawable="custom_person_drawable" />
+        {Platform.select({
+          ios: <Icon sf="person" drawable="custom_person_drawable" />,
+          android: (
+            <Icon src={<VectorIcon family={MaterialIcons} name="person" />} />
+          ),
+        })}
         <Label>{tabLabels.profile}</Label>
       </NativeTabs.Trigger>
     </NativeTabs>

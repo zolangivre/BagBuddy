@@ -54,7 +54,7 @@ export default function EditProfileScreen() {
             icon={<ArrowLeft size={20} color={theme.title} />}
           />
           <View style={styles.titleContainer}>
-            <Text style={[styles.headerTitle, { color: theme.title }]}>
+            <Text style={theme.textStyles.headerTitle}>
               {i18n.t("edit_profile")}
             </Text>
           </View>
@@ -75,7 +75,7 @@ export default function EditProfileScreen() {
             style={[styles.card, { backgroundColor: theme.background_card }]}
           >
             <View style={styles.cardHeader}>
-              <Text style={[styles.cardTitle, { color: theme.title }]}>
+              <Text style={theme.textStyles.cardTitle}>
                 {i18n.t("personal_information")}
               </Text>
             </View>
@@ -162,10 +162,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 8,
   },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
   scrollView: {
     flex: 1,
   },
@@ -188,10 +184,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 0,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "500",
   },
   cardContent: {
     padding: 24,

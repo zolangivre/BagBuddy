@@ -33,10 +33,10 @@ export default function HomeScreen() {
         >
           <View style={styles.headerContent}>
             <View style={styles.headerText}>
-              <Text style={styles.welcomeText}>
+              <Text style={theme.textStyles.titleLarge}>
                 {i18n.t("welcome_back", { name: "Jalil" })}
               </Text>
-              <Text style={styles.subtitleText}>
+              <Text style={theme.textStyles.muted}>
                 {i18n.t("find_luggage_space")}
               </Text>
             </View>
@@ -78,7 +78,7 @@ export default function HomeScreen() {
             {mode === "buy" ? (
               <>
                 <View style={styles.sectionHeader}>
-                  <Text style={[styles.sectionTitle, { color: theme.title }]}>
+                  <Text style={theme.textStyles.sectionTitle}>
                     {i18n.t("available_weight")} (3)
                   </Text>
                   <Label
@@ -115,18 +115,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
-  },
-  welcomeText: {
-    color: Colors.white,
-    fontSize: 24,
-    fontWeight: "700",
-    lineHeight: 32,
-  },
-  subtitleText: {
-    color: Colors.very_light_grey,
-    fontSize: 16,
-    fontWeight: "400",
-    lineHeight: 24,
+    gap: 5,
   },
   statsContainer: {
     flexDirection: "row",
@@ -146,11 +135,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    lineHeight: 24,
   },
   listingsContainer: {
     gap: 16,

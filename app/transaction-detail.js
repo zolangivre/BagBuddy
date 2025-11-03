@@ -29,13 +29,20 @@ import StatusCard from "../components/StatusCard";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import { useThemeContext } from "../contexts/ThemeContext";
 import i18n from "@/i18n";
+import mockTransactions from "@/mockData/transactions";
+import mockListings from "@/mockData/listings";
 
 export default function TransactionDetailScreen() {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-
   const router = useRouter();
-  const { status } = useLocalSearchParams();
+  const { transactionId, listingId } = useLocalSearchParams();
+  const listing = mockListings.find((l) => l.id.toString() === listingId);
+  const transaction = mockTransactions.find(
+    (t) => t.id.toString() === transactionId
+  );
+  const item = transaction || listing;
+  const status = transaction?.status || TRANSACTION_STATUS.BROWSE_LISTING;
   const buyer = true;
 
   const CancelTransaction = () => {
@@ -79,7 +86,7 @@ export default function TransactionDetailScreen() {
       <View style={styles.containerMeetingDetails}>
         <View style={[styles.contentRow, { gap: 5 }]}>
           <MapPin size={24} color={Colors.primary_color} />
-          <Text style={[styles.titleRow, { color: theme.title }]}>
+          <Text style={theme.textStyles.cardTitle}>
             {i18n.t("meeting_details")}
           </Text>
         </View>
@@ -87,34 +94,24 @@ export default function TransactionDetailScreen() {
           <View style={styles.contentRow}>
             <MapPin size={16} color={Colors.primary_color} />
             <View style={styles.contentColumn}>
-              <Text style={[styles.titleRow, { color: theme.title }]}>
-                {i18n.t("check_in_counter")}
+              <Text style={theme.textStyles.cardTitle}>
+                {i18n.t("meeting_details_step_one")}
               </Text>
-              <Text style={[styles.flightNumber, { color: theme.text }]}>
-                Emirates - EK 203
-              </Text>
+              <Text style={theme.textStyles.bodyMedium}>Emirates - EK 203</Text>
             </View>
           </View>
           <View style={styles.contentRow}>
             <Calendar size={16} color={Colors.primary_color} />
             <View style={styles.contentColumn}>
-              <Text style={[styles.titleRow, { color: theme.title }]}>
-                Dec 25, 2024
-              </Text>
-              <Text style={[styles.flightNumber, { color: theme.text }]}>
-                Arrive by 14:30
-              </Text>
+              <Text style={theme.textStyles.cardTitle}>Dec 25, 2024</Text>
+              <Text style={theme.textStyles.bodyMedium}>Arrive by 14:30</Text>
             </View>
           </View>
           <View style={styles.contentRow}>
             <Weight size={16} color={Colors.primary_color} />
             <View style={styles.contentColumn}>
-              <Text style={[styles.titleRow, { color: theme.title }]}>
-                8kg reserved
-              </Text>
-              <Text style={[styles.flightNumber, { color: theme.text }]}>
-                $96 total
-              </Text>
+              <Text style={theme.textStyles.cardTitle}>8kg reserved</Text>
+              <Text style={theme.textStyles.bodyMedium}>$96 total</Text>
             </View>
           </View>
         </View>
@@ -124,23 +121,22 @@ export default function TransactionDetailScreen() {
   };
 
   const BrowseListingContent = () => {
-    const status = TRANSACTION_STATUS.BROWSE_LISTING;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
           <TransactionProgressCard step={0} buyer={true} />
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
         <View
           style={[
-            styles.weightSelectorCard,
-            { backgroundColor: theme.background_card },
+            styles.card,
+            { backgroundColor: theme.background_card, gap: 20 },
           ]}
         >
-          <WeightSelectorCard />
+          <WeightSelectorCard item={item} />
         </View>
         <Button
           text={i18n.t("send_reservation_request")}
@@ -151,14 +147,13 @@ export default function TransactionDetailScreen() {
   };
 
   const WaitingForResponseContent = () => {
-    const status = TRANSACTION_STATUS.WAITING_FOR_RESPONSE;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
           <TransactionProgressCard step={1} buyer={true} />
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
       </>
@@ -166,29 +161,32 @@ export default function TransactionDetailScreen() {
   };
 
   const RequestRejectedContent = () => {
-    const status = TRANSACTION_STATUS.REQUEST_REJECTED;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
           <TransactionProgressCard step={1} buyer={true} />
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
-        <Text style={[styles.text, { color: theme.title, fontWeight: "500" }]}>
-          {i18n.t("try_different_amount")}
+        <Text
+          style={[theme.textStyles.cardStatusTitle, { textAlign: "center" }]}
+        >
+          {i18n.t("try_a_different_amount")}
         </Text>
-        <Text style={[styles.text, { color: theme.text }]}>
-          {i18n.t("try_different_amount_description")}
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+          {i18n.t("try_a_different_amount_description", {
+            seller: "Karim Benzema",
+          })}
         </Text>
         <View
           style={[
-            styles.weightSelectorCard,
-            { backgroundColor: theme.background_card },
+            styles.card,
+            { backgroundColor: theme.background_card, gap: 20 },
           ]}
         >
-          <WeightSelectorCard />
+          <WeightSelectorCard item={item} />
         </View>
         <Button
           text={i18n.t("send_new_request")}
@@ -199,14 +197,13 @@ export default function TransactionDetailScreen() {
   };
 
   const PaymentRequiredContent = () => {
-    const status = TRANSACTION_STATUS.PAYMENT_REQUIRED;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
           <TransactionProgressCard step={2} buyer={true} />
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
         <CancelTransaction />
@@ -215,11 +212,10 @@ export default function TransactionDetailScreen() {
   };
 
   const CancelledContent = () => {
-    const status = TRANSACTION_STATUS.CANCELLED;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
       </>
@@ -227,14 +223,13 @@ export default function TransactionDetailScreen() {
   };
 
   const ReservationReceivedContent = () => {
-    const status = TRANSACTION_STATUS.RESERVATION_RECEIVED;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
           <TransactionProgressCard step={0} buyer={false} />
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
         <Button
@@ -251,14 +246,13 @@ export default function TransactionDetailScreen() {
   };
 
   const AwaitingPaymentContent = () => {
-    const status = TRANSACTION_STATUS.AWAITING_PAYMENT;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
           <TransactionProgressCard step={1} buyer={false} />
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} />
         <CancelTransaction />
@@ -267,7 +261,6 @@ export default function TransactionDetailScreen() {
   };
 
   const CompletedContent = ({ buyer }) => {
-    const status = TRANSACTION_STATUS.COMPLETED;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
@@ -278,7 +271,7 @@ export default function TransactionDetailScreen() {
           )}
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} buyer={buyer} />
       </>
@@ -286,7 +279,6 @@ export default function TransactionDetailScreen() {
   };
 
   const ConfirmedContent = ({ buyer }) => {
-    const status = TRANSACTION_STATUS.CONFIRMED;
     return (
       <>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
@@ -297,7 +289,7 @@ export default function TransactionDetailScreen() {
           )}
         </View>
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
-          <SellerInformationCard status={status} />
+          <SellerInformationCard item={item} />
         </View>
         <StatusCard status={status} buyer={buyer} />
         <View style={[styles.card, { backgroundColor: theme.background_card }]}>
@@ -307,6 +299,7 @@ export default function TransactionDetailScreen() {
       </>
     );
   };
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
@@ -330,12 +323,10 @@ export default function TransactionDetailScreen() {
           </TouchableOpacity>
 
           <View style={styles.headerInfo}>
-            <Text style={[styles.flightTitle, { color: theme.title }]}>
+            <Text style={theme.textStyles.sectionTitle}>
               {i18n.t("flight")} EK 203
             </Text>
-            <Text style={[styles.flightRoute, { color: theme.text }]}>
-              DXB → JFK
-            </Text>
+            <Text style={theme.textStyles.bodyMedium}>{item?.departureAirport} → {item?.arrivalAirport}</Text>
           </View>
           <StatusBadge status={status} />
         </View>
@@ -409,24 +400,9 @@ const styles = StyleSheet.create({
   headerInfo: {
     flex: 1,
   },
-  flightTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 24,
-  },
-  flightRoute: {
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
-  },
   content: {
     padding: 16,
     gap: 15,
-  },
-  weightSelectorCard: {
-    padding: 20,
-    borderRadius: 16,
-    gap: 20,
   },
   card: {
     padding: 20,
@@ -437,17 +413,8 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  text: {
-    fontSize: 16,
-    fontWeight: "400",
-    lineHeight: 24,
-    textAlign: "center",
-  },
   containerMeetingDetails: {
     gap: 20,
-  },
-  titleRow: {
-    fontSize: 18,
   },
   contentColumn: {
     flexDirection: "column",
@@ -459,9 +426,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  flightNumber: {
-    fontSize: 14,
-    color: Colors.tertiary_color,
   },
 });

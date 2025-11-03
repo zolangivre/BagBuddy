@@ -39,15 +39,15 @@ export default function TransactionsScreen() {
           style={styles.header}
         >
           <View style={styles.headerContent}>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>
+            <View style={styles.headerText}>
+              <Text style={theme.textStyles.titleLarge}>
                 {i18n.t("transactions_title")}
               </Text>
-              <Text style={styles.headerSubtitle}>
+              <Text style={theme.textStyles.muted}>
                 {i18n.t("transactions_subtitle")}
               </Text>
             </View>
-            <Label 
+            <Label
               text={`4 ${i18n.t("total")}`}
               backgroundColor={"rgba(255, 255, 255, 0.10)"}
               borderColor="transparent"
@@ -58,12 +58,12 @@ export default function TransactionsScreen() {
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
             <StatCard
-              icon={<TrendingUp size={20} color="#FFFFFF" />}
+              icon={<TrendingUp size={20} color={Colors.white} />}
               value="$0"
               label={i18n.t("total_earned")}
             />
             <StatCard
-              icon={<Activity size={20} color="#FFFFFF" />}
+              icon={<Activity size={20} color={Colors.white} />}
               value="$45"
               label={i18n.t("total_spent")}
             />
@@ -100,9 +100,6 @@ export default function TransactionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   header: {
     paddingTop: 70,
     paddingHorizontal: 25,
@@ -114,20 +111,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 32,
   },
-  headerTextContainer: {
+  headerText: {
     flex: 1,
-  },
-  headerTitle: {
-    color: Colors.white,
-    fontSize: 24,
-    fontWeight: "700",
-    lineHeight: 32,
-  },
-  headerSubtitle: {
-    color: Colors.very_light_grey,
-    fontSize: 16,
-    fontWeight: "400",
-    lineHeight: 24,
+    gap: 5,
   },
   statsContainer: {
     flexDirection: "row",
