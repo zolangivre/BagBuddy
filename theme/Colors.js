@@ -1,3 +1,5 @@
+import { typography } from "./Fonts";
+
 const material = {
   dark_grey: "#64748B",
   dark_grey_translucent: "#64748B1A",
@@ -23,7 +25,6 @@ const material = {
   light_green_translucent_2: "#10B98133",
   light_green_translucent_3: "#10B9810D",
 
-
   light_yellow: "#F59E0B",
   light_yellow_translucent: "#F59E0B1A",
   light_yellow_translucent_2: "#F59E0B33",
@@ -33,6 +34,7 @@ const material = {
   dark_2: "#171717",
   dark_3: "#A1A1A1",
   dark_4: "#262626",
+  
 };
 
 export default {
@@ -88,6 +90,52 @@ export default {
     navTopBorder: material.very_light_grey,
     flightCard:
       "linear-gradient(90deg, rgba(224, 242, 254, 0.30) 0%, rgba(224, 242, 254, 0.20) 50%, rgba(224, 242, 254, 0.30) 100%)",
+    
+    textStyles: {
+      // === TITRES ===
+      display: { ...typography.display, color: material.dark_blue_grey },
+      titleLarge: { ...typography.headline1, color: material.white },
+      titleMedium: { ...typography.headline2, color: material.dark_blue_grey },
+      titleSmall: { ...typography.headline3, color: material.dark_blue_grey },
+      cardStatusTitle: {
+        ...typography.cardStatusTitle,
+        color: material.dark_blue_grey,
+      },
+      // === SOUS-TITRES / SECTIONS ===
+      subtitle: { ...typography.subtitle, color: material.dark_grey },
+      sectionTitle: { ...typography.title2, color: material.dark_blue_grey },
+
+      // === TEXTE DE CONTENU ===
+      bodyLarge: { ...typography.body1, color: material.dark_grey },
+      bodyMedium: { ...typography.body2, color: material.dark_grey },
+      bodySmall: { ...typography.body3, color: material.dark_grey },
+
+      // === LABELS / INFOS ===
+      label: { ...typography.label, color: material.dark_grey },
+      caption: { ...typography.caption, color: material.dark_grey },
+
+      // === CHIFFRES / STATS ===
+      statValue: { ...typography.headline3, color: material.dark_blue_grey },
+      statLabel: { ...typography.body3, color: material.dark_grey },
+
+      // === BADGES & ÉTATS ===
+      badgeText: { ...typography.label, color: material.dark_cyan },
+      successText: { ...typography.body2, color: material.light_green },
+      errorText: { ...typography.body2, color: material.red },
+
+      // === BOUTONS ===
+      buttonText: { ...typography.button, color: material.white },
+
+      // === HEADERS / CARDS ===
+      headerTitle: { ...typography.title2, color: material.dark_blue_grey },
+      cardTitle: { ...typography.subtitle, color: material.dark_blue_grey },
+      cardSubtitle: { ...typography.body3, color: material.dark_grey },
+
+      // === DIVERS ===
+      highlight: { ...typography.body1, color: material.dark_cyan },
+      muted: { ...typography.body1, color: material.very_light_grey },
+      number: { ...typography.headline2, color: material.dark_cyan },
+    },
   },
 
   dark: {
@@ -101,5 +149,42 @@ export default {
     navTopBorder: material.dark_4,
     flightCard:
       "linear-gradient(90deg, rgba(38.09, 38.09, 38.09, 0.30) 0%, rgba(38.09, 38.09, 38.09, 0.20) 50%, rgba(38.09, 38.09, 38.09, 0.30) 100%)",
+    textStyles: {
+      display: { ...typography.display, color: material.white },
+      titleLarge: { ...typography.headline1, color: material.white },
+      titleMedium: { ...typography.headline2, color: material.white },
+      titleSmall: { ...typography.headline3, color: material.white },
+      cardStatusTitle: {
+        ...typography.cardStatusTitle,
+        color: material.dark_blue_grey,
+      },
+
+      subtitle: { ...typography.subtitle, color: material.dark_3 }, 
+      sectionTitle: { ...typography.title2, color: material.white }, 
+
+      bodyLarge: { ...typography.body1, color: material.dark_3 },
+      bodyMedium: { ...typography.body2, color: material.dark_3 }, 
+      bodySmall: { ...typography.body3, color: material.dark_3 }, 
+
+      label: { ...typography.label, color: material.dark_3 },
+      caption: { ...typography.caption, color: material.dark_3 }, 
+
+      statValue: { ...typography.headline3, color: material.white },
+      statLabel: { ...typography.body3, color: material.dark_3 },
+
+      badgeText: { ...typography.label, color: material.dark_cyan }, 
+      successText: { ...typography.body2, color: material.light_green }, 
+      errorText: { ...typography.body2, color: material.red }, 
+
+      buttonText: { ...typography.button, color: material.white }, 
+
+      headerTitle: { ...typography.title2, color: material.white }, 
+      cardTitle: { ...typography.title3, color: material.white }, 
+      cardSubtitle: { ...typography.body3, color: material.dark_3 }, 
+
+      highlight: { ...typography.body1, color: material.dark_cyan }, 
+      muted: { ...typography.body1, color: material.very_light_grey },
+      number: { ...typography.headline2, color: material.dark_cyan }, 
+    },
   },
 };
