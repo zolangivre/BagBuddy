@@ -150,4 +150,8 @@ expo-env.d.ts
 #.vscode
 .vscode
 
+.watchmanconfig
+
+.idea
+
 .DS_Store
