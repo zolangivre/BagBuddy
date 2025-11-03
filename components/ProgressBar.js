@@ -2,11 +2,15 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import Colors from "../theme/Colors";
 
-const ProgressBar = ({ step = 0, totalSteps = 4 }) => {
+const ProgressBar = ({ step = 0, totalSteps = 4, width = 80, style }) => {
+  // If the ProgressBar is placed in a row without an explicit width,
+  // the container can collapse to width 0 because its children are
+  // absolutely positioned. Provide a sensible default width and allow
+  // callers to override via the `width` prop or `style` prop.
   const clamped = Math.max(0, Math.min(step, totalSteps));
   const percent = (clamped / totalSteps) * 100;
   return (
-    <View style={styles.progressBarContainer}>
+    <View style={[styles.progressBarContainer, { width }, style]}>
       <View style={styles.progressBarTrail} />
       <View style={[styles.progressBarFill, { width: `${percent}%` }]} />
     </View>

@@ -14,13 +14,13 @@ const HowStep = ({ number, title, subtitle, color, backgroundColor }) => {
         text={number}
         backgroundColor={backgroundColor}
         size={32}
-      colorText={color}
-    />
-    <View style={styles.textContainer}>
-      <Text style={[styles.stepTitle, { color: theme.title }]}>{title}</Text>
-      <Text style={[styles.stepSubtitle, { color: theme.text }]}>{subtitle}</Text>
+        colorText={color}
+      />
+      <View style={styles.textContainer}>
+        <Text style={theme.textStyles.cardTitle}>{title}</Text>
+        <Text style={theme.textStyles.cardSubtitle}>{subtitle}</Text>
+      </View>
     </View>
-  </View>
   );
 };
 
@@ -30,17 +30,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 12,
     marginBottom: 12,
-  },
-  stepTitle: {
-    color: Colors.secondary_color,
-    fontSize: 14,
-    fontWeight: "600",
-    flexShrink: 1,
-    flexWrap: "wrap",
-  },
-  stepSubtitle: {
-    color: Colors.tertiary_color,
-    fontSize: 12,
   },
   textContainer: { flex: 1, gap: 4 },
 });

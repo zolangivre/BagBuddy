@@ -4,13 +4,13 @@ import Colors from "../theme/Colors";
 import { Scale, Minus, Plus } from "lucide-react-native";
 import { useThemeContext } from "../contexts/ThemeContext";
 
-const WeightSelectorCard = () => {
+const WeightSelectorCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
   const [selectedWeight, setSelectedWeight] = useState(7);
-  const pricePerKg = 12;
-  const maxWeight = 15;
+  const pricePerKg = item.pricePerKg;
+  const maxWeight = item.weight;
 
   const handleWeightChange = (newWeight) => {
     if (newWeight >= 1 && newWeight <= maxWeight) {
@@ -23,12 +23,10 @@ const WeightSelectorCard = () => {
     <>
       <View style={styles.weightSelectorHeader}>
         <Scale size={24} color={Colors.primary_color} />
-        <Text style={[styles.weightSelectorTitle, { color: theme.title }]}>
-          Select Weight to Approve
-        </Text>
+        <Text style={theme.textStyles.cardTitle}>Select Weight to Approve</Text>
       </View>
 
-      <Text style={[styles.weightSelectorDescription, { color: theme.text }]}>
+      <Text style={[theme.textStyles.bodyMedium, { textAlign: "center" }]}>
         Choose how many kilograms you want to approve for this request (max 15kg
         available).
       </Text>
@@ -43,8 +41,8 @@ const WeightSelectorCard = () => {
         </TouchableOpacity>
 
         <View style={styles.weightDisplay}>
-          <Text style={styles.weightValue}>{selectedWeight}</Text>
-          <Text style={[styles.weightUnit, { color: theme.text }]}>kilograms</Text>
+          <Text style={theme.textStyles.number}>{selectedWeight}</Text>
+          <Text style={theme.textStyles.bodyMedium}>kilograms</Text>
         </View>
 
         <TouchableOpacity
@@ -66,15 +64,17 @@ const WeightSelectorCard = () => {
           />
         </View>
         <View style={styles.sliderLabels}>
-          <Text style={[styles.sliderLabel, { color: theme.text }]}>1kg</Text>
-          <Text style={[styles.sliderLabel, { color: theme.text }]}>15kg</Text>
+          <Text style={theme.textStyles.bodyMedium}>1kg</Text>
+          <Text style={theme.textStyles.bodyMedium}>{maxWeight}kg</Text>
         </View>
       </View>
 
       {/* Price Display */}
       <View style={styles.priceDisplay}>
-        <Text style={[styles.priceLabel, { color: theme.text }]}>Price:</Text>
-        <Text style={styles.totalPriceText}>${totalPrice.toFixed(2)}</Text>
+        <Text style={theme.textStyles.bodyMedium}>Price:</Text>
+        <Text style={[theme.textStyles.bodyMedium, { color: Colors.primary_color }]}>
+          ${totalPrice.toFixed(2)}
+        </Text>
       </View>
     </>
   );
@@ -85,15 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-  },
-  weightSelectorTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  weightSelectorDescription: {
-    fontSize: 14,
-    fontWeight: "400",
-    textAlign: "center",
   },
   weightControls: {
     flexDirection: "row",
@@ -119,15 +110,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
   },
-  weightValue: {
-    color: Colors.primary_color,
-    fontSize: 24,
-    fontWeight: "500",
-  },
-  weightUnit: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
   sliderContainer: {
     gap: 10,
   },
@@ -146,26 +128,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  sliderLabel: {
-    fontSize: 12,
-    fontWeight: "400",
-  },
   priceDisplay: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 2,
-  },
-  priceLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-    textAlign: "center",
-  },
-  totalPriceText: {
-    color: Colors.primary_color,
-    fontSize: 14,
-    fontWeight: "500",
-    textAlign: "center",
   },
 });
 

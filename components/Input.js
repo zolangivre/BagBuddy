@@ -29,9 +29,7 @@ const Input = ({
 
   return (
     <View style={styles.container}>
-      {label ? (
-        <Text style={[styles.label, { color: theme.text }]}> {label}</Text>
-      ) : null}
+      {label ? <Text style={theme.textStyles.bodyMedium}>{label}</Text> : null}
 
       <View style={[styles.inputRow, error && styles.inputErrorRow]}>
         {leftIcon ? <View style={styles.leftIcon}>{leftIcon}</View> : null}
@@ -64,7 +62,7 @@ const Input = ({
         ) : null}
       </View>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text style={theme.textStyles.error}>{error}</Text> : null}
     </View>
   );
 };
@@ -74,12 +72,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     alignSelf: "stretch",
-  },
-  label: {
-    fontSize: 14,
-    color: Colors.secondary_color,
-    marginBottom: 6,
-    fontWeight: "500",
+    gap: 4,
   },
   inputRow: {
     flexDirection: "row",
@@ -110,11 +103,6 @@ const styles = StyleSheet.create({
     height: "auto",
     paddingVertical: 10,
     textAlignVertical: "top",
-  },
-  error: {
-    color: "#EF4444",
-    marginTop: 6,
-    fontSize: 13,
   },
 });
 

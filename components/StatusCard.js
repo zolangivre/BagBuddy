@@ -23,38 +23,35 @@ const StatusCard = ({ status, buyer }) => {
     <View
       style={[
         styles.bottomContainer,
-        { alignItems: "center", backgroundColor: theme.flightCard },
+        { alignItems: "center", backgroundColor: theme.title_inverse },
       ]}
     >
       <View style={styles.bottomInfo}>
         {buyer && status === TRANSACTION_STATUS.CONFIRMED && (
-          <Text style={[styles.reserveDescription, { color: theme.title }]}>
+          <Text style={theme.textStyles.bodyLarge}>
             {i18n.t("total_paid")}
           </Text>
         )}
         {!buyer && status === TRANSACTION_STATUS.CONFIRMED && (
-          <Text style={[styles.reserveDescription, { color: theme.title }]}>
+          <Text style={theme.textStyles.bodyLarge}>
             {i18n.t("amount_received")}
           </Text>
         )}
         {status === TRANSACTION_STATUS.COMPLETED && (
-          <Text style={[styles.reserveDescription, { color: theme.title }]}>
+          <Text style={theme.textStyles.bodyLarge}>
             {i18n.t("transaction_total")}
           </Text>
         )}
       </View>
       <View style={styles.bottomInfo}>
         <Text
-          style={[
-            styles.reserveDescription,
-            { color: Colors.success_color, fontSize: 24, fontWeight: "bold" },
-          ]}
+          style={[theme.textStyles.number, { color: Colors.success_color }]}
         >
           $96
         </Text>
       </View>
       <View style={styles.bottomInfo}>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
+        <Text style={[theme.textStyles.bodyLarge]}>
           8kg - $12/kg
         </Text>
       </View>
@@ -63,56 +60,34 @@ const StatusCard = ({ status, buyer }) => {
 
   const BottomContentPaymentReservation = ({ status }) => (
     <View
-      style={[styles.bottomContainer, { backgroundColor: theme.flightCard }]}
+      style={[styles.bottomContainer, { backgroundColor: theme.title_inverse }]}
     >
       <View style={styles.bottomInfo}>
-        <Text style={[styles.reserveDescription, { color: theme.title }]}>
+        <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
           {status === TRANSACTION_STATUS.RESERVATION_RECEIVED
             ? i18n.t("requested_weight")
             : i18n.t("approved_weight")}
         </Text>
-        <Text
-          style={[
-            styles.reserveDescription,
-            { color: theme.title, fontWeight: "bold" },
-          ]}
-        >
+        <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
           8kg
         </Text>
       </View>
       <View style={styles.bottomInfo}>
-        <Text style={[styles.reserveDescription, { color: theme.title }]}>
+        <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
           {i18n.t("price_per_kg")}:
         </Text>
-        <Text
-          style={[
-            styles.reserveDescription,
-            { color: theme.title, fontWeight: "bold" },
-          ]}
-        >
+        <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
           $12
         </Text>
       </View>
       <View style={styles.routeLine} />
       <View style={styles.bottomInfo}>
-        <Text
-          style={[
-            styles.reserveDescription,
-            { color: theme.title, fontSize: 18, fontWeight: "bold" },
-          ]}
-        >
+        <Text style={theme.textStyles.titleSmall}>
           {status === TRANSACTION_STATUS.AWAITING_PAYMENT
             ? i18n.t("expected_payment")
             : i18n.t("total_amount")}
         </Text>
-        <Text
-          style={[
-            styles.reserveDescription,
-            { color: Colors.primary_color, fontWeight: "bold", fontSize: 22 },
-          ]}
-        >
-          $96.00
-        </Text>
+        <Text style={theme.textStyles.number}>$96.00</Text>
       </View>
     </View>
   );
@@ -123,10 +98,15 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <Luggage size={60} color={Colors.primary_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.primary_color }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.primary_color },
+          ]}
+        >
           {i18n.t("browse_listings_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("browse_listings_description")}
         </Text>
       </>
@@ -139,28 +119,33 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <Clock size={60} color={Colors.primary_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.primary_color }]}>
-          {i18n.t("waiting_for_seller_response")}
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.primary_color },
+          ]}
+        >
+          {i18n.t("waiting_for_response_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
-          {i18n.t("waiting_for_seller_response_description", {
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+          {i18n.t("waiting_for_response_description", {
             seller: "Karim Benzema",
           })}
         </Text>
         <View
           style={[
             styles.bottomContainer,
-            { backgroundColor: theme.flightCard },
+            {
+              flexDirection: "row",
+              backgroundColor: theme.title_inverse,
+              alignItems: "center",
+            },
           ]}
         >
-          <Text style={[styles.reserveDescription, { color: theme.title }]}>
-            {i18n.t("requested_weight")}
+          <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
+            {i18n.t("requested_weight")}:
           </Text>
-          <Text
-            style={[styles.reserveDescription, { color: Colors.primary_color }]}
-          >
-            8kg
-          </Text>
+          <Text style={theme.textStyles.number}>8kg</Text>
         </View>
       </>
     );
@@ -172,26 +157,36 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <Clock size={60} color={Colors.error_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.error_color }]}>
-          {i18n.t("request_rejected_title")}
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.error_color },
+          ]}
+        >
+          {i18n.t("waiting_for_response_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
-          {i18n.t("request_rejected_description", { seller: "Karim Benzema" })}
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+          {i18n.t("request_rejected_description", {
+            seller: "Karim Benzema",
+            weight: "8kg",
+          })}
         </Text>
         <View
           style={[
             styles.bottomContainer,
             {
               flexDirection: "row",
-              backgroundColor: theme.flightCard,
-              justifyContent: "space-between",
+              backgroundColor: theme.title_inverse,
+              alignItems: "center",
             },
           ]}
         >
-          <Text style={[styles.reserveDescription, { color: theme.title }]}>
-            {i18n.t("reject_request")}
+          <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
+            {i18n.t("reject_request")}:
           </Text>
-          <Text style={[styles.reserveDescription, { color: theme.title }]}>
+          <Text
+            style={[theme.textStyles.number, { color: Colors.error_color }]}
+          >
             8kg
           </Text>
         </View>
@@ -206,10 +201,15 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <CheckCircle size={60} color={Colors.success_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.success_color }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.success_color },
+          ]}
+        >
           {i18n.t("payment_required_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("payment_required_description", {
             seller: "Karim Benzema",
             weight: "8kg",
@@ -241,12 +241,15 @@ const StatusCard = ({ status, buyer }) => {
               <CheckCircle size={60} color={Colors.success_color} />
             </View>
             <Text
-              style={[styles.reserveTitle, { color: Colors.success_color }]}
+              style={[
+                theme.textStyles.cardStatusTitle,
+                { color: Colors.success_color },
+              ]}
             >
-              {i18n.t("weight_reserved_successfully")}
+              {i18n.t("confirmed_title_buyer")}
             </Text>
-            <Text style={[styles.reserveDescription, { color: theme.text }]}>
-              {i18n.t("baggage_weight_confirmed")}
+            <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+              {i18n.t("confirmed_description_buyer")}
             </Text>
             <BottomContentConfirmedCompleted
               buyer={buyer}
@@ -259,12 +262,15 @@ const StatusCard = ({ status, buyer }) => {
               <CheckCircle size={60} color={Colors.success_color} />
             </View>
             <Text
-              style={[styles.reserveTitle, { color: Colors.success_color }]}
+              style={[
+                theme.textStyles.cardStatusTitle,
+                { color: Colors.success_color },
+              ]}
             >
-              {i18n.t("payment_received")}
+              {i18n.t("confirmed_title_seller")}
             </Text>
-            <Text style={styles.reserveDescription}>
-              {i18n.t("meeting_details")}
+            <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+              {i18n.t("confirmed_description_seller")}
             </Text>
             <BottomContentConfirmedCompleted
               buyer={buyer}
@@ -282,10 +288,15 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <CheckCircle size={60} color={Colors.success_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.success_color }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.success_color },
+          ]}
+        >
           {i18n.t("completed_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("completed_description")}
         </Text>
         <BottomContentConfirmedCompleted
@@ -301,10 +312,15 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <XCircle size={60} color={Colors.error_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.error_color }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.error_color },
+          ]}
+        >
           {i18n.t("cancelled_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("cancelled_description")}
         </Text>
       </>
@@ -317,10 +333,15 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <AlertCircle size={60} color={Colors.light_yellow} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.light_yellow }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.light_yellow },
+          ]}
+        >
           {i18n.t("reservation_received_title")}
         </Text>
-        <Text style={[styles.reserveDescription, { color: theme.text }]}>
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("reservation_received_description", {
             buyer: "Vin Diesel",
             weight: "8kg",
@@ -339,10 +360,15 @@ const StatusCard = ({ status, buyer }) => {
         <View style={styles.reserveIcon}>
           <Clock size={60} color={Colors.primary_color} />
         </View>
-        <Text style={[styles.reserveTitle, { color: Colors.primary_color }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.primary_color },
+          ]}
+        >
           {i18n.t("awaiting_payment_title")}
         </Text>
-        <Text style={styles.reserveDescription}>
+        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("awaiting_payment_description", { buyer: "Vin Diesel" })}
         </Text>
         <BottomContentPaymentReservation
@@ -437,18 +463,6 @@ const styles = StyleSheet.create({
   reserveIcon: {
     justifyContent: "center",
     alignItems: "center",
-  },
-  reserveTitle: {
-    fontSize: 20,
-    fontWeight: "500",
-    lineHeight: 28,
-    textAlign: "center",
-  },
-  reserveDescription: {
-    fontSize: 16,
-    fontWeight: "400",
-    lineHeight: 24,
-    textAlign: "center",
   },
   bottomContainer: {
     borderRadius: 12,

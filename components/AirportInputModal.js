@@ -14,7 +14,13 @@ import { AIRPORT } from "@/constants/airports";
 import i18n from "@/i18n";
 import { PlaneLanding, PlaneTakeoff } from "lucide-react-native";
 
-const AirportInputModal = ({ label, value, onChangeText, placeholder }) => {
+const AirportInputModal = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  error = null,
+}) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -38,17 +44,15 @@ const AirportInputModal = ({ label, value, onChangeText, placeholder }) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+    <View style={{ flex: 1, gap: 5 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
         {label === i18n.t("departure") && (
           <PlaneTakeoff size={20} color={theme.text} />
         )}
         {label === i18n.t("arrival") && (
           <PlaneLanding size={20} color={theme.text} />
         )}
-        {label && (
-          <Text style={[styles.label, { color: theme.text }]}>{label}</Text>
-        )}
+        {label && <Text style={theme.textStyles.bodyMedium}>{label}</Text>}
       </View>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <View pointerEvents="none">
@@ -56,15 +60,19 @@ const AirportInputModal = ({ label, value, onChangeText, placeholder }) => {
             style={[
               styles.input,
               { backgroundColor: theme.flightCard, color: theme.title },
+              error && { borderWidth: 1, borderColor: Colors.error_color },
             ]}
             placeholder={placeholder}
             value={value}
             editable={false}
+            placeholderTextColor={theme.text}
           />
         </View>
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      {error ? <Text style={theme.textStyles.errorText}>{error}</Text> : null}
+
+      <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <View
             style={[
@@ -76,6 +84,7 @@ const AirportInputModal = ({ label, value, onChangeText, placeholder }) => {
               style={[styles.modalSearch, { borderColor: theme.text }]}
               placeholder={i18n.t("search_airport")}
               placeholderTextColor={theme.title}
+              color={theme.title}
               value={search}
               onChangeText={setSearch}
               autoFocus
@@ -91,7 +100,7 @@ const AirportInputModal = ({ label, value, onChangeText, placeholder }) => {
                   onPress={() => handleSelect(item)}
                 >
                   <Text style={{ color: theme.title }}>
-                    {item.value} - {item.city} ({item.name})
+                    {item.value} - {item.city} ({item.name}) - {item.country}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -118,11 +127,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 6,
     justifyContent: "center",
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 4,
   },
   modalOverlay: {
     flex: 1,

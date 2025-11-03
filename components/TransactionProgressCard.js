@@ -22,7 +22,7 @@ const TransactionProgressCard = ({ step, buyer }) => {
         }
       >
         {isSuccess ? (
-          <Check size={20} color="#FFFFFF" />
+          <Check size={20} color={Colors.white} />
         ) : (
           <Text
             style={
@@ -38,16 +38,16 @@ const TransactionProgressCard = ({ step, buyer }) => {
       <View style={styles.stepContent}>
         <Text
           style={
-            isActive
+            isSuccess
+              ? [styles.stepTitle, { color: theme.title }]
+              : isActive
               ? [styles.stepTitle, { color: Colors.primary_color }]
-              : [styles.stepTitle, { color: theme.title }]
+              : [styles.stepTitle, { color: theme.text }]
           }
         >
           {title}
         </Text>
-        <Text style={[styles.stepDescription, { color: theme.text }]}>
-          {description}
-        </Text>
+        <Text style={theme.textStyles.bodyMedium}>{description}</Text>
       </View>
       {isActive && <Dot size={20} color={Colors.primary_color} />}
     </View>
@@ -57,16 +57,16 @@ const TransactionProgressCard = ({ step, buyer }) => {
   return (
     <>
       <View style={styles.progressHeader}>
-        <Text style={[styles.cardTitle, { color: theme.title }]}>
+        <Text style={theme.textStyles.cardTitle}>
           {i18n.t("transaction_progress")}
         </Text>
-        <Text style={[styles.progressCount, { color: theme.text }]}>
+        <Text style={theme.textStyles.bodyMedium}>
           {step} of {totalSteps}
         </Text>
       </View>
 
-      {/* Progress Bar */}
-      <ProgressBar step={step} totalSteps={totalSteps} />
+  {/* Progress Bar */}
+  <ProgressBar step={step} totalSteps={totalSteps} width={"100%"} />
 
       {/* Progress Steps */}
       <View style={styles.progressSteps}>
@@ -138,14 +138,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  progressCount: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
   progressSteps: {
     gap: 10,
   },
@@ -171,11 +163,6 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 16,
     fontWeight: "500",
-  },
-  stepDescription: {
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 24,
   },
 });
 

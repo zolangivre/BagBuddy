@@ -1,25 +1,26 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { Plane, ArrowRight, Clock } from "lucide-react-native";
+import {
+  ArrowRight,
+  PlaneTakeoff,
+  PlaneLanding,
+} from "lucide-react-native";
 import Colors from "../theme/Colors";
-import RoundIconText from "./RoundIconText";
 import { useThemeContext } from "../contexts/ThemeContext";
 import i18n from "@/i18n";
 import Label from "./Label";
-import LocalizedDateTime,{
+import LocalizedDateTime, {
   formatLocalizedDate,
-  formatLocalizedTime,
 } from "@/components/LocalizedDateTime";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 
 const FlightInfoCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const { language } = useLanguage();
 
-  const dateText = formatLocalizedDate("2025-12-20T23:30:00Z", language);
-
+  const dateDeparture = formatLocalizedDate(item.dateDeparture, language);
+  const dateArrival = formatLocalizedDate(item.dateArrival, language);
   return (
     <View
       style={[
@@ -28,31 +29,12 @@ const FlightInfoCard = ({ item }) => {
       ]}
     >
       <View style={styles.flightHeader}>
-        <View style={styles.flightNumberContainer}>
-          <RoundIconText
-            icon={<Plane size={20} color={Colors.primary_color} />}
-            backgroundColor={Colors.dark_cyan_translucent}
-            size={32}
-          />
-          <Text style={[styles.flightNumber, { color: theme.title }]}>
-            {item.flightNumber}
-          </Text>
-        </View>
-        <Label
-          text={dateText}
-          backgroundColor={theme.background_card}
-          colorText={theme.title}
-          borderColor={Colors.dark_blue_grey}
-        />
-      </View>
-
-      <View style={styles.routeContainer}>
         <View style={styles.routeInfo}>
           <View style={styles.airportContainer}>
-            <Text style={[styles.airportCode, { color: theme.title }]}>
-              {item.departure}
+            <Text style={theme.textStyles.titleMedium}>
+              {item.departureAirport}
             </Text>
-            <Text style={[styles.routeLabel, { color: theme.text }]}>
+            <Text style={theme.textStyles.bodySmall}>
               {i18n.t("departure")}
             </Text>
           </View>
@@ -61,27 +43,48 @@ const FlightInfoCard = ({ item }) => {
             <View style={styles.routeLine} />
           </View>
           <View style={styles.airportContainer}>
-            <Text style={[styles.airportCode, { color: theme.title }]}>
-              {item.arrival}
+            <Text style={theme.textStyles.titleMedium}>
+              {item.arrivalAirport}
             </Text>
-            <Text style={[styles.routeLabel, { color: theme.text }]}>
-              {i18n.t("arrival")}
-            </Text>
+            <Text style={theme.textStyles.bodySmall}>{i18n.t("arrival")}</Text>
           </View>
         </View>
-        <View style={styles.timeContainer}>
-          <Clock size={16} color={Colors.tertiary_color} />
-          {/* <Text style={{ color: theme.text }}>
-            {item.date}
-          </Text> */}
+      </View>
+      <View style={styles.dateTimeContainer}>
+        <View style={styles.iconTime}>
+          <PlaneTakeoff size={16} color={Colors.primary_color} />
           <LocalizedDateTime
-            date={item.date}
+            date={item.dateDeparture}
             showDate={false}
             showTime={true}
-            options={{ hour: "2-digit", minute: "2-digit",  }}
+            options={{ hour: "2-digit", minute: "2-digit" }}
             style={{ color: theme.text }}
           />
         </View>
+        <Label
+          text={dateDeparture}
+          backgroundColor={theme.background_card}
+          colorText={theme.title}
+          borderColor={Colors.dark_blue_grey}
+        />
+      </View>
+      <View style={styles.dateTimeContainer}>
+        <View style={styles.iconTime}>
+          <PlaneLanding size={16} color={Colors.primary_color} />
+          <LocalizedDateTime
+            date={item.dateArrival}
+            showDate={false}
+            showTime={true}
+            options={{ hour: "2-digit", minute: "2-digit" }}
+            style={{ color: theme.text }}
+          />
+        </View>
+        <Label
+          text={dateArrival}
+          backgroundColor={theme.background_card}
+          colorText={theme.title}
+          borderColor={Colors.dark_blue_grey}
+        />
       </View>
     </View>
   );
@@ -92,10 +95,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderRadius: 16,
+    gap: 10,
   },
   flightHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
   },
@@ -104,21 +108,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  flightNumber: {
-    color: Colors.secondary_color,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  dateText: {
-    color: Colors.secondary_color,
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  routeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   routeInfo: {
     flexDirection: "row",
     alignItems: "center",
@@ -126,16 +115,6 @@ const styles = StyleSheet.create({
   },
   airportContainer: {
     alignItems: "center",
-  },
-  airportCode: {
-    color: Colors.secondary_color,
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  routeLabel: {
-    color: Colors.tertiary_color,
-    fontSize: 12,
-    fontWeight: "400",
   },
   arrowContainer: {
     alignItems: "center",
@@ -146,7 +125,13 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.dark_cyan_translucent_2,
   },
-  timeContainer: {
+  dateTimeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 4,
+  },
+  iconTime: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,

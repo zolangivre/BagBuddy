@@ -17,7 +17,7 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
       : type === "transactions"
       ? "active"
       : type === "profile"
-      ? "overview"
+      ? "listings"
       : null
   );
 
@@ -62,13 +62,13 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
   } else if (type === "profile") {
     buttons = [
       {
-        key: "overview",
-        text: i18n.t("overview"),
+        key: "listings",
+        text: i18n.t("listings"),
         color: Colors.primary_color,
       },
       {
-        key: "listings",
-        text: i18n.t("listings"),
+        key: "reviews",
+        text: i18n.t("reviews"),
         color: Colors.success_color,
       },
       {
@@ -99,14 +99,6 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
               : isSelected
               ? "#FFFFFF"
               : Colors.secondary_color;
-
-            // Background : pas de background en dark mode
-            const buttonBackground =
-            colorScheme === "dark"
-              ? "transparent"
-              : isSelected
-              ? btn.color
-              : theme.background;
 
           const iconColor = isSelected
             ? "#FFFFFF"

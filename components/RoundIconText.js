@@ -1,7 +1,9 @@
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
+import { typography } from "@/theme/Fonts";
 
 const RoundIconText = ({ icon = null, text, backgroundColor, size, colorText }) => {
+
   return (
     <>
       {icon ? (
@@ -21,7 +23,9 @@ const RoundIconText = ({ icon = null, text, backgroundColor, size, colorText }) 
             { backgroundColor: backgroundColor, width: size, height: size },
           ]}
         >
-          <Text style={[styles.text, { color: colorText }]}>{text}</Text>
+          <Text style={[typography.headline5, { color: colorText }]}>
+            {text}
+          </Text>
         </View>
       ) : null}
     </>
@@ -34,7 +38,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  text: { fontSize: 14, fontWeight: "700" },
 });
 
 export default RoundIconText;

@@ -25,10 +25,10 @@ const AlertModal = ({
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: theme.background_card }]}>
           {title ? (
-            <Text style={[styles.title, { color: theme.title }]}>{title}</Text>
+            <Text style={theme.textStyles.titleSmall}>{title}</Text>
           ) : null}
           {message ? (
-            <Text style={[styles.message, { color: theme.text }]}>
+            <Text style={theme.textStyles.bodyMedium}>
               {message}
             </Text>
           ) : null}
@@ -46,7 +46,7 @@ const AlertModal = ({
               >
                 <Text
                   style={[
-                    styles.buttonText,
+                    theme.textStyles.buttonText, { fontSize: 14 },
                     btn.style === "destructive" && { color: Colors.white },
                   ]}
                 >
@@ -74,16 +74,7 @@ const styles = StyleSheet.create({
     maxWidth: 360,
     borderRadius: 16,
     padding: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 8,
-  },
-  message: {
-    fontSize: 14,
-    color: Colors.light.text,
-    marginBottom: 16,
+    gap: 5,
   },
   buttonsContainer: {
     flexDirection: "row",

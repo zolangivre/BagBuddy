@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import Colors from "../theme/Colors";
+import { useThemeContext } from "../contexts/ThemeContext";
 
 const Button = ({
   href,
@@ -15,6 +16,8 @@ const Button = ({
   ...props
 }) => {
   const router = useRouter();
+  const { theme: colorScheme } = useThemeContext();
+  const theme = Colors[colorScheme] ?? Colors.light;
 
   const handlePress = (e) => {
     if (onPress) onPress(e);
@@ -31,7 +34,7 @@ const Button = ({
       {...props}
     >
       {leftIcon ? <View style={styles.iconLeft}>{leftIcon}</View> : null}
-      <Text style={[styles.buttonText, textStyle]}>{text}</Text>
+      <Text style={[theme.textStyles.buttonText, textStyle]}>{text}</Text>
       {rightIcon ? <View style={styles.iconRight}>{rightIcon}</View> : null}
     </TouchableOpacity>
   );
@@ -52,11 +55,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 4,
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "500",
   },
   iconLeft: {
     marginRight: 8,

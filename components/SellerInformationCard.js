@@ -7,17 +7,36 @@ import {
   Plane,
   Dot,
   ArrowRight,
-  Clock,
   Scale,
+  PlaneTakeoff,
+  PlaneLanding,
 } from "lucide-react-native";
 import ButtonIcon from "./ButtonIcon";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import { useThemeContext } from "../contexts/ThemeContext";
+import { AIRPORT } from "@/constants/airports";
+import LocalizedDateTime, {
+  formatLocalizedDate,
+} from "@/components/LocalizedDateTime";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const SellerInformationCard = ({ status }) => {
+const SellerInformationCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
+  const status = item?.status;
+  const { language } = useLanguage();
+  const departureAirportName = AIRPORT.find(
+    (airport) => airport.value === item?.departureAirport
+  )?.name;
+  const arrivalAirportName = AIRPORT.find(
+    (airport) => airport.value === item?.arrivalAirport
+  )?.name;
 
+  const dateDeparture = formatLocalizedDate(
+    item.dateDeparture,
+    language
+  );
+  const dateArrival = formatLocalizedDate(item.dateArrival, language);
   return (
     <>
       <View style={[styles.sellerCard, { backgroundColor: theme.flightCard }]}>
@@ -25,12 +44,8 @@ const SellerInformationCard = ({ status }) => {
           <Text style={styles.sellerInitials}>KB</Text>
         </View>
         <View style={styles.sellerInfo}>
-          <Text style={[styles.sellerName, { color: theme.title }]}>
-            Karim Benzema
-          </Text>
-          <Text style={[styles.sellerRating, { color: theme.text }]}>
-            ★ 4.9 • Seller
-          </Text>
+          <Text style={theme.textStyles.cardTitle}>{item?.sellerName}</Text>
+          <Text style={theme.textStyles.bodyMedium}>★ 4.9 • Seller</Text>
         </View>
         <ButtonIcon
           //   onPress={}
@@ -45,19 +60,19 @@ const SellerInformationCard = ({ status }) => {
       {/* Flight Details */}
       <View style={styles.flightDetailsRow}>
         <Plane size={16} color={Colors.primary_color} />
-        <Text style={[styles.airlineName, { color: theme.title }]}>
-          Emirates
-        </Text>
+        <Text style={theme.textStyles.cardTitle}>Flight number</Text>
         <Dot size={20} color={Colors.tertiary_color} />
-        <Text style={[styles.flightNumber, { color: theme.text }]}>EK 203</Text>
+        <Text style={theme.textStyles.bodyLarge}>{item?.flightNumber}</Text>
       </View>
 
       {/* Route Information */}
       <View style={styles.routeContainer}>
         <View style={styles.airportSection}>
-          <Text style={[styles.airportCode, { color: theme.title }]}>DXB</Text>
-          <Text style={[styles.airportName, { color: theme.text }]}>
-            Dubai International Airport
+          <Text style={theme.textStyles.cardTitle}>
+            {item?.departureAirport}
+          </Text>
+          <Text style={theme.textStyles.bodyMedium}>
+            {departureAirportName}
           </Text>
         </View>
 
@@ -66,21 +81,11 @@ const SellerInformationCard = ({ status }) => {
         </View>
 
         <View style={styles.airportSection}>
-          <Text
-            style={[
-              styles.airportCode,
-              { textAlign: "right", color: theme.title },
-            ]}
-          >
-            JFK
+          <Text style={[theme.textStyles.cardTitle, { textAlign: "right" }]}>
+            {item?.arrivalAirport}
           </Text>
-          <Text
-            style={[
-              styles.airportName,
-              { textAlign: "right", width: 107, color: theme.text },
-            ]}
-          >
-            John F. Kennedy International Airport
+          <Text style={[theme.textStyles.bodyMedium, { textAlign: "right" }]}>
+            {arrivalAirportName}
           </Text>
         </View>
       </View>
@@ -88,14 +93,34 @@ const SellerInformationCard = ({ status }) => {
       {/* Time and Date */}
       <View style={styles.timeRow}>
         <View style={styles.timeSection}>
-          <Clock size={16} color={Colors.primary_color} />
-          <Text style={[styles.timeText, { color: theme.title }]}>14:30</Text>
-        </View>
-        <View style={styles.dateSection}>
-          <Text style={[styles.dateText, { color: theme.text }]}>Dec 25, 2024</Text>
+          <PlaneTakeoff size={16} color={Colors.primary_color} />
+          <View style={{ alignItems: "center" }}>
+            <View style={styles.dateSection}>
+              <Text style={theme.textStyles.bodyMedium}>{dateDeparture}</Text>
+            </View>
+            <LocalizedDateTime
+              date={item.dateDeparture}
+              showDate={false}
+              showTime={true}
+              options={{ hour: "2-digit", minute: "2-digit" }}
+              style={{ color: theme.title }}
+            />
+          </View>
         </View>
         <View style={styles.timeSection}>
-          <Text style={[styles.timeText, { color: theme.title }]}>20:15</Text>
+          <PlaneLanding size={16} color={Colors.primary_color} />
+          <View style={{ alignItems: "center" }}>
+            <View style={styles.dateSection}>
+              <Text style={theme.textStyles.bodyMedium}>{dateArrival}</Text>
+            </View>
+            <LocalizedDateTime
+              date={item.dateArrival}
+              showDate={false}
+              showTime={true}
+              options={{ hour: "2-digit", minute: "2-digit" }}
+              style={{ color: theme.title }}
+            />
+          </View>
         </View>
       </View>
 
@@ -106,10 +131,12 @@ const SellerInformationCard = ({ status }) => {
           <View style={styles.weightPriceRow}>
             <View style={styles.weightSection}>
               <Scale size={16} color={Colors.success_color} />
-              <Text style={[styles.weightText, { color: theme.title }]}>15kg available</Text>
+              <Text style={theme.textStyles.cardTitle}>
+                {item.weight}kg available
+              </Text>
             </View>
             <View style={styles.priceSection}>
-              <Text style={styles.priceText}>$12/kg</Text>
+              <Text style={theme.textStyles.number}>${item.pricePerKg}/kg</Text>
             </View>
           </View>
         </>
@@ -143,29 +170,11 @@ const styles = StyleSheet.create({
   sellerInfo: {
     flex: 1,
   },
-  sellerName: {
-    color: Colors.secondary_color,
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  sellerRating: {
-    color: Colors.tertiary_color,
-    fontSize: 14,
-    fontWeight: "400",
-  },
   flightDetailsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
     marginBottom: 20,
-  },
-  airlineName: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  flightNumber: {
-    fontSize: 16,
-    fontWeight: "400",
   },
   routeContainer: {
     flexDirection: "row",
@@ -181,16 +190,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
   },
-  airportCode: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
   airportCodeRight: {
     textAlign: "right",
-  },
-  airportName: {
-    fontSize: 14,
-    fontWeight: "400",
   },
   timeRow: {
     flexDirection: "row",
@@ -201,27 +202,17 @@ const styles = StyleSheet.create({
   timeSection: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    flex: 1,
+    gap: 8,
   },
   dateSection: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  timeText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  dateText: {
-    fontSize: 14,
-    fontWeight: "400",
   },
   weightPriceRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderTopWidth: 0.612,
+    borderTopWidth: 0.65,
     borderTopColor: "#E2E8F0",
     paddingTop: 16,
   },
@@ -231,18 +222,9 @@ const styles = StyleSheet.create({
     gap: 4,
     flex: 1,
   },
-  weightText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
   priceSection: {
     flex: 1,
     alignItems: "flex-end",
-  },
-  priceText: {
-    color: Colors.primary_color,
-    fontSize: 16,
-    fontWeight: "500",
   },
 });
 

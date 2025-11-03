@@ -5,41 +5,38 @@ import Avatar from "./Avatar";
 import StatusBadge from "./StatusBadge";
 import FlightInfoCard from "./FlightInfoCard";
 import Label from "./Label";
-import {
-  USER_TRANSACTION_TYPE,
-} from "@/constants/allConstants";
+import { USER_TRANSACTION_TYPE } from "@/constants/allConstants";
 import { useRouter } from "expo-router";
-import { useThemeContext } from "../contexts/ThemeContext";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
+import { globalStyles} from "@/theme/Styles";
 
 const TransactionCard = ({ transaction }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-
   const router = useRouter();
-
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => router.push(`/transactions/${transaction.id}`)}
+      onPress={() =>
+        router.push({
+          pathname: "transaction-detail",
+          params: { transactionId: transaction.id },
+        })
+      }
     >
       <View
         style={[
-          transactionCardStyles.container,
-          { backgroundColor: theme.background_card },
+          globalStyles.card,
+          { backgroundColor: theme.background_card, gap: 20 },
         ]}
       >
         {/* User Info Row */}
         <View style={transactionCardStyles.userColumn}>
           <View style={transactionCardStyles.userInfo}>
-            <Avatar style={{ flex: 1 }} initials={transaction.userInitials} />
-            <Text
-              style={[
-                transactionCardStyles.userName,
-                { flex: 1, color: theme.title },
-              ]}
-            >
-              {transaction.userName}
+            <Avatar style={{ flex: 1 }} initials={transaction.initials} />
+            <Text style={{ ...theme.textStyles.sectionTitle, flex: 1 }}>
+              {transaction.sellerName}
             </Text>
             <ArrowRight size={16} color={Colors.tertiary_color} />
           </View>
@@ -67,33 +64,19 @@ const TransactionCard = ({ transaction }) => {
         <View style={transactionCardStyles.priceRow}>
           <View style={transactionCardStyles.weightContainer}>
             <Weight size={20} color={Colors.primary_color} />
-            <Text
-              style={[transactionCardStyles.weightText, { color: theme.text }]}
-            >
-              {transaction.weight}
+            <Text style={theme.textStyles.bodyLarge}>
+              {transaction.weight} kg
             </Text>
           </View>
           <View style={transactionCardStyles.rateContainer}>
-            <Text
-              style={[transactionCardStyles.rateLabel, { color: theme.text }]}
-            >
-              {i18n.t("rate")}
-            </Text>
-            <Text
-              style={[transactionCardStyles.rateValue, { color: theme.title }]}
-            >
-              {transaction.rate}
+            <Text style={theme.textStyles.bodyLarge}>{i18n.t("rate")}</Text>
+            <Text style={theme.textStyles.statValue}>
+              ${transaction.pricePerKg}/kg
             </Text>
           </View>
           <View style={transactionCardStyles.totalContainer}>
-            <Text
-              style={[transactionCardStyles.totalLabel, { color: theme.text }]}
-            >
-              {i18n.t("total")}
-            </Text>
-            <Text style={transactionCardStyles.totalValue}>
-              {transaction.total}
-            </Text>
+            <Text style={theme.textStyles.bodyLarge}>{i18n.t("total")}</Text>
+            <Text style={theme.textStyles.number}>{transaction.total} $</Text>
           </View>
         </View>
       </View>
@@ -102,16 +85,6 @@ const TransactionCard = ({ transaction }) => {
 };
 
 const transactionCardStyles = StyleSheet.create({
-  container: {
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-    gap: 20,
-  },
   userColumn: {
     flexDirection: "colum",
     width: "100%",
@@ -121,12 +94,6 @@ const transactionCardStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  userName: {
-    color: Colors.secondary_color,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
   },
   statusContainer: {
     flexDirection: "row",
@@ -144,36 +111,13 @@ const transactionCardStyles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  weightText: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
   rateContainer: {
     alignItems: "center",
     flex: 1,
   },
-  rateLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-    marginBottom: 4,
-  },
-  rateValue: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
   totalContainer: {
     alignItems: "flex-end",
     flex: 1,
-  },
-  totalLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-    marginBottom: 4,
-  },
-  totalValue: {
-    color: Colors.primary_color,
-    fontSize: 20,
-    fontWeight: "700",
   },
 });
 

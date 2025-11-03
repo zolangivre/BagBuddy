@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Weight, ArrowRight } from "lucide-react-native";
 import Colors from "../theme/Colors";
 import Avatar from "./Avatar";
@@ -8,26 +8,31 @@ import FlightInfoCard from "./FlightInfoCard";
 import RoundIconText from "./RoundIconText";
 import { useThemeContext } from "../contexts/ThemeContext";
 import i18n from "@/i18n";
+import { router } from "expo-router";
+import { globalStyles } from "@/theme/Styles";
 
 const HomeCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
+  const handleUserPress = () => {
+    router.push({
+      pathname: "profile-view",
+    });
+  }
 
   return (
     <View
       key={item.id}
-      style={[styles.listingCard, { backgroundColor: theme.background_card }]}
+      style={[globalStyles.card, { backgroundColor: theme.background_card, gap: 20 }]}
     >
       {/* User Header */}
       <View style={styles.listingUserHeader}>
-        <View style={styles.listingUserInfo}>
-          <Avatar initials={item.initials} />
-          <View style={styles.userNameContainer}>
-            <Text style={[styles.userName, { color: theme.title }]}>
-              {item.name}
-            </Text>
+        <TouchableOpacity onPress={handleUserPress}>
+          <View style={styles.listingUserInfo}>
+            <Avatar initials={item.initials} />
+            <Text style={theme.textStyles.sectionTitle}>{item.sellerName}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Flight Info */}
@@ -42,36 +47,34 @@ const HomeCard = ({ item }) => {
             size={32}
           />
           <View>
-            <Text style={[styles.weightLabel, { color: theme.text }]}>
+            <Text style={theme.textStyles.bodyLarge}>
               {i18n.t("available_weight")}
             </Text>
-            <Text style={[styles.weightValue, { color: theme.title }]}>
-              {item.weight} kg
-            </Text>
+            <Text style={theme.textStyles.titleMedium}>{item.weight} kg</Text>
           </View>
         </View>
         <View style={styles.priceInfo}>
-          <Text style={[styles.priceLabel, { color: theme.text }]}>
+          <Text style={theme.textStyles.bodyLarge}>
             {i18n.t("price_per_kg")}
           </Text>
-          <Text style={styles.priceValue}>${item.pricePerKg}</Text>
+          <Text style={theme.textStyles.number}>${item.pricePerKg}</Text>
         </View>
       </View>
 
       {/* Total and Reserve Button */}
       <View style={styles.totalContainer}>
         <View style={styles.totalRow}>
-          <Text style={[styles.totalLabel, { color: theme.text }]}>
-            {i18n.t("total_for")} {item.weight}
+          <Text style={theme.textStyles.bodyLarge}>
+            {i18n.t("total_for")} {item.weight} kg
           </Text>
-          <Text style={styles.totalValue}>${item.total}</Text>
+          <Text style={theme.textStyles.number}>${item.total}</Text>
         </View>
       </View>
 
       <Button
         href={{
           pathname: "transaction-detail",
-          params: { status: "payment_required" },
+          params: { listingId: item.id },
         }}
         text={i18n.t("reserve_weight")}
         rightIcon={<ArrowRight size={24} color="#FFFFFF" />}
@@ -81,16 +84,6 @@ const HomeCard = ({ item }) => {
 };
 
 const styles = StyleSheet.create({
-  listingCard: {
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-    gap: 10,
-  },
   listingUserHeader: {
     marginBottom: 10,
   },
@@ -98,19 +91,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  userNameContainer: {
-    justifyContent: "center",
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  timeText: {
-    color: Colors.tertiary_color,
-    fontSize: 14,
-    fontWeight: "400",
-    lineHeight: 20,
   },
   weightPriceContainer: {
     flexDirection: "row",
@@ -123,25 +103,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  weightLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
-  weightValue: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
   priceInfo: {
     alignItems: "flex-end",
-  },
-  priceLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
-  priceValue: {
-    color: Colors.primary_color,
-    fontSize: 20,
-    fontWeight: "700",
   },
   totalContainer: {
     paddingHorizontal: 12,
@@ -155,15 +118,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  totalLabel: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
-  totalValue: {
-    color: Colors.primary_color,
-    fontSize: 20,
-    fontWeight: "700",
   },
 });
 

@@ -7,6 +7,7 @@ import RoundIconText from "./RoundIconText";
 import HowStep from "./HowStep";
 import { useThemeContext } from "../contexts/ThemeContext";
 import i18n from "@/i18n";
+import { globalStyles } from "@/theme/Styles";
 
 const HomeSellView = () => {
   const { theme: colorScheme } = useThemeContext();
@@ -15,28 +16,48 @@ const HomeSellView = () => {
   return (
     <View style={styles.content}>
       {/* Turn Extra Weight into Cash Section */}
-      <View style={styles.cashSection}>
+      <View
+        style={[
+          globalStyles.card,
+          { backgroundColor: Colors.light_green_translucent, alignItems: "center", gap: 15},
+        ]}
+      >
         <RoundIconText
           icon={<DollarSign size={40} color={Colors.success_color} />}
           backgroundColor={Colors.light_green_translucent}
           size={80}
         />
-        <Text style={[styles.cashTitle, { color: theme.title }]}>{i18n.t("sell_weight_title")}</Text>
-        <Text style={[styles.cashDescription, { color: theme.text }]}>
+        <Text
+          style={[
+            theme.textStyles.cardStatusTitle,
+            { color: Colors.success_color },
+          ]}
+        >
+          {i18n.t("sell_weight_title")}
+        </Text>
+        <Text
+          style={[
+            theme.textStyles.bodyLarge,
+            { textAlign: "center", lineHeight: 26 },
+          ]}
+        >
           {i18n.t("sell_weight_description")}
         </Text>
         <Button
           text={i18n.t("create_new_listing")}
+          href="edit-listing"
           leftIcon={<Plus size={24} color="#FFFFFF" />}
           color={Colors.success_color}
         />
       </View>
 
       {/* How Selling Works Section */}
-      <View style={[styles.howItWorksSection, { backgroundColor: theme.background_card }]}>
-        <Text style={[styles.howItWorksTitle, { color: theme.title }]}>{i18n.t("how_selling_works")}</Text>
+      <View style={[globalStyles.card, { backgroundColor: theme.background_card }]}>
+        <Text style={[theme.textStyles.cardTitle, { textAlign: "center", marginBottom: 10 }]}>
+          {i18n.t("how_selling_works")}
+        </Text>
 
-        <View style={styles.stepsContainer}>
+        <View style={styles.gapContainer}>
           <HowStep
             number={1}
             title={i18n.t("list_your_flight")}
@@ -69,54 +90,8 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 15,
   },
-  cashSection: {
-    padding: 20,
-    alignItems: "center",
-    gap: 15,
-    borderRadius: 16,
-    backgroundColor: Colors.light_green_translucent,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.light_green_translucent,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  cashTitle: {
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "600",
-  },
-  cashDescription: {
-    textAlign: "center",
-    fontSize: 16,
-    lineHeight: 26,
-    paddingHorizontal: 6,
-  },
-  howItWorksSection: {
-    width: "100%",
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  howItWorksTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  stepsContainer: {
+  gapContainer: {
+    marginTop: 16,
     gap: 16,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,7 +15,14 @@ import { Calendar } from "lucide-react-native";
 import i18n from "@/i18n";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const DateInputModal = ({ label, value, onChangeText, placeholder }) => {
+const DateInputModal = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  error = null,
+  minimumDate = null,
+}) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -34,9 +41,23 @@ const DateInputModal = ({ label, value, onChangeText, placeholder }) => {
           weekday: "long", // jour de la semaine
           day: "numeric", // numéro du jour
           month: "long", // nom du mois
+          year: "numeric", // année
         }).format(d);
       })()
     : "";
+
+  // Mettre à jour tempDate si la date minimale change
+  useEffect(() => {
+    if (minimumDate) {
+      const minDate = new Date(minimumDate);
+      setTempDate((currentDate) => {
+        if (currentDate < minDate) {
+          return minDate;
+        }
+        return currentDate;
+      });
+    }
+  }, [minimumDate]);
 
   const handleConfirm = () => {
     onChangeText(tempDate.toISOString().split("T")[0]);
@@ -44,13 +65,11 @@ const DateInputModal = ({ label, value, onChangeText, placeholder }) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, gap: 5 }}>
       {/* Label + Icon */}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
         <Calendar size={20} color={theme.text} />
-        {label && (
-          <Text style={[styles.label, { color: theme.text }]}>{label}</Text>
-        )}
+        {label && <Text style={theme.textStyles.bodyMedium}>{label}</Text>}
       </View>
 
       {/* Input */}
@@ -60,17 +79,20 @@ const DateInputModal = ({ label, value, onChangeText, placeholder }) => {
             style={[
               styles.input,
               { backgroundColor: theme.flightCard, color: theme.title },
+              error && { borderWidth: 1, borderColor: Colors.error_color },
             ]}
             placeholder={placeholder}
             value={displayDate}
             editable={false}
-            placeholderTextColor={theme.title}
+            placeholderTextColor={theme.text}
           />
         </View>
       </TouchableOpacity>
 
+      {error ? <Text style={theme.textStyles.errorText}>{error}</Text> : null}
+
       {/* Modal */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      <Modal visible={modalVisible} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <View
             style={[
@@ -88,32 +110,32 @@ const DateInputModal = ({ label, value, onChangeText, placeholder }) => {
                 if (Platform.OS === "android") handleConfirm();
               }}
               maximumDate={new Date(2100, 11, 31)}
-              minimumDate={today}
+              minimumDate={minimumDate || today}
               textColor={theme.title}
               locale={language}
             />
 
             {/* Bouton de confirmation (iOS uniquement) */}
             {Platform.OS === "ios" && (
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={handleConfirm}
-              >
-                <Text style={{ color: "#FFF", fontWeight: "600" }}>
-                  {i18n.t("confirm")}
-                </Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  style={styles.confirmButton}
+                  onPress={handleConfirm}
+                >
+                  <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
+                    {i18n.t("confirm")}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
+                    {i18n.t("close")}
+                  </Text>
+                </TouchableOpacity>
+              </>
             )}
-
-            {/* Bouton fermer */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={{ color: "#FFF", fontWeight: "600" }}>
-                {i18n.t("close")}
-              </Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -129,11 +151,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 6,
     justifyContent: "center",
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 4,
   },
   modalOverlay: {
     flex: 1,

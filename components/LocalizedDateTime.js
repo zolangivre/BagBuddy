@@ -11,6 +11,7 @@ export const formatLocalizedDate = (date, language = "en", style = "short") => {
   return new Intl.DateTimeFormat(language, {
     month: style === "short" ? "short" : "long",
     day: "numeric",
+    year: "numeric",
   }).format(dt);
 };
 
@@ -25,7 +26,7 @@ export const formatLocalizedTime = (date, language = "en", includeSeconds = fals
     hour: "2-digit",
     minute: "2-digit",
     ...(includeSeconds ? { second: "2-digit" } : {}),
-    hour12: language === "en", // format 12h pour anglais
+    hour12: language === "en", // format 12h avec AM/PM uniquement pour l'anglais
   }).format(dt);
 };
 

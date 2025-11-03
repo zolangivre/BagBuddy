@@ -19,6 +19,7 @@ const NumberInput = ({
   min = 0,
   max = 200,
   icon,
+  error = null,
 }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -48,15 +49,21 @@ const NumberInput = ({
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+    <View style={{ flex: 1, gap: 5 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
         {icon}
         {label && (
-          <Text style={[styles.label, { color: theme.text }]}>{label}</Text>
+          <Text style={theme.textStyles.bodyMedium}>{label}</Text>
         )}
       </View>
 
-      <View style={[styles.inputRow, { backgroundColor: theme.flightCard }]}>
+      <View
+        style={[
+          styles.inputRow,
+          { backgroundColor: theme.flightCard },
+          error && { borderWidth: 1, borderColor: "#EF4444" },
+        ]}
+      >
         <TouchableOpacity style={styles.arrow} onPress={decrement}>
           <Text style={[styles.arrowText, { color: theme.title }]}>-</Text>
         </TouchableOpacity>
@@ -73,16 +80,13 @@ const NumberInput = ({
           <Text style={[styles.arrowText, { color: theme.title }]}>+</Text>
         </TouchableOpacity>
       </View>
+
+      {error ? <Text style={theme.textStyles.errorText}>{error}</Text> : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 4,
-  },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
