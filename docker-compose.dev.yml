@@ -90,16 +90,6 @@ services:
     networks:
       - bagbuddy-network
 
-# --- VOLUMES & NETWORK ---
-volumes:
-  messaging_pgdata:
-  transaction_pgdata:
-  keycloak_pgdata:
-
-networks:
-  bagbuddy-network:
-    driver: bridge
-
   # --- TRANSACTION SERVICE ---
   transaction-service:
     build:
@@ -109,7 +99,7 @@ networks:
     env_file:
       - ./.env
     ports:
-      - "8083:8083
+      - "8083:8083"
     depends_on:
       - eureka-server
       - transactionservice-db
@@ -159,3 +149,15 @@ networks:
       - ${REVIEW_SERVICE_DB_PORT}:5432
     networks:
       - bagbuddy-network
+
+# --- VOLUMES & NETWORK ---
+volumes:
+  messaging_pgdata:
+  transaction_pgdata:
+  keycloak_pgdata:
+  review_pgdata:
+  trip_pgdata:
+
+networks:
+  bagbuddy-network:
+    driver: bridge
