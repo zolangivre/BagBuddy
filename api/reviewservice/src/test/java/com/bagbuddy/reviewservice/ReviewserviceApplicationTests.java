@@ -1,10 +1,10 @@
-package com.bagbuddy.tripservice;
+package com.bagbuddy.reviewservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TripserviceApplicationTests {
+class ReviewserviceApplicationTests {
 
 	@Test
 	void contextLoads() {
