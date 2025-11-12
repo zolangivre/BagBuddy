@@ -4,6 +4,7 @@ import com.bagbuddy.tripservice.model.Trip;
 import com.bagbuddy.tripservice.repository.TripRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
 import java.util.List;
 
 @RestController
