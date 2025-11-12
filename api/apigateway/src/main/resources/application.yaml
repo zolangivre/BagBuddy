@@ -13,6 +13,14 @@ spring:
           uri: lb://trip-service
           predicates:
             - Path=/trips/**
+        - id: transaction-service
+          uri: lb://transaction-service
+          predicates:
+            - Path=/transactions/**
+        - id: review-service
+          uri: lb://review-service
+          predicates:
+            - Path=/reviews/**
 
 server:
   port: 8080

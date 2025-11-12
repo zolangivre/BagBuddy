@@ -93,9 +93,69 @@ services:
 # --- VOLUMES & NETWORK ---
 volumes:
   messaging_pgdata:
-  trip_pgdata:
+  transaction_pgdata:
   keycloak_pgdata:
 
 networks:
   bagbuddy-network:
     driver: bridge
+
+  # --- TRANSACTION SERVICE ---
+  transaction-service:
+    build:
+      context: ./transactionservice
+      dockerfile: Dockerfile
+    container_name: transaction-service-dev
+    env_file:
+      - ./.env
+    ports:
+      - "8083:8083
+    depends_on:
+      - eureka-server
+      - transactionservice-db
+    networks:
+      - bagbuddy-network
+
+  transactionservice-db:
+    image: postgres:15-alpine
+    container_name: transaction-service-postgres
+    environment:
+      POSTGRES_DB: ${TRANSACTION_SERVICE_DB}
+      POSTGRES_USER: ${TRANSACTION_SERVICE_USER}
+      POSTGRES_PASSWORD: ${TRANSACTION_SERVICE_PASSWORD}
+    volumes:
+      - transaction_pgdata:/var/lib/postgresql/data
+    ports:
+      - ${TRANSACTION_SERVICE_DB_PORT}:5432
+    networks:
+      - bagbuddy-network
+
+  # --- REVIEW SERVICE ---
+  review-service:
+    build:
+      context: ./reviewservice
+      dockerfile: Dockerfile
+    container_name: review-service-dev
+    env_file:
+      - ./.env
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+      - reviewservice-db
+    networks:
+      - bagbuddy-network
+
+  reviewservice-db:
+    image: postgres:15-alpine
+    container_name: review-service-postgres
+    environment:
+      POSTGRES_DB: ${REVIEW_SERVICE_DB}
+      POSTGRES_USER: ${REVIEW_SERVICE_USER}
+      POSTGRES_PASSWORD: ${REVIEW_SERVICE_PASSWORD}
+    volumes:
+      - review_pgdata:/var/lib/postgresql/data
+    ports:
+      - ${REVIEW_SERVICE_DB_PORT}:5432
+    networks:
+      - bagbuddy-network
