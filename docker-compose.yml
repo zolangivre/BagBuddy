@@ -56,6 +56,22 @@ services:
     networks:
       - bagbuddy-network
 
+  transactionservice:
+    container_name: transaction-service
+    build:
+      context: ./transactionservice
+      dockerfile: Dockerfile
+    networks:
+      - bagbuddy-network
+
+  reviewservice:
+    container_name: review-service
+    build:
+      context: ./reviewservice
+      dockerfile: Dockerfile
+    networks:
+      - bagbuddy-network
+
 networks:
   bagbuddy-network:
     driver: bridge
