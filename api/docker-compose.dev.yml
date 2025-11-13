@@ -62,7 +62,6 @@ services:
     container_name: bagbuddy-keycloak
     command: start-dev
     environment:
-      KC_HOSTNAME: 100.108.226.114
       KC_HTTP_PORT: 8000
       KC_PROXY: edge
       KC_DB: postgres
