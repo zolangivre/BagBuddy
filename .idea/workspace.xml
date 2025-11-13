@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="55010b2e-63ed-4e6a-862a-e9fb82921ffc" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/api/gateway-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/gateway-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/messaging-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/messaging-service/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/messaging-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/messaging-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/review-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/review-service/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/review-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/review-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/transaction-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/transaction-service/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/transaction-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/transaction-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/models/Trip.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/models/Trip.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/repository/TripRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/repository/TripRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/resolvers/TripResolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/resolvers/TripResolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/services/TripService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/services/TripService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/resources/graphql/schema.graphqls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/user-service/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/src/main/resources/graphql/schema.graphqls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/init-db/init.sql" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="349n50YqEQVKzQKnEdKjRAPPm8Y" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker-compose.yml.pgadmin: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.postgres: Compose Deployment.executor": "Run",
+    "Gradle./home/ubuntu/BagBuddy/api/trip-service/build.gradle.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "init-backend",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/ubuntu/Bureau/BagBuddy"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/api/trip-service/src/main/resources/db/migration" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/api/review-service/src/main/java/bagbuddy/backend" />
+      <recent name="$PROJECT_DIR$/api/messaging-service/src/main/java/bagbuddy/backend" />
+      <recent name="$PROJECT_DIR$/api/transaction-service/src/main/java/bagbuddy/backend" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.docker-compose.yml.pgadmin: Compose Deployment">
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml.pgadmin: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="pgadmin" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml.postgres: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="postgres" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker-compose.yml.pgadmin: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml.postgres: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26199.169" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="55010b2e-63ed-4e6a-862a-e9fb82921ffc" name="Changes" comment="" />
+      <created>1760634467545</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1760634467545</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

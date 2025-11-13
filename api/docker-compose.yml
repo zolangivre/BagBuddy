@@ -1,99 +1,80 @@
-version: "3.9"
-
 services:
-  # ----------------------
-  # PostgreSQL pour User
-  # ----------------------
-  postgres-user:
-    image: postgres:alpine
-    container_name: postgres-user
+  postgres:
+    image: postgres:15-alpine
+    container_name: keycloak_postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: user_manager_db
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata-user:/var/lib/postgresql/data
 
-  # ----------------------
-  # PostgreSQL pour Trips
-  # ----------------------
-  postgres-trip:
-    image: postgres:alpine
-    container_name: postgres-trip
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.0
+    container_name: keycloak
+    command: start-dev
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: trip_db
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
-      - "5433:5432"  # port local différent
-    volumes:
-      - pgdata-trip:/var/lib/postgresql/data
+      - "8000:8080"
+    depends_on:
+      - postgres
 
-  # ----------------------
-  # PostgreSQL pour Transactions
-  # ----------------------
-  postgres-transaction:
-    image: postgres:alpine
-    container_name: postgres-transaction
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: transaction_db
+  eureka:
+    container_name: eureka-server
+    build:
+      context: ./eurekaserver
+      dockerfile: Dockerfile
     ports:
-      - "5434:5432"
-    volumes:
-      - pgdata-transaction:/var/lib/postgresql/data
+      - "8761:8761"
+    networks:
+      - bagbuddy-network
 
-  # ----------------------
-  # PostgreSQL pour Messaging
-  # ----------------------
-  postgres-messaging:
-    image: postgres:alpine
-    container_name: postgres-messaging
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: messaging_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - pgdata-messaging:/var/lib/postgresql/data
-
-  # ----------------------
-  # PostgreSQL pour Reviews
-  # ----------------------
-  postgres-review:
-    image: postgres:alpine
-    container_name: postgres-review
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: review_db
-    ports:
-      - "5436:5432"
-    volumes:
-      - pgdata-review:/var/lib/postgresql/data
-
-  # ----------------------
-  # API Gateway (exemple)
-  # ----------------------
-  api-gateway:
-    image: your-api-gateway-image
+  apigateway:
     container_name: api-gateway
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres-user
-      - postgres-trip
-      - postgres-transaction
-      - postgres-messaging
-      - postgres-review
+    networks:
+      - bagbuddy-network
+
+  tripservice:
+    container_name: trip-service
+    build:
+      context: ./tripservice
+      dockerfile: Dockerfile
+    networks:
+      - bagbuddy-network
+
+  transactionservice:
+    container_name: transaction-service
+    build:
+      context: ./transactionservice
+      dockerfile: Dockerfile
+    networks:
+      - bagbuddy-network
+
+  reviewservice:
+    container_name: review-service
+    build:
+      context: ./reviewservice
+      dockerfile: Dockerfile
+    networks:
+      - bagbuddy-network
+
+networks:
+  bagbuddy-network:
+    driver: bridge
 
 volumes:
-  pgdata-user:
-  pgdata-trip:
-  pgdata-transaction:
-  pgdata-messaging:
-  pgdata-review:
+  pgdata:
