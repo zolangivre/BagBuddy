@@ -5,30 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55010b2e-63ed-4e6a-862a-e9fb82921ffc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api/gateway-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/gateway-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/messaging-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/messaging-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/messaging-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/messaging-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/review-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/review-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/review-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/review-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/transaction-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/transaction-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/transaction-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/transaction-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/models/Trip.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/models/Trip.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/repository/TripRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/repository/TripRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/resolvers/TripResolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/resolvers/TripResolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/services/TripService.java" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/java/bagbuddy/backend/services/TripService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/trip-service/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/api/trip-service/src/main/resources/graphql/schema.graphqls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user-service/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/user-service/src/main/resources/graphql/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/api/user-service/src/main/resources/graphql/schema.graphqls" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/init-db/init.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/api/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/api/stripes">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="stripes" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -37,6 +41,9 @@
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="349n50YqEQVKzQKnEdKjRAPPm8Y" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -50,7 +57,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "init-backend",
+    "git-widget-placeholder": "init-backend-rest",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/ubuntu/Bureau/BagBuddy"
   }
@@ -97,6 +104,10 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Docker.docker-compose.yml.pgadmin: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose.yml.postgres: Compose Deployment" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Docker.docker-compose.yml.pgadmin: Compose Deployment" />

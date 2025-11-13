@@ -20,7 +20,7 @@ services:
       - "8080:8080"
     depends_on:
       - eureka-server   # ✅ attend que Eureka soit lancé avant de démarrer
-    restart: always
+    restart: unless-stopped
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/  # pour s’assurer que la variable est disponible
     networks:

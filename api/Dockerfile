@@ -2,9 +2,7 @@
 FROM gradle:9-jdk17 AS build
 WORKDIR /app
 
-# Copier les fichiers Gradle et les sources
-COPY build.gradle settings.gradle gradle.properties ./
-COPY src ./src
+COPY . ./src
 
 # Build du projet sans tests
 RUN gradle build -x test --no-daemon

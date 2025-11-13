@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/BagBuddy.iml" filepath="$PROJECT_DIR$/.idea/BagBuddy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/api/stripes/stripes.iml" filepath="$PROJECT_DIR$/api/stripes/stripes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/stripes.main.iml" filepath="$PROJECT_DIR$/.idea/modules/stripes.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/stripes.test.iml" filepath="$PROJECT_DIR$/.idea/modules/stripes.test.iml" />
     </modules>
   </component>
 </project>
