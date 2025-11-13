@@ -1,10 +1,23 @@
-# Dockerfile for deploy keycloak but doesn't work in my serv
-FROM quay.io/keycloak/keycloak:20.0.0
+# Étape 1 : build avec Gradle
+FROM gradle:9-jdk17 AS build
+WORKDIR /app
 
-ENV KC_HEALTH_ENABLED=true
-ENV KC_METRICS_ENABLED=true
+# Copier les fichiers Gradle et les sources
+COPY build.gradle settings.gradle gradle.properties ./
+COPY src ./src
 
-WORKDIR /opt/keycloak
-RUN /opt/keycloak/bin/kc.sh build
+# Build du projet sans tests
+RUN gradle build -x test --no-daemon
 
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+# Étape 2 : runtime léger
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Copier le jar généré par Gradle depuis l'étape build
+COPY --from=build /app/build/libs/*.jar app.jar
+
+# Exposer le port de ton application
+EXPOSE 8080
+
+# Commande pour lancer l'application
+ENTRYPOINT ["java", "-jar", "app.jar"]

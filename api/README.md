@@ -1,4 +1,4 @@
-# WoofWoof-backend
+# BagBuddy-backend
 
 # Setup with docker compose
 
