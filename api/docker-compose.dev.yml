@@ -4,7 +4,7 @@ services:
     build:
       context: ./eurekaserver
       dockerfile: Dockerfile
-    container_name: eureka-server
+    container_name: bagbuddy-eureka-server
     ports:
       - "8761:8761"
     networks:
@@ -15,7 +15,7 @@ services:
     build:
       context: ./apigateway
       dockerfile: Dockerfile
-    container_name: api-gateway-dev
+    container_name: bagbuddy-api-gateway-dev
     ports:
       - "8080:8080"
     depends_on:
@@ -31,7 +31,7 @@ services:
     build:
       context: ./tripservice
       dockerfile: Dockerfile
-    container_name: trip-service-dev
+    container_name: bagbuddy-trip-service-dev
     env_file:
       - ./.env
     ports:
@@ -44,7 +44,7 @@ services:
 
   tripservice-db:
     image: postgres:15-alpine
-    container_name: trip-service-postgres
+    container_name: bagbuddy-trip-service-postgres
     environment:
       POSTGRES_DB: ${TRIP_SERVICE_DB}
       POSTGRES_USER: ${TRIP_SERVICE_USER}
@@ -59,7 +59,7 @@ services:
   # --- KEYCLOAK ---
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.0
-    container_name: keycloak
+    container_name: bagbuddy-keycloak
     command: start-dev
     environment:
       KC_DB: postgres
@@ -77,7 +77,7 @@ services:
 
   keycloak-db:
     image: postgres:15-alpine
-    container_name: keycloak-postgres
+    container_name: bagbuddy-keycloak-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${KEYCLOAK_DB}
@@ -95,7 +95,7 @@ services:
     build:
       context: ./transactionservice
       dockerfile: Dockerfile
-    container_name: transaction-service-dev
+    container_name: bagbuddy-transaction-service-dev
     env_file:
       - ./.env
     ports:
@@ -108,7 +108,7 @@ services:
 
   transactionservice-db:
     image: postgres:15-alpine
-    container_name: transaction-service-postgres
+    container_name: bagbuddy-transaction-service-postgres
     environment:
       POSTGRES_DB: ${TRANSACTION_SERVICE_DB}
       POSTGRES_USER: ${TRANSACTION_SERVICE_USER}
@@ -125,7 +125,7 @@ services:
     build:
       context: ./reviewservice
       dockerfile: Dockerfile
-    container_name: review-service-dev
+    container_name: bagbuddy-review-service-dev
     env_file:
       - ./.env
     ports:
@@ -138,7 +138,7 @@ services:
 
   reviewservice-db:
     image: postgres:15-alpine
-    container_name: review-service-postgres
+    container_name: bagbuddy-review-service-postgres
     environment:
       POSTGRES_DB: ${REVIEW_SERVICE_DB}
       POSTGRES_USER: ${REVIEW_SERVICE_USER}
