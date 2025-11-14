@@ -3,7 +3,7 @@ spring:
     name: trip-service
 
   datasource:
-    url: jdbc:postgresql://${TRIP_SERVICE_DB_HOST:bagbuddy-trip-service-postgres}:5434/${TRIP_SERVICE_DB:tripservice}
+    url: jdbc:postgresql://${TRIP_SERVICE_DB_HOST:bagbuddy-trip-service-postgres}:5432/${TRIP_SERVICE_DB:tripservice}
     username: ${TRIP_SERVICE_USER:tripuser}
     password: ${TRIP_SERVICE_PASSWORD:trippass}
     driver-class-name: org.postgresql.Driver
