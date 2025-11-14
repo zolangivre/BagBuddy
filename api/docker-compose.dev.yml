@@ -68,6 +68,8 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTPS_REQUIRED: false
       KC_HOSTNAME: 100.108.226.114
+      KC_HOSTNAME_URL: http://100.108.226.114:8000
+      KC_HOSTNAME_ADMIN_URL: http://100.108.226.114:8000
       KC_PROXY: none
       KC_DB: postgres
       KC_DB_URL_HOST: keycloak-db
