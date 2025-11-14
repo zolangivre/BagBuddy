@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="55010b2e-63ed-4e6a-862a-e9fb82921ffc" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/api/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,12 +54,17 @@
     "Docker.docker-compose.yml.postgres: Compose Deployment.executor": "Run",
     "Gradle./home/ubuntu/BagBuddy/api/trip-service/build.gradle.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "init-backend-rest",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/ubuntu/Bureau/BagBuddy"
+    "last_opened_file_path": "/home/ubuntu/Bureau/BagBuddy",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -72,6 +77,14 @@
     </key>
   </component>
   <component name="RunManager" selected="Docker.docker-compose.yml.pgadmin: Compose Deployment">
+    <configuration name="StripesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="stripes.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="org.example.stripes.StripesApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
@@ -107,6 +120,7 @@
     <list>
       <item itemvalue="Docker.docker-compose.yml.pgadmin: Compose Deployment" />
       <item itemvalue="Docker.docker-compose.yml.postgres: Compose Deployment" />
+      <item itemvalue="Spring Boot.StripesApplication" />
     </list>
     <recent_temporary>
       <list>
