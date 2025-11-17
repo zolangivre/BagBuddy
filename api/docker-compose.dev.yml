@@ -71,10 +71,10 @@ services:
       KC_PROXY: none
       KC_DB: postgres
       KC_DB_URL_HOST: keycloak-db
-      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB_USERNAME: jdd
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
     ports:
       - "8000:8080"
     depends_on:
