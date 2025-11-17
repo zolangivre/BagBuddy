@@ -21,6 +21,10 @@ spring:
           uri: lb://review-service
           predicates:
             - Path=/reviews/**
+        - id: keycloak
+          uri: lb://keycloak
+          predicates:
+            - Path=/keycloak/**
 
 server:
   port: 8080
