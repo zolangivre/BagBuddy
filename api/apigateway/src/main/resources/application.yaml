@@ -22,7 +22,7 @@ spring:
           predicates:
             - Path=/reviews/**
         - id: keycloak
-          uri: lb://keycloak
+          uri: http://localhost:8000
           predicates:
             - Path=/keycloak/**
 
