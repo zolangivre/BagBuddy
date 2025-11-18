@@ -4,16 +4,34 @@ spring:
 
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
+
       routes:
         - id: trip-service
           uri: lb://trip-service
           predicates:
             - Path=/trips/**
-            
+
         - id: transaction-service
           uri: lb://transaction-service
           predicates:

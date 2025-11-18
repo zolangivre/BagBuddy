@@ -69,7 +69,7 @@
     card.mount("#card-element");
 
     async function createPaymentIntent(annonceId) {
-        const res = await fetch("http://localhost:8080/create-payment-intent", {
+        const res = await fetch("https://mathisfriess.space/bagbuddy/stripe/create-payment-intent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
