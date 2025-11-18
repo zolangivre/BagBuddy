@@ -42,7 +42,8 @@ public class Controller {
 
     @PostMapping("/create-account-link")
     public String createAccountLink(@RequestBody AccountIdRequest request) throws Exception {
-        return stripeService.createAccountLink(request.getAccountId());
+        String account-id = stripeService.createAccountLink(request.getAccountId());
+        return { "account-link": account-id }
     }
 
 
