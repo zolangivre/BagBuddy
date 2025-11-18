@@ -29,7 +29,7 @@ spring:
           predicates:
             - Path=/keycloak/**
 
-        - id: stripe
+        - id: stripe-service
           uri: lb://stripe-service
           predicates:
             - Path=/stripe/**
