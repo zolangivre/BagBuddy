@@ -25,6 +25,10 @@ spring:
           uri: http://localhost:8000/realms/bagbuddy
           predicates:
             - Path=/keycloak/**
+        - id: stripe
+          uri: lb://stripe-service
+          predicates:
+            - Path=/stripe/**
 
 server:
   port: 8080
