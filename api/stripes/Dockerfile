@@ -13,4 +13,4 @@ WORKDIR /app
 
 COPY --from=build /app/target/reviewservice-0.0.1-SNAPSHOT.jar ./
 
-CMD [ "java", "-jar", "reviewservice-0.0.1-SNAPSHOT.jar"]
+CMD [ "java", "-jar", "stripeservice-0.0.1-SNAPSHOT.jar"]

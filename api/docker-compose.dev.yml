@@ -165,6 +165,22 @@ services:
     networks:
       - bagbuddy-network
 
+      
+  # --- STRIPE SERVICE ---
+  review-service:
+    build:
+      context: ./stripeservice
+      dockerfile: Dockerfile
+    container_name: bagbuddy-stripe-service-dev
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+    environment:
+      STRIPE_API_KEY: pk_test_51SScISPo3GjutwTcQJ2RsC7kKT5zto7ohJX2qtuGPqNYfBWxchVcYgYiWhK6ogeyNwZiJACzpD1wWhKlpFvOzeIj00OPDJRYBN
+    networks:
+      - bagbuddy-network
+
 # --- VOLUMES & NETWORK ---
 volumes:
   messaging_pgdata:
