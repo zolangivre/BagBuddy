@@ -41,10 +41,13 @@ public class Controller {
     }
 
     @PostMapping("/create-account-link")
-    public String createAccountLink(@RequestBody AccountIdRequest request) throws Exception {
-        String account-id = stripeService.createAccountLink(request.getAccountId());
-        return { "account-link": account-id }
+    public Map<String, String> createAccountLink(@RequestBody AccountIdRequest request) throws Exception {
+        String accountIdLink = stripeService.createAccountLink(request.getAccountId());
+        Map<String, String> response = new HashMap<>();
+        response.put("account-link", accountIdLink);
+        return response;
     }
+
 
 
     @PostMapping("/create-payment-intent")
