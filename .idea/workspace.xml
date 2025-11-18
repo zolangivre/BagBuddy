@@ -74,7 +74,7 @@
       <recent name="$PROJECT_DIR$/api/transaction-service/src/main/java/bagbuddy/backend" />
     </key>
   </component>
-  <component name="RunManager" selected="Docker.docker-compose.yml.pgadmin: Compose Deployment">
+  <component name="RunManager" selected="Spring Boot.StripesApplication">
     <configuration name="StripesApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
       <module name="stripes.main" />
