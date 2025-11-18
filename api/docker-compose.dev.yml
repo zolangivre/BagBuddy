@@ -177,7 +177,7 @@ services:
     depends_on:
       - eureka-server
     environment:
-      STRIPE_API_KEY: pk_test_51SScISPo3GjutwTcQJ2RsC7kKT5zto7ohJX2qtuGPqNYfBWxchVcYgYiWhK6ogeyNwZiJACzpD1wWhKlpFvOzeIj00OPDJRYBN
+      STRIPE_API_KEY: sk_test_51SScISPo3GjutwTcGddsydb3qeMjUbtFKoSEW2xRaBGbL7inPyTJuFoubzLzKPgQ8kbDKRhrxkASTwFgu4jpITZ300JfgyHKAo
     networks:
       - bagbuddy-network
 
