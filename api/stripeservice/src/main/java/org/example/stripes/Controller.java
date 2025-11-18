@@ -66,7 +66,7 @@ public class Controller {
         return res;
     }
 
-    @PostMapping("/stripe")
+    @PostMapping("/confirm-payment")
     public ResponseEntity<String> handleStripeWebhook(
             @RequestBody byte[] payload,  // corps brut
             @RequestHeader("Stripe-Signature") String sigHeader) {
