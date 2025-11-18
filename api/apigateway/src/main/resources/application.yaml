@@ -13,18 +13,22 @@ spring:
           uri: lb://trip-service
           predicates:
             - Path=/trips/**
+            
         - id: transaction-service
           uri: lb://transaction-service
           predicates:
             - Path=/transactions/**
+
         - id: review-service
           uri: lb://review-service
           predicates:
             - Path=/reviews/**
+
         - id: keycloak
           uri: http://localhost:8000/realms/bagbuddy
           predicates:
             - Path=/keycloak/**
+
         - id: stripe
           uri: lb://stripe-service
           predicates:
