@@ -178,6 +178,7 @@ services:
       - eureka-server
     environment:
       STRIPE_API_KEY: sk_test_51SScISPo3GjutwTcGddsydb3qeMjUbtFKoSEW2xRaBGbL7inPyTJuFoubzLzKPgQ8kbDKRhrxkASTwFgu4jpITZ300JfgyHKAo
+      WEBHOOK_SECRET: whsec_r3V0CYGYTi86ezjCxwvfCyamsKSWE7pd
     networks:
       - bagbuddy-network
 
