@@ -167,7 +167,7 @@ services:
 
       
   # --- STRIPE SERVICE ---
-  review-service:
+  stripe-service:
     build:
       context: ./stripeservice
       dockerfile: Dockerfile
