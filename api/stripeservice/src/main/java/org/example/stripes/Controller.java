@@ -43,8 +43,9 @@ public class Controller {
     @PostMapping("/create-account-link")
     public Map<String, String> createAccountLink(@RequestBody AccountIdRequest request) throws Exception {
         String accountLink = stripeService.createAccountLink(request.getAccountId());
-        return Collections.singletonMap("account-link", accountLink);
+        return Collections.singletonMap("account_link", accountLink);
     }
+
 
     @PostMapping("/create-payment-intent")
     public Map<String, Object> createPaymentIntentConnected(@RequestBody Map<String, Object> payload) throws Exception {
