@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>stripeservice</artifactId>
+    <artifactId>stripe-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>stripes</name>
-    <description>stripes</description>
+    <name>stripe-service</name>
+    <description>stripe-service</description>
     <packaging>jar</packaging>
 
     <properties>
