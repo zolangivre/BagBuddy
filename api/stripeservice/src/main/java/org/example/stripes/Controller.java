@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.example.stripes.StripeService;
 
 @RestController
+@RequestMapping("/stripe")
 public class Controller {
 
     private final StripeService stripeService;
