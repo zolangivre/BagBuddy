@@ -30,7 +30,7 @@ public class Controller {
 
     @PostMapping("/create-stripe-account")
     public String createAccount() throws Exception {
-        return stripeService.createAccount();
+        return Map.of("stripe-account-id", stripeService.createAccount());
     }
 
     // Créer un lien d’onboarding → POST avec accountId dans le body
@@ -42,7 +42,7 @@ public class Controller {
 
     @PostMapping("/create-account-link")
     public Map<String, String> createAccountLink(@RequestBody AccountIdRequest request) throws Exception {
-        return Map.of("account_link", stripeService.createAccountLink(request.getAccountId()));
+        return Map.of("account-link", stripeService.createAccountLink(request.getAccountId()));
     }
 
     @PostMapping("/create-payment-intent")
