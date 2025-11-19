@@ -25,6 +25,10 @@ public class StripeService {
         Stripe.apiKey = System.getenv("STRIPE_API_KEY");
     }
 
+    public String getPublicKey() {
+        return "pk_test_51SScISPo3GjutwTcQJ2RsC7kKT5zto7ohJX2qtuGPqNYfBWxchVcYgYiWhK6ogeyNwZiJACzpD1wWhKlpFvOzeIj00OPDJRYBN";
+    }
+
     public String createAccount() throws Exception {
         Account account = Account.create(AccountCreateParams.builder().build());
         return account.getId();

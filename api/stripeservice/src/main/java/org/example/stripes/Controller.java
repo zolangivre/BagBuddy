@@ -74,4 +74,9 @@ public class Controller {
         return ResponseEntity.ok("ok");
     }
 
+    @GetMapping("/get-public-key")
+    public Map<String, String> getPublicKey() {
+        return Map.of("public-key",stripeService.getPublicKey());
+    }
+
 }
