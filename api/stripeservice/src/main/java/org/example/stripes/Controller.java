@@ -30,7 +30,7 @@ public class Controller {
 
     @PostMapping("/create-stripe-account")
     public String createAccount() throws Exception {
-        return Map.of("stripe-account-id", stripeService.createAccount());
+        return Map.of("account-id", stripeService.createAccount());
     }
 
     // Créer un lien d’onboarding → POST avec accountId dans le body
