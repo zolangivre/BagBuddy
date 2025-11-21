@@ -4,7 +4,7 @@ services:
     build:
       context: ./eurekaserver
       dockerfile: Dockerfile
-    container_name: eureka-server
+    container_name: bagbuddy-eureka-server
     ports:
       - "8761:8761"
     networks:
@@ -15,14 +15,14 @@ services:
     build:
       context: ./apigateway
       dockerfile: Dockerfile
-    container_name: api-gateway-dev
+    container_name: bagbuddy-api-gateway-dev
     ports:
       - "8080:8080"
     depends_on:
-      - eureka-server   # ✅ attend que Eureka soit lancé avant de démarrer
-    restart: always
+      - eureka-server
+    restart: unless-stopped
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/  # pour s’assurer que la variable est disponible
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     networks:
       - bagbuddy-network
 
@@ -31,43 +31,54 @@ services:
     build:
       context: ./tripservice
       dockerfile: Dockerfile
-    container_name: trip-service-dev
-    env_file:
-      - ./.env
+    container_name: bagbuddy-trip-service-dev
     ports:
       - "8082:8082"
     depends_on:
       - eureka-server
       - tripservice-db
+    environment:
+      POSTGRES_DB: tripservice
+      POSTGRES_USER: tripuser
+      POSTGRES_PASSWORD: trippass
     networks:
       - bagbuddy-network
 
   tripservice-db:
     image: postgres:15-alpine
-    container_name: trip-service-postgres
+    container_name: bagbuddy-trip-service-postgres
     environment:
-      POSTGRES_DB: ${TRIP_SERVICE_DB}
-      POSTGRES_USER: ${TRIP_SERVICE_USER}
-      POSTGRES_PASSWORD: ${TRIP_SERVICE_PASSWORD}
+      POSTGRES_DB: tripservice
+      POSTGRES_USER: tripuser
+      POSTGRES_PASSWORD: trippass
     volumes:
       - trip_pgdata:/var/lib/postgresql/data
     ports:
-      - ${TRIP_SERVICE_DB_PORT}:5432
+      - "5434:5432"
     networks:
       - bagbuddy-network
 
   # --- KEYCLOAK ---
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.0
-    container_name: keycloak
+    container_name: bagbuddy-keycloak
     command: start-dev
     environment:
+      KC_HTTP_ENABLED: true
+      KC_HTTP_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTPS_REQUIRED: false
+      KC_HOSTNAME: 100.108.226.114
+      KC_HOSTNAME_URL: http://100.108.226.114:8000
+      KC_HOSTNAME_ADMIN_URL: http://100.108.226.114:8000
+      KC_PROXY: none
       KC_DB: postgres
       KC_DB_URL_HOST: keycloak-db
-      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
       - "8000:8080"
     depends_on:
@@ -77,16 +88,16 @@ services:
 
   keycloak-db:
     image: postgres:15-alpine
-    container_name: keycloak-postgres
+    container_name: bagbuddy-keycloak-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${KEYCLOAK_DB}
-      POSTGRES_USER: ${KEYCLOAK_DB_USER}
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
     volumes:
       - keycloak_pgdata:/var/lib/postgresql/data
     ports:
-      - 5435:5432   # ✅ éviter le conflit avec les autres Postgres
+      - "5435:5432"
     networks:
       - bagbuddy-network
 
@@ -95,28 +106,30 @@ services:
     build:
       context: ./transactionservice
       dockerfile: Dockerfile
-    container_name: transaction-service-dev
-    env_file:
-      - ./.env
+    container_name: bagbuddy-transaction-service-dev
     ports:
       - "8083:8083"
     depends_on:
       - eureka-server
       - transactionservice-db
+    environment:
+      POSTGRES_DB: transactionservice
+      POSTGRES_USER: transactionuser
+      POSTGRES_PASSWORD: transactionpass
     networks:
       - bagbuddy-network
 
   transactionservice-db:
     image: postgres:15-alpine
-    container_name: transaction-service-postgres
+    container_name: bagbuddy-transaction-service-postgres
     environment:
-      POSTGRES_DB: ${TRANSACTION_SERVICE_DB}
-      POSTGRES_USER: ${TRANSACTION_SERVICE_USER}
-      POSTGRES_PASSWORD: ${TRANSACTION_SERVICE_PASSWORD}
+      POSTGRES_DB: transactionservice
+      POSTGRES_USER: transactionuser
+      POSTGRES_PASSWORD: transactionpass
     volumes:
       - transaction_pgdata:/var/lib/postgresql/data
     ports:
-      - ${TRANSACTION_SERVICE_DB_PORT}:5432
+      - "5437:5432"
     networks:
       - bagbuddy-network
 
@@ -125,28 +138,47 @@ services:
     build:
       context: ./reviewservice
       dockerfile: Dockerfile
-    container_name: review-service-dev
-    env_file:
-      - ./.env
+    container_name: bagbuddy-review-service-dev
     ports:
       - "8084:8084"
     depends_on:
       - eureka-server
       - reviewservice-db
+    environment:
+      POSTGRES_DB: reviewservice
+      POSTGRES_USER: reviewuser
+      POSTGRES_PASSWORD: reviewpass
     networks:
       - bagbuddy-network
 
   reviewservice-db:
     image: postgres:15-alpine
-    container_name: review-service-postgres
+    container_name: bagbuddy-review-service-postgres
     environment:
-      POSTGRES_DB: ${REVIEW_SERVICE_DB}
-      POSTGRES_USER: ${REVIEW_SERVICE_USER}
-      POSTGRES_PASSWORD: ${REVIEW_SERVICE_PASSWORD}
+      POSTGRES_DB: reviewservice
+      POSTGRES_USER: reviewuser
+      POSTGRES_PASSWORD: reviewpass
     volumes:
       - review_pgdata:/var/lib/postgresql/data
     ports:
-      - ${REVIEW_SERVICE_DB_PORT}:5432
+      - "5436:5432"
+    networks:
+      - bagbuddy-network
+
+      
+  # --- STRIPE SERVICE ---
+  stripe-service:
+    build:
+      context: ./stripeservice
+      dockerfile: Dockerfile
+    container_name: bagbuddy-stripe-service-dev
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+    environment:
+      STRIPE_API_KEY: sk_test_51SScISPo3GjutwTcGddsydb3qeMjUbtFKoSEW2xRaBGbL7inPyTJuFoubzLzKPgQ8kbDKRhrxkASTwFgu4jpITZ300JfgyHKAo
+      WEBHOOK_SECRET: whsec_r3V0CYGYTi86ezjCxwvfCyamsKSWE7pd
     networks:
       - bagbuddy-network
 

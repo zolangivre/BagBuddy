@@ -1,12 +1,6 @@
 spring:
   application:
-    name: review-service
-
-  datasource:
-    url: jdbc:postgresql://${REVIEW_SERVICE_DB_HOST:bagbuddy-review-service-postgres}:5432/${REVIEW_SERVICE_DB:reviewservice}
-    username: ${REVIEW_SERVICE_USER:reviewuser}
-    password: ${REVIEW_SERVICE_PASSWORD:reviewpass}
-    driver-class-name: org.postgresql.Driver
+    name: stripe-service
 
   jpa:
     hibernate:
@@ -17,11 +11,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port: 8082
+  port: 8086
 
 eureka:
   instance:
-    hostname: review-service
+    hostname: stripe-service
   client:
     register-with-eureka: true
     fetch-registry: true

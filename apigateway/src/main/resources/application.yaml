@@ -4,23 +4,52 @@ spring:
 
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
+
       routes:
         - id: trip-service
           uri: lb://trip-service
           predicates:
             - Path=/trips/**
+
         - id: transaction-service
           uri: lb://transaction-service
           predicates:
             - Path=/transactions/**
+
         - id: review-service
           uri: lb://review-service
           predicates:
             - Path=/reviews/**
+
+        - id: keycloak
+          uri: http://localhost:8000/realms/bagbuddy
+          predicates:
+            - Path=/keycloak/**
+
+        - id: stripe
+          uri: lb://stripe-service
+          predicates:
+            - Path=/stripe/**
 
 server:
   port: 8080
