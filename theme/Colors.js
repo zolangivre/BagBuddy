@@ -53,6 +53,9 @@ export default {
   waiting_for_response_badge_background: material.dark_cyan_translucent,
   waiting_for_response_badge_border: material.dark_cyan_translucent_2,
 
+  waiting_for_response_seller_badge_background: material.red_translucent,
+  waiting_for_response_seller_badge_border: material.red_translucent_2,
+
   request_rejected_badge_background: material.red_translucent,
   request_rejected_badge_border: material.red_translucent_2,
 

@@ -9,4 +9,13 @@ export const globalStyles = {
     elevation: 3,
     width: "100%",
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    marginTop: 55,
+  },
 };
