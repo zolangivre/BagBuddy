@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
   Text,
   TextInput,
   TouchableOpacity,
@@ -8,7 +7,6 @@ import {
   Modal,
   Animated,
   Easing,
-  Dimensions,
   Alert,
 } from "react-native";
 import {
@@ -17,8 +15,6 @@ import {
   useConfirmPayment,
 } from "@stripe/stripe-react-native";
 import Colors from "@/theme/Colors";
-
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const StripeBottomSheet = ({ visible, onClose, defaultAmount = "10" }) => {
   const [internalVisible, setInternalVisible] = useState(visible);

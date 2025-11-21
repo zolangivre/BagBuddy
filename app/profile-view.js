@@ -7,9 +7,8 @@ import ButtonIcon from "@/components/ButtonIcon";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import ReviewCard from "@/components/ReviewCard";
 import { globalStyles } from "@/theme/Styles";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useFocusEffect } from "@react-navigation/native";
 import i18n from "@/i18n";
 
 const ProfileView = () => {
