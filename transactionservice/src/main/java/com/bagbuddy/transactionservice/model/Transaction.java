@@ -1,6 +1,10 @@
 package com.bagbuddy.transactionservice.model;
 
+import com.bagbuddy.transactionservice.config.ListingInfoConverter;
+import com.bagbuddy.transactionservice.config.UserInfoConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,93 +16,140 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Parties
-    private Integer sellerId;
-    private String sellerName;
+    @Convert(converter = ListingInfoConverter.class)
+    @Column(columnDefinition = "jsonb")
+    private ListingInfo listingInfo;
 
-    private Integer buyerId;
-    private String buyerName;
+    private Long listingId;
+
+    @Convert(converter = UserInfoConverter.class)
+    @Column(columnDefinition = "jsonb")
+    private UserInfo buyerInfo;
+
+    private String buyerId;
+    private String sellerId;
 
     // UI helpers
-    private String initials;      // ex: "SC"
-    private String type;          // "buying" | "selling"
-    private String status;        // ex: "confirmed", "completed", "cancelled"
-    private String statusText;    // ex: "Confirmed"
-
-    // Vol / logistique
-    private String flightNumber;
-    private String departureAirport;
-    private String arrivalAirport;
-
-    private LocalDateTime dateDeparture;
-    private LocalDateTime dateArrival;
+    private String sellerStatus;
+    private String buyerStatus;
 
     // Tarification/poids
     private BigDecimal weight;        // kg
-    private BigDecimal pricePerKg;    // prix par kg
     private BigDecimal total;         // total = weight * pricePerKg
 
-    @Column(columnDefinition = "TEXT")
-    private String conditions;
+    private Boolean sellerReview = false;
+    private Boolean buyerReview = false;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     // Getters/Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Integer getSellerId() { return sellerId; }
-    public void setSellerId(Integer sellerId) { this.sellerId = sellerId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getSellerName() { return sellerName; }
-    public void setSellerName(String sellerName) { this.sellerName = sellerName; }
+    public Long getListingId() {
+        return listingId;
+    }
 
-    public Integer getBuyerId() { return buyerId; }
-    public void setBuyerId(Integer buyerId) { this.buyerId = buyerId; }
+    public void setListingId(Long listingId) {
+        this.listingId = listingId;
+    }
 
-    public String getBuyerName() { return buyerName; }
-    public void setBuyerName(String buyerName) { this.buyerName = buyerName; }
+    public String getSellerId() {
+        return sellerId;
+    }
 
-    public String getInitials() { return initials; }
-    public void setInitials(String initials) { this.initials = initials; }
+    public void setSellerId(String sellerId) {
+        this.sellerId = sellerId;
+    }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getBuyerId() {
+        return buyerId;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setBuyerId(String buyerId) {
+        this.buyerId = buyerId;
+    }
 
-    public String getStatusText() { return statusText; }
-    public void setStatusText(String statusText) { this.statusText = statusText; }
+    public UserInfo getBuyerInfo() {
+        return buyerInfo;
+    }
 
-    public String getFlightNumber() { return flightNumber; }
-    public void setFlightNumber(String flightNumber) { this.flightNumber = flightNumber; }
+    public void setBuyerInfo(UserInfo buyerInfo) {
+        this.buyerInfo = buyerInfo;
+    }
 
-    public String getDepartureAirport() { return departureAirport; }
-    public void setDepartureAirport(String departureAirport) { this.departureAirport = departureAirport; }
+    public String getSellerStatus() {
+        return sellerStatus;
+    }
 
-    public String getArrivalAirport() { return arrivalAirport; }
-    public void setArrivalAirport(String arrivalAirport) { this.arrivalAirport = arrivalAirport; }
+    public void setSellerStatus(String sellerStatus) {
+        this.sellerStatus = sellerStatus;
+    }
 
-    public LocalDateTime getDateDeparture() { return dateDeparture; }
-    public void setDateDeparture(LocalDateTime dateDeparture) { this.dateDeparture = dateDeparture; }
+    public String getBuyerStatus() {
+        return buyerStatus;
+    }
 
-    public LocalDateTime getDateArrival() { return dateArrival; }
-    public void setDateArrival(LocalDateTime dateArrival) { this.dateArrival = dateArrival; }
+    public void setBuyerStatus(String buyerStatus) {
+        this.buyerStatus = buyerStatus;
+    }
 
-    public BigDecimal getWeight() { return weight; }
-    public void setWeight(BigDecimal weight) { this.weight = weight; }
+    public BigDecimal getWeight() {
+        return weight;
+    }
 
-    public BigDecimal getPricePerKg() { return pricePerKg; }
-    public void setPricePerKg(BigDecimal pricePerKg) { this.pricePerKg = pricePerKg; }
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
 
-    public BigDecimal getTotal() { return total; }
-    public void setTotal(BigDecimal total) { this.total = total; }
+    public BigDecimal getTotal() {
+        return total;
+    }
 
-    public String getConditions() { return conditions; }
-    public void setConditions(String conditions) { this.conditions = conditions; }
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public ListingInfo getListingInfo() {
+        return listingInfo;
+    }
+
+    public void setListingInfo(ListingInfo listingInfo) {
+        this.listingInfo = listingInfo;
+    }
+
+    public Boolean getSellerReview() {
+        return sellerReview;
+    }
+
+    public void setSellerReview(Boolean sellerReview) {
+        this.sellerReview = sellerReview;
+    }
+
+    public Boolean getBuyerReview() {
+        return buyerReview;
+    }
+
+    public void setBuyerReview(Boolean buyerReview) {
+        this.buyerReview = buyerReview;
+    }
 }
