@@ -169,7 +169,7 @@ services:
   # --- STRIPE SERVICE ---
   stripe-service:
     build:
-      context: stripeservice
+      context: ./stripeservice
       dockerfile: Dockerfile
     container_name: bagbuddy-stripe-service-dev
     ports:
