@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect, useContext } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TrendingUp, Activity } from "lucide-react-native";
@@ -6,26 +8,128 @@ import Colors from "@/theme/Colors";
 import TransactionCard from "@/components/TransactionCard";
 import ActionButton from "@/components/ActionButton";
 import StatCard from "@/components/StatCard";
-import SearchBar from "@/components/SearchBar";
-import mockTransactions from "@/mockData/transactions";
+import ActionBar from "@/components/ActionBar";
 import { useThemeContext } from "@/contexts/ThemeContext";
-import { useLanguage } from "@/contexts/LanguageContext";
 import Label from "@/components/Label";
+import i18n from "@/i18n";
+import axios from "axios";
+import { AuthContext } from "@/contexts/AuthContext";
+import Currency from "@/components/Currency";
+import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 
 export default function TransactionsScreen() {
-  const { i18n } = useLanguage();
-
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-
+  const { state } = useContext(AuthContext);
+  const userInfo = state.userInfo;
   const [mode, setMode] = useState("active");
+  const [transactions, setTransactions] = useState([]);
+  const [appliedFilters, setAppliedFilters] = useState(null);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedSort, setSelectedSort] = useState(null);
 
-  const activeTransactions = mockTransactions.filter(
-    (transaction) => transaction.status !== "completed"
+  const fetchTransactions = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_API_URL}/transactions/user/${userInfo.sub}`
+      );
+      setTransactions(response.data);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+    }, [fetchTransactions])
   );
-  const completedTransactions = mockTransactions.filter(
-    (transaction) => transaction.status === "completed"
-  );
+  let list =
+    mode === "active"
+      ? transactions.filter((t) => {
+          const isCompleted =
+            t.sellerStatus === TRANSACTION_STATUS.COMPLETED &&
+            t.buyerStatus === TRANSACTION_STATUS.COMPLETED;
+          const isCancelled =
+            t.sellerStatus === TRANSACTION_STATUS.CANCELLED ||
+            t.buyerStatus === TRANSACTION_STATUS.CANCELLED;
+          return !isCompleted && !isCancelled;
+        })
+      : transactions.filter((t) => {
+          const isCompleted =
+            t.sellerStatus === TRANSACTION_STATUS.COMPLETED &&
+            t.buyerStatus === TRANSACTION_STATUS.COMPLETED;
+          const isCancelled =
+            t.sellerStatus === TRANSACTION_STATUS.CANCELLED ||
+            t.buyerStatus === TRANSACTION_STATUS.CANCELLED;
+          return isCompleted || isCancelled;
+        });
+
+  let totalEarned = transactions
+    .filter(
+      (t) =>
+        t.sellerId === userInfo.sub &&
+        t.sellerStatus === TRANSACTION_STATUS.COMPLETED
+    )
+    .reduce((sum, t) => sum + t.total, 0);
+
+  let totalSpent = transactions
+    .filter(
+      (t) =>
+        t.buyerId === userInfo.sub &&
+        t.buyerStatus === TRANSACTION_STATUS.COMPLETED
+    )
+    .reduce((sum, t) => sum + t.total, 0);
+
+  const applyFilters = () => {
+    if (!appliedFilters) {
+      setFilteredTransactions(list);
+      return;
+    }
+
+    const { from, to, minPrice, maxPrice, minWeight, maxWeight, status } =
+      appliedFilters;
+
+    const filtered = list.filter((item) => {
+      const matchFrom = from ? item.departureAirport === from : true;
+      const matchTo = to ? item.arrivalAirport === to : true;
+      const matchPrice =
+        (minPrice === undefined || item.pricePerKg >= minPrice) &&
+        (maxPrice === undefined || item.pricePerKg <= maxPrice);
+      const matchWeight =
+        (minWeight === undefined || item.remainingWeight >= minWeight) &&
+        (maxWeight === undefined || item.remainingWeight <= maxWeight);
+
+      const role = item.sellerId === userInfo.sub ? "seller" : "buyer";
+      const itemStatus =
+        role === "seller" ? item.sellerStatus : item.buyerStatus;
+
+      const matchStatus =
+        mode === "active" && status ? itemStatus === status : true;
+      return matchFrom && matchTo && matchPrice && matchWeight && matchStatus;
+    });
+
+    setFilteredTransactions(filtered);
+  };
+
+  const handleFilterApply = (filters) => {
+    setAppliedFilters(
+      filters && Object.keys(filters).length > 0 ? filters : null
+    );
+    setSelectedStatus(filters?.status ?? null);
+    setSelectedSort(filters?.sort ?? null);
+  };
+
+  const handleClearFilters = () => {
+    setAppliedFilters(null);
+    setSelectedStatus(null);
+    setSelectedSort(null);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [mode, transactions, appliedFilters]);
 
   return (
     <View
@@ -59,19 +163,26 @@ export default function TransactionsScreen() {
           <View style={styles.statsContainer}>
             <StatCard
               icon={<TrendingUp size={20} color={Colors.white} />}
-              value="$0"
+              value={<Currency amount={totalEarned} />}
               label={i18n.t("total_earned")}
             />
             <StatCard
               icon={<Activity size={20} color={Colors.white} />}
-              value="$45"
+              value={<Currency amount={totalSpent} />}
               label={i18n.t("total_spent")}
             />
           </View>
 
-          {/* Search Bar */}
+          {/* Action Bar */}
           <View style={styles.searchContainer}>
-            <SearchBar />
+            <ActionBar
+              showStatusFilter={true}
+              onFilterApply={handleFilterApply}
+              onClear={handleClearFilters}
+              selectedStatus={selectedStatus}
+              selectedSort={selectedSort}
+              appliedFilters={appliedFilters}
+            />
           </View>
         </LinearGradient>
 
@@ -80,19 +191,31 @@ export default function TransactionsScreen() {
 
         {/* Transactions List */}
         <View style={styles.transactionsContainer}>
-          {mode === "active"
-            ? activeTransactions.map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))
-            : completedTransactions.map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))}
+          {filteredTransactions.length > 0 ? (
+            filteredTransactions.map((transaction) => (
+              <TransactionCard key={transaction.id} transaction={transaction} />
+            ))
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                minHeight: 300,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[
+                  theme.textStyles.bodyLarge,
+                  { fontStyle: "italic", textAlign: "center" },
+                ]}
+              >
+                {mode === "active"
+                  ? i18n.t("no_active_transactions")
+                  : i18n.t("no_completed_transactions")}
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </View>

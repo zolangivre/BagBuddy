@@ -4,21 +4,56 @@ import { ArrowLeft, Star } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import ButtonIcon from "@/components/ButtonIcon";
-import { useRouter } from "expo-router";
-import mockReviews from "@/mockData/mockReviews";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import ReviewCard from "@/components/ReviewCard";
+import { globalStyles } from "@/theme/Styles";
+import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
+import i18n from "@/i18n";
 
 const ProfileView = () => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] || Colors.light;
   const router = useRouter();
-
+  const { userInfo } = useLocalSearchParams();
+  const parsedUserInfo = JSON.parse(userInfo);
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(null);
+  const [numberOfTransactions, setNumberOfTransactions] = useState(null);
   const handleGoBack = () => {
     router.back();
   };
+  let initials = parsedUserInfo.given_name
+    ? parsedUserInfo.given_name.charAt(0).toUpperCase() +
+      parsedUserInfo.family_name.charAt(0).toUpperCase()
+    : "NN";
+
+  const fetchRevieweeReview = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_API_URL}/reviews/reviewee/${parsedUserInfo.sub}`
+      );
+      const averageRatingResponse = await axios.get(
+        `${process.env.EXPO_PUBLIC_API_URL}/reviews/reviewee/${parsedUserInfo.sub}/average`
+      );
+      const transactionCountResponse = await axios.get(
+        `${process.env.EXPO_PUBLIC_API_URL}/transactions/user/${parsedUserInfo.sub}/count`
+      );
+      setNumberOfTransactions(transactionCountResponse.data);
+      setAverageRating(averageRatingResponse.data);
+      setReviews(response.data);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRevieweeReview();
+  }, []);
 
   return (
-    <View style={{ backgroundColor: theme.background }}>
+    <View style={[styles.container, {backgroundColor: theme.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <LinearGradient
@@ -36,11 +71,11 @@ const ProfileView = () => {
           </View>
           <View style={styles.headerContent}>
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatarText}>SC</Text>
+              <Text style={styles.avatarText}>{initials}</Text>
             </View>
             <View style={{ flexDirection: "column", gap: 4 }}>
-              <Text style={styles.userName}>Sarah Chen</Text>
-              <Text style={styles.userLocation}>San Francisco, CA</Text>
+              <Text style={styles.userName}>{parsedUserInfo.name}</Text>
+              <Text style={styles.userLocation}>{parsedUserInfo.location}</Text>
             </View>
           </View>
         </LinearGradient>
@@ -49,7 +84,10 @@ const ProfileView = () => {
         <View style={styles.content}>
           {/* Recent Transactions */}
           <View
-            style={[styles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
             <View style={styles.rowContainer}>
               <View style={styles.columnContainer}>
@@ -59,19 +97,21 @@ const ProfileView = () => {
                     color={Colors.light_yellow}
                     fill={Colors.light_yellow}
                   />
-                  <Text style={theme.textStyles.titleMedium}>4.8</Text>
+                  <Text style={theme.textStyles.titleMedium}>
+                    {averageRating ? averageRating.toFixed(1) : "N/A"}
+                  </Text>
                 </View>
                 <Text style={theme.textStyles.bodySmall}>Rating</Text>
               </View>
               <View style={styles.columnContainer}>
-                <Text style={theme.textStyles.titleMedium}>47</Text>
+                <Text style={theme.textStyles.titleMedium}>{numberOfTransactions !== null ? numberOfTransactions : "N/A"}</Text>
                 <Text style={theme.textStyles.bodySmall}>Transactions</Text>
               </View>
               <View style={styles.columnContainer}>
                 <Text
                   style={[
                     theme.textStyles.titleMedium,
-                    { color: theme.success_color },
+                    { color: Colors.primary_color },
                   ]}
                 >
                   98%
@@ -81,115 +121,54 @@ const ProfileView = () => {
             </View>
           </View>
           <View
-            style={[styles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
             <View style={{ alignItems: "center", marginBottom: 16, gap: 8 }}>
-              <Text
-                style={[
-                  theme.textStyles.display,
-                  { color: theme.title, fontSize: 48 },
-                ]}
-              >
-                4.8
+              <View style={styles.cardHeader}>
+                <Text style={theme.textStyles.cardTitle}>Bio</Text>
+              </View>
+              <Text style={theme.textStyles.bodyMedium}>
+                {parsedUserInfo.bio}
               </Text>
-              <View style={{ flexDirection: "row" }}>
-                <Star
-                  size={20}
-                  color={Colors.light_yellow}
-                  fill={Colors.light_yellow}
-                />
-                <Star
-                  size={20}
-                  color={Colors.light_yellow}
-                  fill={Colors.light_yellow}
-                />
-                <Star
-                  size={20}
-                  color={Colors.light_yellow}
-                  fill={Colors.light_yellow}
-                />
-                <Star
-                  size={20}
-                  color={Colors.light_yellow}
-                  fill={Colors.light_yellow}
-                />
-                <Star
-                  size={20}
-                  color={Colors.light_yellow}
-                  fill={Colors.light_yellow}
-                />
-              </View>
-              <Text style={theme.textStyles.bodyLarge}>4 reviews</Text>
             </View>
-            {/* <View style={{ marginBottom: 16, gap: 8 }}>
-              <View
-                style={{
-                  flexDirection: "column",
-                  gap: 4,
-                }}
-              >
-                <View style={{ flexDirection: "row" }}>
-                  <Star
-                    size={20}
-                    color={Colors.light_yellow}
-                    fill={Colors.light_yellow}
-                  />
-                  <ProgressBar step={5} totalSteps={5} width={100} />
-                  <Text style={theme.textStyles.bodySmall}>3</Text>
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Star
-                    size={20}
-                    color={Colors.light_yellow}
-                    fill={Colors.light_yellow}
-                  />
-                  <ProgressBar step={5} totalSteps={5} width={100} />
-                  <Text style={theme.textStyles.bodySmall}>3</Text>
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Star
-                    size={20}
-                    color={Colors.light_yellow}
-                    fill={Colors.light_yellow}
-                  />
-                  <ProgressBar step={5} totalSteps={5} width={100} />
-                  <Text style={theme.textStyles.bodySmall}>3</Text>
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Star
-                    size={20}
-                    color={Colors.light_yellow}
-                    fill={Colors.light_yellow}
-                  />
-                  <ProgressBar step={5} totalSteps={5} width={100} />
-                  <Text style={theme.textStyles.bodySmall}>3</Text>
-                </View>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Star
-                    size={20}
-                    color={Colors.light_yellow}
-                    fill={Colors.light_yellow}
-                  />
-                  <ProgressBar step={5} totalSteps={5} width={100} />
-                  <Text style={theme.textStyles.bodySmall}>3</Text>
-                </View>
-              </View>
-            </View> */}
           </View>
           {/* Review List */}
           <View style={{ gap: 16, marginBottom: 50 }}>
-            {mockReviews.map((review) => (
-              <>
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
                 <View
                   style={[
-                    styles.card,
+                    globalStyles.card,
                     { backgroundColor: theme.background_card },
                   ]}
+                  key={review.id}
                 >
-                  <ReviewCard key={review.id} review={review} />
+                  <ReviewCard review={review} />
                 </View>
-              </>
-            ))}
+              ))
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: 20,
+                  minHeight: 100,
+                }}
+              >
+                <Text
+                  style={[
+                    theme.textStyles.bodyLarge,
+                    { fontStyle: "italic", textAlign: "center" },
+                  ]}
+                >
+                  {i18n.t("no_reviews_yet")}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -198,6 +177,9 @@ const ProfileView = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   header: {
     paddingTop: 70,
     paddingHorizontal: 25,
@@ -233,38 +215,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 8,
   },
-  headerTextContainer: {
-    marginBottom: 8,
-  },
   userLocation: {
     color: Colors.very_light_grey,
     fontSize: 16,
     fontWeight: "400",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    gap: 16,
   },
   content: {
     flex: 1,
     marginTop: -50,
     paddingHorizontal: 15,
     gap: 25,
-  },
-  card: {
-    padding: 25,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-    gap: 25,
-  },
-  transactionsHeader: {
-    flexDirection: "row",
-    // justifyContent: "space-between",
-    alignItems: "center",
   },
   rowContainer: {
     flexDirection: "row",

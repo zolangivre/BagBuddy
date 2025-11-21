@@ -1,14 +1,16 @@
-import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import React, { useContext, useEffect } from "react";
+import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Plane, DollarSign, Shield, ArrowRightIcon } from "lucide-react-native";
-import Colors from "../theme/Colors";
-import Button from "../components/Button";
-import RoundIconText from "../components/RoundIconText";
-import HowStep from "../components/HowStep";
+import { Plane, DollarSign, Shield, ArrowRight } from "lucide-react-native";
+import Colors from "@/theme/Colors";
+import Button from "@/components/Button";
+import RoundIconText from "@/components/RoundIconText";
+import HowStep from "@/components/HowStep";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { globalStyles } from "@/theme/Styles";
+import { router } from "expo-router";
+import { AuthContext } from "@/contexts/AuthContext";
 // import { gql } from "@apollo/client";
 // import { useQuery } from "@apollo/client/react";
 // import axios from "axios";
@@ -25,15 +27,51 @@ import { globalStyles } from "@/theme/Styles";
 
 export default function StartScreen() {
   // const { loading, error, data } = useQuery(GET_USERS);
-  // console.log(data);
+  const { state, signIn } = useContext(AuthContext);
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
+  useEffect(() => {
+    if (state.isSignedIn && state.userInfo) {
+      router.replace("/(tabs)/home");
+    }
+  }, [state.isSignedIn, state.userInfo]);
+  const handleStart = () => {
+    signIn();
+  };
+
+  if (!state) return null;
+
+  if (state.isSignedIn && !state.userInfo) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0891b2" />
+        <Text style={styles.loadingText}>Chargement...</Text>
+      </View>
+    );
+  }
+
+  if (state.isSignedIn && state.userInfo) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0891b2" />
+        <Text style={styles.loadingText}>Redirection...</Text>
+      </View>
+    );
+  }
+
+  // const handleStart = () => {
+  //   router.replace("/(tabs)/home");
+  // };
 
   const FeatureIconWrap = ({ title, subtitle, icon, backgroundColor }) => (
     <View style={styles.featureItem}>
       <RoundIconText icon={icon} backgroundColor={backgroundColor} size={48} />
-      <Text style={[theme.textStyles.cardTitle, { textAlign: "center" }]}>{title}</Text>
-      <Text style={[theme.textStyles.cardSubtitle, { textAlign: "center" }]}>{subtitle}</Text>
+      <Text style={[theme.textStyles.cardTitle, { textAlign: "center" }]}>
+        {title}
+      </Text>
+      <Text style={[theme.textStyles.cardSubtitle, { textAlign: "center" }]}>
+        {subtitle}
+      </Text>
     </View>
   );
 
@@ -45,7 +83,7 @@ export default function StartScreen() {
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-      <View style={styles.scrollContainer}>
+      <View style={styles.container}>
         <View style={styles.wrapper}>
           {/* Header Section */}
           <View style={styles.headerContainer}>
@@ -108,7 +146,12 @@ export default function StartScreen() {
               { backgroundColor: theme.background_card },
             ]}
           >
-            <Text style={[theme.textStyles.cardTitle, { textAlign: "center", marginBottom: 10 }]}>
+            <Text
+              style={[
+                theme.textStyles.cardTitle,
+                { textAlign: "center", marginBottom: 10 },
+              ]}
+            >
               {i18n.t("how_card_title")}
             </Text>
 
@@ -139,15 +182,15 @@ export default function StartScreen() {
 
           {/* Start Button */}
           <Button
-            href="/(tabs)/home"
+            onPress={handleStart}
             text={i18n.t("start_button")}
             rightIcon={
-              <ArrowRightIcon
+              <ArrowRight
                 width={24}
                 height={24}
                 viewBox="0 0 24 25"
                 fill="none"
-                color="#FFFFFF"
+                color={Colors.white}
               />
             }
           />
@@ -158,7 +201,7 @@ export default function StartScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
+  container: {
     flexGrow: 1,
     padding: 20,
     paddingBottom: 24,

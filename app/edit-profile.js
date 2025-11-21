@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Save, Trash } from "lucide-react-native";
-import Colors from "../theme/Colors";
-import Button from "../components/Button";
-import ButtonIcon from "../components/ButtonIcon";
-import Input from "../components/Input";
-import { useThemeContext } from "../contexts/ThemeContext";
+import Colors from "@/theme/Colors";
+import Button from "@/components/Button";
+import ButtonIcon from "@/components/ButtonIcon";
+import Input from "@/components/Input";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
+import { globalStyles } from "@/theme/Styles";
 
 export default function EditProfileScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -35,13 +36,11 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View
         style={[
-          styles.header,
+          globalStyles.header,
           {
             backgroundColor: theme.background_card,
             borderBottomColor: theme.navTopBorder,
@@ -70,9 +69,8 @@ export default function EditProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          {/* Flight Information Card */}
           <View
-            style={[styles.card, { backgroundColor: theme.background_card }]}
+            style={[globalStyles.card, { backgroundColor: theme.background_card, gap: 16 }]}
           >
             <View style={styles.cardHeader}>
               <Text style={theme.textStyles.cardTitle}>
@@ -81,7 +79,6 @@ export default function EditProfileScreen() {
             </View>
 
             <View style={styles.cardContent}>
-              {/* Flight Number */}
               <Input
                 label={i18n.t("first_name")}
                 value={firstName}
@@ -127,31 +124,18 @@ export default function EditProfileScreen() {
           <Button
             text={i18n.t("save_changes")}
             onPress={handleUpdateProfile}
-            leftIcon={<Save size={24} color="#FFFFFF" />}
+            leftIcon={<Save size={24} color={Colors.white} />}
             color={Colors.blue}
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    height: 60,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
   },
   headerContent: {
     flexDirection: "row",
@@ -169,25 +153,12 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 24,
   },
-  card: {
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-  },
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 0,
   },
   cardContent: {
-    padding: 24,
-    paddingTop: 16,
     gap: 16,
   },
 });

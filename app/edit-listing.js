@@ -1,12 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-} from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
@@ -24,23 +17,24 @@ import Colors from "@/theme/Colors";
 import Button from "@/components/Button";
 import ButtonIcon from "@/components/ButtonIcon";
 import AirportInputModal from "@/components/AirportInputModal";
-// import FlightInputModal from "@/components/FlightInputModal";
 import DateInputModal from "@/components/DateInputModal";
 import NumberInput from "@/components/NumberInput";
 import Input from "@/components/Input";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
-import mockTransactions from "@/mockData/transactions";
 import { globalStyles } from "@/theme/Styles";
+import Currency from "@/components/Currency";
+import axios from "axios";
+import { AuthContext } from "@/contexts/AuthContext";
 
 export default function EditListingScreen() {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-
+  const { state } = useContext(AuthContext);
+  const userInfo = state.userInfo;
   const router = useRouter();
   const { id } = useLocalSearchParams();
 
-  // const [flightNumber, setFlightNumber] = useState("AF345");
   const [departure, setDeparture] = useState("");
   const [arrival, setArrival] = useState("");
   const [flightDateDeparture, setFlightDateDeparture] = useState("");
@@ -48,8 +42,9 @@ export default function EditListingScreen() {
   const [availableKilos, setAvailableKilos] = useState("");
   const [pricePerKg, setPricePerKg] = useState("");
   const [specialConditions, setSpecialConditions] = useState("");
+  const [totalWeightAvailable, setTotalWeightAvailable] = useState(0);
+  const [remainingWeight, setRemainingWeight] = useState(0);
 
-  // États pour les erreurs de validation
   const [errors, setErrors] = useState({
     departure: null,
     arrival: null,
@@ -59,41 +54,34 @@ export default function EditListingScreen() {
     pricePerKg: null,
   });
 
-  // Fonction pour effacer les erreurs lors de la modification d'un champ
   const clearError = (fieldName) => {
     setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: null }));
   };
 
-  // Charger les données d'une annonce existante si un ID est fourni
   useEffect(() => {
     if (id) {
-      // Charger les données de l'annonce depuis les transactions
-      const transaction = mockTransactions.find((t) => t.id === parseInt(id));
+      const fetchListing = async () => {
+        try {
+          const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`);
+          const listing = response.data;
 
-      if (transaction) {
-        setDeparture(transaction.departureAirport);
-        setArrival(transaction.arrivalAirport);
-        // Extraire la date au format YYYY-MM-DD pour les dates
-        if (transaction.dateDeparture) {
-          const date = new Date(transaction.dateDeparture);
-          setFlightDateDeparture(date.toISOString().split("T")[0]);
-          // Pour la simplicité, on ajoute 1 jour à la date de départ
-          const arrivalDate = new Date(date);
-          arrivalDate.setDate(arrivalDate.getDate() + 1);
-          setFlightDateArrival(arrivalDate.toISOString().split("T")[0]);
+          setDeparture(listing.departureAirport);
+          setArrival(listing.arrivalAirport);
+          setFlightDateDeparture(listing.departureDate);
+          setFlightDateArrival(listing.arrivalDate);
+          setTotalWeightAvailable(listing.totalWeightAvailable);
+          setRemainingWeight(listing.remainingWeight);
+          setAvailableKilos(listing.remainingWeight.toString());
+          setPricePerKg(listing.pricePerKg.toString());
+          setSpecialConditions(listing.conditions);
+        } catch (error) {
+          console.error("Error fetching listing:", error);
         }
-        // Extraire le poids et le prix
-        if (transaction.weight) {
-          setAvailableKilos(transaction.weight);
-        }
-        if (transaction.pricePerKg) {
-          setPricePerKg(transaction.pricePerKg);
-        }
-      }
+      };
+      fetchListing();
     }
   }, [id]);
 
-  // Valider la date d'arrivée lorsque la date de départ change
   useEffect(() => {
     if (
       flightDateDeparture &&
@@ -136,8 +124,31 @@ export default function EditListingScreen() {
   };
 
   const handleDelete = () => {
-    // TODO: Implement delete functionality
-    console.log("Delete listing");
+    Alert.alert(i18n.t("confirm_delete_listing"), i18n.t("delete_warning"), [
+      {
+        text: i18n.t("cancel_listing_action"),
+        style: "cancel",
+      },
+      {
+        text: i18n.t("delete_listing_action"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await axios.delete(
+              `${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`
+            );
+            Alert.alert(
+              i18n.t("success"),
+              i18n.t("listing_deleted_successfully")
+            );
+            router.back();
+          } catch (error) {
+            console.error("Erreur suppression trip :", error);
+            Alert.alert(i18n.t("error"), i18n.t("error_deleting_trip"));
+          }
+        },
+      },
+    ]);
   };
 
   const validateForm = () => {
@@ -220,27 +231,78 @@ export default function EditListingScreen() {
     return isValid;
   };
 
-  const handleUpdateListing = () => {
-    if (validateForm()) {
-      // TODO: Implement update functionality
-      console.log(id ? "Update listing" : "Create listing");
-      Alert.alert(
-        i18n.t("success"),
-        id
-          ? i18n.t("listing_updated_successfully")
-          : i18n.t("listing_created_successfully")
+  const handleUpdateListing = async () => {
+    if (!validateForm()) return;
+
+    try {
+      const payload = {
+        departureAirport: departure,
+        arrivalAirport: arrival,
+        departureDate: flightDateDeparture,
+        arrivalDate: flightDateArrival,
+        totalWeightAvailable: Number(totalWeightAvailable) + Number(availableKilos),
+        remainingWeight: Number(remainingWeight) + Number(availableKilos),
+        pricePerKg: parseFloat(pricePerKg),
+        conditions: specialConditions,
+      };
+      console.log("Payload :", payload);
+
+      const response = await axios.put(
+        `${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`,
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
       );
+
+      console.log("Trip mis à jour :", response.data);
+      Alert.alert(i18n.t("success"), i18n.t("listing_updated_successfully"));
+      router.back();
+    } catch (error) {
+      console.error("Erreur mise à jour trip :", error);
+      Alert.alert(i18n.t("error"), i18n.t("error_updating_trip"));
+    }
+  };
+
+  const handleCreateTrip = async () => {
+    if (!validateForm()) return;
+
+    try {
+      const payload = {
+        userInfo: userInfo,
+        departureAirport: departure,
+        arrivalAirport: arrival,
+        departureDate: flightDateDeparture,
+        arrivalDate: flightDateArrival,
+        totalWeightAvailable: parseFloat(availableKilos),
+        remainingWeight: parseFloat(availableKilos),
+        pricePerKg: parseFloat(pricePerKg),
+        conditions: specialConditions,
+      };
+
+      const response = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/trips`,
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      console.log("Trip créé :", response.data);
+      Alert.alert(i18n.t("success"), i18n.t("listing_created_successfully"));
+      router.back();
+    } catch (error) {
+      console.error("Erreur création trip :", error);
+      Alert.alert(i18n.t("error"), i18n.t("error_creating_trip"));
     }
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View
         style={[
-          styles.header,
+          globalStyles.header,
           {
             backgroundColor: theme.background_card,
             borderBottomColor: theme.navTopBorder,
@@ -273,7 +335,10 @@ export default function EditListingScreen() {
         <View style={styles.content}>
           {/* Flight Information Card */}
           <View
-            style={[globalStyles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
             <View style={styles.cardHeader}>
               <Plane size={20} color={Colors.primary_color} />
@@ -283,13 +348,6 @@ export default function EditListingScreen() {
             </View>
 
             <View style={styles.cardContent}>
-              {/* Flight Number */}
-              {/* <Input
-                label={i18n.t("flight_number")}
-                value={flightNumber}
-                onChangeText={setFlightNumber}
-                placeholder={i18n.t("flight_number_placeholder")}
-              /> */}
               {/* Departure and Arrival */}
               <View style={styles.rowInputGroup}>
                 <AirportInputModal
@@ -340,21 +398,15 @@ export default function EditListingScreen() {
                     : undefined
                 }
               />
-              {/* <FlightInputModal
-                label={i18n.t("flight_number")}
-                value={flightNumber}
-                onChangeText={setFlightNumber}
-                placeholder={i18n.t("flight_number_placeholder")}
-                departure={departure}
-                arrival={arrival}
-                flightDate={flightDate}
-              /> */}
             </View>
           </View>
 
           {/* Weight & Pricing Card */}
           <View
-            style={[globalStyles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
             <View style={styles.cardHeader}>
               <Weight size={20} color={Colors.primary_color} />
@@ -402,15 +454,16 @@ export default function EditListingScreen() {
                     {i18n.t("total_value")}
                   </Text>
                   <Text style={theme.textStyles.number}>
-                    ${total.toFixed(2)}
+                    <Currency amount={total} />
                   </Text>
                 </View>
                 <View style={styles.feeRow}>
                   <Text style={theme.textStyles.bodyMedium}>
-                    {availableKilos}kg × ${pricePerKg}/kg
+                    {availableKilos}kg × <Currency amount={pricePerKg} />
+                    /kg
                   </Text>
                   <Text style={theme.textStyles.bodyMedium}>
-                    {i18n.t("bagbuddy_fee")}: ${fee.toFixed(2)}
+                    {i18n.t("fee")}: <Currency amount={fee} />
                   </Text>
                 </View>
               </View>
@@ -419,7 +472,10 @@ export default function EditListingScreen() {
 
           {/* Conditions & Notes Card */}
           <View
-            style={[globalStyles.card, { backgroundColor: theme.background_card }]}
+            style={[
+              globalStyles.card,
+              { backgroundColor: theme.background_card },
+            ]}
           >
             <View style={styles.cardHeader}>
               <FileText size={20} color={Colors.primary_color} />
@@ -482,33 +538,20 @@ export default function EditListingScreen() {
             </View>
           </View>
 
-          {/* Update Button */}
+          {/* Update Create Button */}
           <Button
             text={id ? i18n.t("update_listing") : i18n.t("create_listing")}
-            onPress={handleUpdateListing}
+            onPress={id ? handleUpdateListing : handleCreateTrip}
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    height: 60,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
   },
   headerContent: {
     flexDirection: "row",
@@ -525,6 +568,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     gap: 24,
+    marginBottom: 30,
   },
   cardHeader: {
     flexDirection: "row",

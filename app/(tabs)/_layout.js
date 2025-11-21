@@ -5,9 +5,11 @@ import {
   VectorIcon,
 } from "expo-router/unstable-native-tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Platform } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Redirect } from "expo-router";
+import { AuthContext } from "@/contexts/AuthContext";
 
 export default function TabsLayout() {
   const { i18n, language } = useLanguage();
@@ -16,6 +18,8 @@ export default function TabsLayout() {
     transactions: i18n.t("transactions"),
     profile: i18n.t("profile"),
   });
+    const { state } = useContext(AuthContext);
+
 
   useEffect(() => {
     setTabLabels({
@@ -25,11 +29,15 @@ export default function TabsLayout() {
     });
   }, [language, i18n]);
 
+    if (!state.isSignedIn) {
+      return <Redirect href="/login" />;
+    }
+
   return (
     <NativeTabs
       key={language}
       minimizeBehavior="onScrollDown"
-      style={{ backgroundColor: "white", color: "red" }}
+      backgroundColor="#1E90FF"
     >
       <NativeTabs.Trigger name="home">
         <Label>{tabLabels.home}</Label>
@@ -44,7 +52,9 @@ export default function TabsLayout() {
         {Platform.select({
           ios: <Icon sf="creditcard" drawable="custom_ios_drawable" />,
           android: (
-            <Icon src={<VectorIcon family={MaterialIcons} name="credit-card" />} />
+            <Icon
+              src={<VectorIcon family={MaterialIcons} name="credit-card" />}
+            />
           ),
         })}
         <Label>{tabLabels.transactions}</Label>
