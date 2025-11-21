@@ -1,4 +1,4 @@
-package org.example.stripes;
+package com.gateway.stripeservice.controller;
 
 import com.stripe.model.Account;
 import org.springframework.http.ResponseEntity;
@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 
-import org.example.stripes.StripeService;
+import com.gateway.stripeservice.service.StripeService;
 
 @RestController
 @RequestMapping("/stripe")
-public class Controller {
+public class StripeController {
 
     private final StripeService stripeService;
 
@@ -29,7 +29,7 @@ public class Controller {
     }
 
     @PostMapping("/create-stripe-account")
-    public String createAccount() throws Exception {
+    public Map<String, String> createAccount() throws Exception {
         return Map.of("account-id", stripeService.createAccount());
     }
 
