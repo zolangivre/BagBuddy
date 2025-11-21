@@ -5,10 +5,10 @@ import {
   PlaneTakeoff,
   PlaneLanding,
 } from "lucide-react-native";
-import Colors from "../theme/Colors";
-import { useThemeContext } from "../contexts/ThemeContext";
+import Colors from "@/theme/Colors";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
-import Label from "./Label";
+import Label from "@/components/Label";
 import LocalizedDateTime, {
   formatLocalizedDate,
 } from "@/components/LocalizedDateTime";
@@ -18,9 +18,8 @@ const FlightInfoCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const { language } = useLanguage();
-
-  const dateDeparture = formatLocalizedDate(item.dateDeparture, language);
-  const dateArrival = formatLocalizedDate(item.dateArrival, language);
+  const dateDeparture = formatLocalizedDate(item.departureDate, language);
+  const dateArrival = formatLocalizedDate(item.arrivalDate, language);
   return (
     <View
       style={[
@@ -54,7 +53,7 @@ const FlightInfoCard = ({ item }) => {
         <View style={styles.iconTime}>
           <PlaneTakeoff size={16} color={Colors.primary_color} />
           <LocalizedDateTime
-            date={item.dateDeparture}
+            date={item.departureDate}
             showDate={false}
             showTime={true}
             options={{ hour: "2-digit", minute: "2-digit" }}
@@ -72,7 +71,7 @@ const FlightInfoCard = ({ item }) => {
         <View style={styles.iconTime}>
           <PlaneLanding size={16} color={Colors.primary_color} />
           <LocalizedDateTime
-            date={item.dateArrival}
+            date={item.arrivalDate}
             showDate={false}
             showTime={true}
             options={{ hour: "2-digit", minute: "2-digit" }}

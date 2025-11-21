@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 
 const ButtonIcon = ({ href, icon, onPress, style, color }) => {
   const router = useRouter();

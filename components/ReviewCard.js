@@ -1,8 +1,9 @@
 import { View, Text } from "react-native";
-import Colors from "../theme/Colors";
-import { useThemeContext } from "../contexts/ThemeContext";
+import Colors from "@/theme/Colors";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import { Star } from "lucide-react-native";
-import Avatar from "./Avatar";
+import Avatar from "@/components/Avatar";
+import { formatLocalizedDate } from "@/components/LocalizedDateTime";
 
 const ReviewCard = ({ review }) => {
   const { theme: colorScheme } = useThemeContext();
@@ -22,24 +23,28 @@ const ReviewCard = ({ review }) => {
     return <View style={{ flexDirection: "row" }}>{stars}</View>;
   };
   return (
-      <View style={{ flexDirection: "row", gap: 16 }}>
-        <Avatar initials={review.name.charAt(0)} size={40} />
-        <View style={{ flexDirection: "column", gap: 12 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 12,
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={theme.textStyles.titleMedium}>{review.name}</Text>
-            <Text style={theme.textStyles.bodySmall}>{review.date}</Text>
-          </View>
-          <StarsReview rating={review.rating} />
-          <Text style={theme.textStyles.bodyMedium}>{review.comment}</Text>
+    <View style={{ flexDirection: "row", gap: 16 }}>
+      <Avatar initials={review.reviewerName.charAt(0)} size={40} />
+      <View style={{ flexDirection: "column", gap: 12 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={theme.textStyles.titleMedium}>
+            {review.reviewerName}
+          </Text>
+          <Text style={theme.textStyles.bodySmall}>
+            {formatLocalizedDate(review.date)}
+          </Text>
         </View>
+        <StarsReview rating={review.rating} />
+        <Text style={theme.textStyles.bodyMedium}>{review.comment}</Text>
       </View>
+    </View>
   );
 };
 

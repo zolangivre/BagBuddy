@@ -14,6 +14,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Calendar } from "lucide-react-native";
 import i18n from "@/i18n";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { formatLocalizedDateTime } from "@/components/LocalizedDateTime";
 
 const DateInputModal = ({
   label,
@@ -33,19 +34,6 @@ const DateInputModal = ({
   const today = new Date();
   const { language } = useLanguage();
 
-  const displayDate = value
-    ? (() => {
-        const d = new Date(value);
-        if (isNaN(d)) return ""; // sécurité
-        return new Intl.DateTimeFormat(language, {
-          weekday: "long", // jour de la semaine
-          day: "numeric", // numéro du jour
-          month: "long", // nom du mois
-          year: "numeric", // année
-        }).format(d);
-      })()
-    : "";
-
   // Mettre à jour tempDate si la date minimale change
   useEffect(() => {
     if (minimumDate) {
@@ -59,8 +47,14 @@ const DateInputModal = ({
     }
   }, [minimumDate]);
 
+  useEffect(() => {
+    if (value) {
+      setTempDate(new Date(value));
+    }
+  }, [value]);
+
   const handleConfirm = () => {
-    onChangeText(tempDate.toISOString().split("T")[0]);
+    onChangeText(tempDate.toISOString());
     setModalVisible(false);
   };
 
@@ -82,7 +76,7 @@ const DateInputModal = ({
               error && { borderWidth: 1, borderColor: Colors.error_color },
             ]}
             placeholder={placeholder}
-            value={displayDate}
+            value={value ? formatLocalizedDateTime(value, language) : ""}
             editable={false}
             placeholderTextColor={theme.text}
           />
@@ -103,7 +97,7 @@ const DateInputModal = ({
             {/* Date Picker */}
             <DateTimePicker
               value={tempDate}
-              mode="date"
+              mode="datetime"
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={(event, selectedDate) => {
                 if (selectedDate) setTempDate(selectedDate);

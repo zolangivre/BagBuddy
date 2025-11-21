@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import Button from "./Button";
-import Colors from "../theme/Colors";
+import Button from "@/components/Button";
+import Colors from "@/theme/Colors";
 import { Weight, Plus, Activity, Calendar } from "lucide-react-native";
-import { useThemeContext } from "../contexts/ThemeContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import i18n from "@/i18n";
 
 const ActionButton = ({ onSelectionChange, type = "home" }) => {
-  const { i18n } = useLanguage();
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -91,11 +90,11 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
           const Icon = btn.icon;
           const isSelected = selected === btn.key;
 
-            const textColor =
+          const textColor =
             colorScheme === "dark"
               ? isSelected
-              ? "#FFFFFF"
-              : "#888888"
+                ? "#FFFFFF"
+                : "#888888"
               : isSelected
               ? "#FFFFFF"
               : Colors.secondary_color;
@@ -120,7 +119,7 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
               ]}
               textStyle={{
                 color: textColor,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: "500",
               }}
               onPress={() => handleSelect(btn.key)}

@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 const Button = ({

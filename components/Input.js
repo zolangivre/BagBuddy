@@ -6,8 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import Colors from "../theme/Colors";
-import { useThemeContext } from "../contexts/ThemeContext";
+import Colors from "@/theme/Colors";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 const Input = ({
   label,

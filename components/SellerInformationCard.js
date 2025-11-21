@@ -1,51 +1,88 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 import {
   MessageCircle,
   Phone,
-  Plane,
-  Dot,
   ArrowRight,
   Scale,
   PlaneTakeoff,
   PlaneLanding,
 } from "lucide-react-native";
-import ButtonIcon from "./ButtonIcon";
+import ButtonIcon from "@/components/ButtonIcon";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
-import { useThemeContext } from "../contexts/ThemeContext";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import { AIRPORT } from "@/constants/airports";
-import LocalizedDateTime, {
+import {
   formatLocalizedDate,
+  formatLocalizedTime,
 } from "@/components/LocalizedDateTime";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { globalStyles } from "@/theme/Styles";
+import i18n from "@/i18n";
+import Currency from "@/components/Currency";
+import { AuthContext } from "@/contexts/AuthContext";
 
 const SellerInformationCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-  const status = item?.status;
   const { language } = useLanguage();
-  const departureAirportName = AIRPORT.find(
-    (airport) => airport.value === item?.departureAirport
-  )?.name;
-  const arrivalAirportName = AIRPORT.find(
-    (airport) => airport.value === item?.arrivalAirport
-  )?.name;
+  const { state } = useContext(AuthContext);
+  const userInfo = state.userInfo;
+  let departureAirportName;
+  let timeDeparture;
+  let arrivalAirportName;
+  let timeArrival;
+  let dateDeparture;
+  let dateArrival;
+  let sellerName;
+  let buyerName;
+  let role;
+  let status;
 
-  const dateDeparture = formatLocalizedDate(
-    item.dateDeparture,
-    language
-  );
-  const dateArrival = formatLocalizedDate(item.dateArrival, language);
+  if (item) {
+    departureAirportName =
+      AIRPORT.find(
+        (airport) => airport.value === item?.listingInfo?.departureAirport
+      )?.name || "???";
+    arrivalAirportName =
+      AIRPORT.find(
+        (airport) => airport.value === item?.listingInfo?.arrivalAirport
+      )?.name || "???";
+    dateDeparture = formatLocalizedDate(
+      item?.listingInfo?.departureDate,
+      language
+    );
+    timeDeparture = formatLocalizedTime(
+      item?.listingInfo?.departureDate,
+      language
+    );
+    dateArrival = formatLocalizedDate(item?.listingInfo?.arrivalDate, language);
+    timeArrival = formatLocalizedTime(item?.listingInfo?.arrivalDate, language);
+    sellerName = item?.listingInfo?.userInfo?.name || "???";
+    buyerName = item?.buyerInfo?.name || "???";
+    role = item.sellerId === userInfo.sub ? "seller" : "buyer";
+    if (role === "seller") {
+      status = item?.sellerStatus;
+    } else {
+      status = item?.buyerStatus;
+    }
+  }
   return (
-    <>
+    <View
+      style={[globalStyles.card, { backgroundColor: theme.background_card }]}
+    >
       <View style={[styles.sellerCard, { backgroundColor: theme.flightCard }]}>
         <View style={styles.sellerAvatar}>
-          <Text style={styles.sellerInitials}>KB</Text>
+          <Text style={styles.sellerInitials}>{role === "seller" ? buyerName?.charAt(0) : sellerName?.charAt(0)}</Text>
         </View>
         <View style={styles.sellerInfo}>
-          <Text style={theme.textStyles.cardTitle}>{item?.sellerName}</Text>
-          <Text style={theme.textStyles.bodyMedium}>★ 4.9 • Seller</Text>
+          {role === "seller" ? (
+            <Text style={theme.textStyles.cardTitle}>{buyerName}</Text>
+          ) : (
+            <Text style={theme.textStyles.cardTitle}>{sellerName}</Text>
+          )}
+          <Text style={theme.textStyles.bodyMedium}>★ 4.9 • {role === "seller" ? i18n.t("buyer") : i18n.t("seller")}</Text>
         </View>
         <ButtonIcon
           //   onPress={}
@@ -57,19 +94,11 @@ const SellerInformationCard = ({ item }) => {
         />
       </View>
 
-      {/* Flight Details */}
-      <View style={styles.flightDetailsRow}>
-        <Plane size={16} color={Colors.primary_color} />
-        <Text style={theme.textStyles.cardTitle}>Flight number</Text>
-        <Dot size={20} color={Colors.tertiary_color} />
-        <Text style={theme.textStyles.bodyLarge}>{item?.flightNumber}</Text>
-      </View>
-
       {/* Route Information */}
       <View style={styles.routeContainer}>
         <View style={styles.airportSection}>
           <Text style={theme.textStyles.cardTitle}>
-            {item?.departureAirport}
+            {item?.listingInfo?.departureAirport}
           </Text>
           <Text style={theme.textStyles.bodyMedium}>
             {departureAirportName}
@@ -82,7 +111,7 @@ const SellerInformationCard = ({ item }) => {
 
         <View style={styles.airportSection}>
           <Text style={[theme.textStyles.cardTitle, { textAlign: "right" }]}>
-            {item?.arrivalAirport}
+            {item?.listingInfo?.arrivalAirport}
           </Text>
           <Text style={[theme.textStyles.bodyMedium, { textAlign: "right" }]}>
             {arrivalAirportName}
@@ -98,13 +127,9 @@ const SellerInformationCard = ({ item }) => {
             <View style={styles.dateSection}>
               <Text style={theme.textStyles.bodyMedium}>{dateDeparture}</Text>
             </View>
-            <LocalizedDateTime
-              date={item.dateDeparture}
-              showDate={false}
-              showTime={true}
-              options={{ hour: "2-digit", minute: "2-digit" }}
-              style={{ color: theme.title }}
-            />
+            <View style={styles.dateSection}>
+              <Text style={{ color: theme.title }}>{timeDeparture}</Text>
+            </View>
           </View>
         </View>
         <View style={styles.timeSection}>
@@ -113,13 +138,9 @@ const SellerInformationCard = ({ item }) => {
             <View style={styles.dateSection}>
               <Text style={theme.textStyles.bodyMedium}>{dateArrival}</Text>
             </View>
-            <LocalizedDateTime
-              date={item.dateArrival}
-              showDate={false}
-              showTime={true}
-              options={{ hour: "2-digit", minute: "2-digit" }}
-              style={{ color: theme.title }}
-            />
+            <View style={styles.dateSection}>
+              <Text style={{ color: theme.title }}>{timeArrival}</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -132,16 +153,19 @@ const SellerInformationCard = ({ item }) => {
             <View style={styles.weightSection}>
               <Scale size={16} color={Colors.success_color} />
               <Text style={theme.textStyles.cardTitle}>
-                {item.weight}kg available
+                {item?.listingInfo?.remainingWeight}kg {i18n.t("available")}
               </Text>
             </View>
             <View style={styles.priceSection}>
-              <Text style={theme.textStyles.number}>${item.pricePerKg}/kg</Text>
+              <Text style={theme.textStyles.number}>
+                <Currency amount={item?.listingInfo?.pricePerKg} />
+                /kg
+              </Text>
             </View>
           </View>
         </>
       ) : null}
-    </>
+    </View>
   );
 };
 

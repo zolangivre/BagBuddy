@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Colors from "../theme/Colors";
-import ProgressBar from "./ProgressBar";
+import Colors from "@/theme/Colors";
+import ProgressBar from "@/components/ProgressBar";
 import { Dot, Check } from "lucide-react-native";
-import { useThemeContext } from "../contexts/ThemeContext";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
+import { globalStyles } from "@/theme/Styles";
 
-const TransactionProgressCard = ({ step, buyer }) => {
+const TransactionProgressCard = ({ step, role }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -53,24 +54,26 @@ const TransactionProgressCard = ({ step, buyer }) => {
     </View>
   );
 
-  const totalSteps = buyer ? 4 : 3;
+  const totalSteps = role === "buyer" ? 4 : 3;
   return (
-    <>
+    <View
+      style={[globalStyles.card, { backgroundColor: theme.background_card }]}
+    >
       <View style={styles.progressHeader}>
         <Text style={theme.textStyles.cardTitle}>
           {i18n.t("transaction_progress")}
         </Text>
         <Text style={theme.textStyles.bodyMedium}>
-          {step} of {totalSteps}
+          {step} {i18n.t("of")} {totalSteps}
         </Text>
       </View>
 
-  {/* Progress Bar */}
-  <ProgressBar step={step} totalSteps={totalSteps} width={"100%"} />
+      {/* Progress Bar */}
+      <ProgressBar step={step} totalSteps={totalSteps} width={"100%"} />
 
       {/* Progress Steps */}
       <View style={styles.progressSteps}>
-        {buyer ? (
+        {role === "buyer" ? (
           <>
             <Step
               number={1}
@@ -127,7 +130,7 @@ const TransactionProgressCard = ({ step, buyer }) => {
           </>
         )}
       </View>
-    </>
+    </View>
   );
 };
 

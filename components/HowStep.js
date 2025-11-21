@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import RoundIconText from "./RoundIconText";
-import Colors from "../theme/Colors";
-import { useThemeContext } from "../contexts/ThemeContext";
+import RoundIconText from "@/components/RoundIconText";
+import Colors from "@/theme/Colors";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 const HowStep = ({ number, title, subtitle, color, backgroundColor }) => {
   const { theme: colorScheme } = useThemeContext();

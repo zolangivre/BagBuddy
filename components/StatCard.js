@@ -26,8 +26,8 @@ const StatCard = ({
 const styles = StyleSheet.create({
   statCard: {
     flex: 1,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     borderRadius: 16,
     alignItems: "center",
     gap: 4,

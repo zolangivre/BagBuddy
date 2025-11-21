@@ -1,25 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 import {
   Luggage,
   Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
-  CreditCard,
 } from "lucide-react-native";
-import Button from "./Button";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
-import StripePaymentModal from "./StripePaymentModal";
-import { useThemeContext } from "../contexts/ThemeContext";
+// import StripePaymentModal from "./StripePaymentModal";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
+import Currency from "@/components/Currency";
 
-const StatusCard = ({ status, buyer }) => {
+const StatusCard = ({ status, role, transaction }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
-  const BottomContentConfirmedCompleted = ({ buyer, status }) => (
+  const BottomContentConfirmedCompleted = ({ role, status }) => (
     <View
       style={[
         styles.bottomContainer,
@@ -27,12 +26,10 @@ const StatusCard = ({ status, buyer }) => {
       ]}
     >
       <View style={styles.bottomInfo}>
-        {buyer && status === TRANSACTION_STATUS.CONFIRMED && (
-          <Text style={theme.textStyles.bodyLarge}>
-            {i18n.t("total_paid")}
-          </Text>
+        {role === "buyer" && status === TRANSACTION_STATUS.CONFIRMED && (
+          <Text style={theme.textStyles.bodyLarge}>{i18n.t("total_paid")}</Text>
         )}
-        {!buyer && status === TRANSACTION_STATUS.CONFIRMED && (
+        {role === "seller" && status === TRANSACTION_STATUS.CONFIRMED && (
           <Text style={theme.textStyles.bodyLarge}>
             {i18n.t("amount_received")}
           </Text>
@@ -44,15 +41,15 @@ const StatusCard = ({ status, buyer }) => {
         )}
       </View>
       <View style={styles.bottomInfo}>
-        <Text
+        <Currency
+          amount={transaction?.total}
           style={[theme.textStyles.number, { color: Colors.success_color }]}
-        >
-          $96
-        </Text>
+        />
       </View>
       <View style={styles.bottomInfo}>
         <Text style={[theme.textStyles.bodyLarge]}>
-          8kg - $12/kg
+          {transaction?.weight}kg -{" "}
+          <Currency amount={transaction?.listingInfo?.pricePerKg} />/kg
         </Text>
       </View>
     </View>
@@ -69,16 +66,17 @@ const StatusCard = ({ status, buyer }) => {
             : i18n.t("approved_weight")}
         </Text>
         <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
-          8kg
+          {transaction?.weight}kg
         </Text>
       </View>
       <View style={styles.bottomInfo}>
         <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
           {i18n.t("price_per_kg")}:
         </Text>
-        <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
-          $12
-        </Text>
+        <Currency
+          amount={transaction?.listingInfo?.pricePerKg}
+          style={[theme.textStyles.bodyLarge, { color: theme.title }]}
+        />
       </View>
       <View style={styles.routeLine} />
       <View style={styles.bottomInfo}>
@@ -87,7 +85,7 @@ const StatusCard = ({ status, buyer }) => {
             ? i18n.t("expected_payment")
             : i18n.t("total_amount")}
         </Text>
-        <Text style={theme.textStyles.number}>$96.00</Text>
+        <Currency amount={transaction?.total} style={theme.textStyles.number} />
       </View>
     </View>
   );
@@ -114,41 +112,83 @@ const StatusCard = ({ status, buyer }) => {
   };
 
   const WaitingForResponseStatus = () => {
-    return (
-      <>
-        <View style={styles.reserveIcon}>
-          <Clock size={60} color={Colors.primary_color} />
-        </View>
-        <Text
-          style={[
-            theme.textStyles.cardStatusTitle,
-            { color: Colors.primary_color },
-          ]}
-        >
-          {i18n.t("waiting_for_response_title")}
-        </Text>
-        <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
-          {i18n.t("waiting_for_response_description", {
-            seller: "Karim Benzema",
-          })}
-        </Text>
-        <View
-          style={[
-            styles.bottomContainer,
-            {
-              flexDirection: "row",
-              backgroundColor: theme.title_inverse,
-              alignItems: "center",
-            },
-          ]}
-        >
-          <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
-            {i18n.t("requested_weight")}:
+    if (status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER) {
+      return (
+        <>
+          <View style={styles.reserveIcon}>
+            <Clock size={60} color={Colors.primary_color} />
+          </View>
+          <Text
+            style={[
+              theme.textStyles.cardStatusTitle,
+              { color: Colors.primary_color },
+            ]}
+          >
+            {i18n.t("waiting_for_response_title")}
           </Text>
-          <Text style={theme.textStyles.number}>8kg</Text>
-        </View>
-      </>
-    );
+          <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+            {i18n.t("waiting_for_response_description", {
+              seller: "Karim Benzema",
+            })}
+          </Text>
+          <View
+            style={[
+              styles.bottomContainer,
+              {
+                flexDirection: "row",
+                backgroundColor: theme.title_inverse,
+                alignItems: "center",
+              },
+            ]}
+          >
+            <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
+              {i18n.t("requested_weight")}:
+            </Text>
+            <Text style={theme.textStyles.number}>{transaction?.weight}kg</Text>
+          </View>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <View style={styles.reserveIcon}>
+            <XCircle size={60} color={Colors.error_color} />
+          </View>
+          <Text
+            style={[
+              theme.textStyles.cardStatusTitle,
+              { color: Colors.error_color },
+            ]}
+          >
+            {i18n.t("waiting_for_response_title")}
+          </Text>
+          <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
+            {i18n.t("waiting_for_response_description", {
+              seller: "Karim Benzema",
+            })}
+          </Text>
+          <View
+            style={[
+              styles.bottomContainer,
+              {
+                flexDirection: "row",
+                backgroundColor: theme.title_inverse,
+                alignItems: "center",
+              },
+            ]}
+          >
+            <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
+              {i18n.t("reject_request")}:
+            </Text>
+            <Text
+              style={[theme.textStyles.number, { color: Colors.error_color }]}
+            >
+              {transaction?.weight}kg
+            </Text>
+          </View>
+        </>
+      );
+    }
   };
 
   const RequestRejectedStatus = () => {
@@ -163,7 +203,7 @@ const StatusCard = ({ status, buyer }) => {
             { color: Colors.error_color },
           ]}
         >
-          {i18n.t("waiting_for_response_title")}
+          {i18n.t("request_rejected_title")}
         </Text>
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("request_rejected_description", {
@@ -187,7 +227,7 @@ const StatusCard = ({ status, buyer }) => {
           <Text
             style={[theme.textStyles.number, { color: Colors.error_color }]}
           >
-            8kg
+            {transaction?.weight}kg
           </Text>
         </View>
       </>
@@ -195,7 +235,7 @@ const StatusCard = ({ status, buyer }) => {
   };
 
   const PaymentRequiredStatus = () => {
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    // const [showPaymentModal, setShowPaymentModal] = useState(false);
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -218,24 +258,18 @@ const StatusCard = ({ status, buyer }) => {
         <BottomContentPaymentReservation
           status={TRANSACTION_STATUS.PAYMENT_REQUIRED}
         />
-        <Button
-          text={i18n.t("complete_payment")}
-          color={Colors.primary_color}
-          leftIcon={<CreditCard size={24} color="#FFFFFF" />}
-          onPress={() => setShowPaymentModal(true)}
-        />
-        <StripePaymentModal
+        {/* <StripePaymentModal
           visible={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
-        />
+        /> */}
       </>
     );
   };
 
-  const ConfirmedStatus = ({ buyer }) => {
+  const ConfirmedStatus = ({ role }) => {
     return (
       <>
-        {buyer ? (
+        {role === "buyer" ? (
           <>
             <View style={styles.reserveIcon}>
               <CheckCircle size={60} color={Colors.success_color} />
@@ -252,7 +286,7 @@ const StatusCard = ({ status, buyer }) => {
               {i18n.t("confirmed_description_buyer")}
             </Text>
             <BottomContentConfirmedCompleted
-              buyer={buyer}
+              role={role}
               status={TRANSACTION_STATUS.CONFIRMED}
             />
           </>
@@ -273,7 +307,7 @@ const StatusCard = ({ status, buyer }) => {
               {i18n.t("confirmed_description_seller")}
             </Text>
             <BottomContentConfirmedCompleted
-              buyer={buyer}
+              role={role}
               status={TRANSACTION_STATUS.CONFIRMED}
             />
           </>
@@ -386,7 +420,7 @@ const StatusCard = ({ status, buyer }) => {
               styles.reserveCard,
               { backgroundColor: Colors.dark_cyan_translucent_3 },
             ]
-          : status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE
+          : status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER
           ? [
               styles.reserveCard,
               { backgroundColor: Colors.dark_cyan_translucent_3 },
@@ -420,11 +454,16 @@ const StatusCard = ({ status, buyer }) => {
               styles.reserveCard,
               { backgroundColor: Colors.dark_cyan_translucent_3 },
             ]
+          : status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER
+          ? [styles.reserveCard, { backgroundColor: Colors.red_translucent_3 }]
           : styles.reserveCard
       }
     >
       {status === TRANSACTION_STATUS.BROWSE_LISTING && <BrowseListingStatus />}
-      {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE && (
+      {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER && (
+        <WaitingForResponseStatus />
+      )}
+      {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER && (
         <WaitingForResponseStatus />
       )}
       {status === TRANSACTION_STATUS.REQUEST_REJECTED && (
@@ -434,7 +473,7 @@ const StatusCard = ({ status, buyer }) => {
         <PaymentRequiredStatus />
       )}
       {status === TRANSACTION_STATUS.CONFIRMED && (
-        <ConfirmedStatus buyer={buyer} />
+        <ConfirmedStatus role={role} />
       )}
       {status === TRANSACTION_STATUS.COMPLETED && <CompletedStatus />}
       {status === TRANSACTION_STATUS.CANCELLED && <CancelledStatus />}

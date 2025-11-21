@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 
 const Avatar = ({ initials, size = 44 }) => (
   <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2 }]}>

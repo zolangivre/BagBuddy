@@ -1,6 +1,6 @@
 import { Text, StyleSheet, View } from "react-native";
-import Colors from "../theme/Colors";
-import { useThemeContext } from "../contexts/ThemeContext";
+import Colors from "@/theme/Colors";
+import { useThemeContext } from "@/contexts/ThemeContext";
 
 const Label = ({ text, borderColor = "rgba(255, 255, 255, 0)", backgroundColor, icon, colorText }) => {
   const { theme: colorScheme } = useThemeContext();

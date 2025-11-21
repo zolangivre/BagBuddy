@@ -8,8 +8,6 @@ import {
 } from "react-native";
 import Colors from "@/theme/Colors";
 import { useThemeContext } from "@/contexts/ThemeContext";
-import { Scale } from "lucide-react-native";
-import i18n from "@/i18n";
 
 const NumberInput = ({
   label,
@@ -74,6 +72,7 @@ const NumberInput = ({
           onChangeText={handleChange}
           keyboardType="numeric"
           placeholder={placeholder}
+          placeholderTextColor={theme.text}
         />
 
         <TouchableOpacity style={styles.arrow} onPress={increment}>

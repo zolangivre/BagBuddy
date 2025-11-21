@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Plus, DollarSign } from "lucide-react-native";
-import Colors from "../theme/Colors";
-import Button from "./Button";
+import Colors from "@/theme/Colors";
+import Button from "@/components/Button";
 import RoundIconText from "./RoundIconText";
-import HowStep from "./HowStep";
-import { useThemeContext } from "../contexts/ThemeContext";
+import HowStep from "@/components/HowStep";
+import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { globalStyles } from "@/theme/Styles";
 
@@ -46,7 +46,7 @@ const HomeSellView = () => {
         <Button
           text={i18n.t("create_new_listing")}
           href="edit-listing"
-          leftIcon={<Plus size={24} color="#FFFFFF" />}
+          leftIcon={<Plus size={24} color={Colors.white} />}
           color={Colors.success_color}
         />
       </View>

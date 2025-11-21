@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 
 const ProgressBar = ({ step = 0, totalSteps = 4, width = 80, style }) => {
   // If the ProgressBar is placed in a row without an explicit width,

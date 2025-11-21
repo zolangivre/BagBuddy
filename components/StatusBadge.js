@@ -6,8 +6,8 @@ import {
   AlertCircle,
   CreditCard,
 } from "lucide-react-native";
-import Label from "./Label";
-import Colors from "../theme/Colors";
+import Label from "@/components/Label";
+import Colors from "@/theme/Colors";
 import {
   TRANSACTION_STATUS,
 } from "@/constants/transaction-status";
@@ -25,7 +25,7 @@ const StatusBadge = ({ status }) => {
           colorText={Colors.tertiary_color}
         />
       );
-    case TRANSACTION_STATUS.WAITING_FOR_RESPONSE:
+    case TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER:
       return (
         <Label
           text={i18n.t(`waiting_for_response`)}
@@ -33,6 +33,16 @@ const StatusBadge = ({ status }) => {
           backgroundColor={Colors.waiting_for_response_badge_background}
           icon={<Clock size={16} color={Colors.dark_cyan} />}
           colorText={Colors.dark_cyan}
+        />
+      );
+    case TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER:
+      return (
+        <Label
+          text={i18n.t(`waiting_for_response`)}
+          borderColor={Colors.waiting_for_response_seller_badge_border}
+          backgroundColor={Colors.waiting_for_response_seller_badge_background}
+          icon={<XCircle size={16} color={Colors.red} />}
+          colorText={Colors.red}
         />
       );
     case TRANSACTION_STATUS.REQUEST_REJECTED:

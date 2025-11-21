@@ -1,34 +1,47 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import Colors from "../theme/Colors";
+import Colors from "@/theme/Colors";
 import { Scale, Minus, Plus } from "lucide-react-native";
-import { useThemeContext } from "../contexts/ThemeContext";
+import { useThemeContext } from "@/contexts/ThemeContext";
+import { globalStyles } from "@/theme/Styles";
+import Currency from "@/components/Currency";
+import i18n from "@/i18n";
 
-const WeightSelectorCard = ({ item }) => {
+const WeightSelectorCard = ({ item, onWeightChange }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-
-  const [selectedWeight, setSelectedWeight] = useState(7);
-  const pricePerKg = item.pricePerKg;
-  const maxWeight = item.weight;
+  let pricePerKg = null;
+  let maxWeight = null;
+  if (item) {
+    pricePerKg = item.pricePerKg;
+    maxWeight = item.remainingWeight;
+  }
+  const [selectedWeight, setSelectedWeight] = useState(1);
 
   const handleWeightChange = (newWeight) => {
     if (newWeight >= 1 && newWeight <= maxWeight) {
       setSelectedWeight(newWeight);
+      if (onWeightChange) onWeightChange(newWeight);
     }
   };
 
   const totalPrice = selectedWeight * pricePerKg;
   return (
-    <>
+    <View
+      style={[
+        globalStyles.card,
+        { backgroundColor: theme.background_card, gap: 20 },
+      ]}
+    >
       <View style={styles.weightSelectorHeader}>
         <Scale size={24} color={Colors.primary_color} />
-        <Text style={theme.textStyles.cardTitle}>Select Weight to Approve</Text>
+        <Text style={theme.textStyles.cardTitle}>
+          {i18n.t("select_weight_to_approve")}
+        </Text>
       </View>
 
       <Text style={[theme.textStyles.bodyMedium, { textAlign: "center" }]}>
-        Choose how many kilograms you want to approve for this request (max 15kg
-        available).
+        {i18n.t("select_weight_to_approve_description", { weight: maxWeight })}
       </Text>
 
       {/* Weight Controls */}
@@ -72,11 +85,12 @@ const WeightSelectorCard = ({ item }) => {
       {/* Price Display */}
       <View style={styles.priceDisplay}>
         <Text style={theme.textStyles.bodyMedium}>Price:</Text>
-        <Text style={[theme.textStyles.bodyMedium, { color: Colors.primary_color }]}>
-          ${totalPrice.toFixed(2)}
-        </Text>
+        <Currency
+          style={[theme.textStyles.bodyMedium, { color: Colors.primary_color }]}
+          amount={totalPrice}
+        />
       </View>
-    </>
+    </View>
   );
 };
 
@@ -96,7 +110,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 10,
-    borderWidth: 0.650,
+    borderWidth: 0.65,
     borderColor: Colors.dark_cyan_translucent_2,
     justifyContent: "center",
     alignItems: "center",
