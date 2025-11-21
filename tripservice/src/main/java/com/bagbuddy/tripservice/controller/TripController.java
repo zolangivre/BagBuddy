@@ -16,14 +16,36 @@ public class TripController {
 
     @GetMapping
     public List<Trip> getAllTrips() {
-        return tripRepository.findAll();
+        System.out.println(tripRepository.findAllByOrderByCreatedAtDesc());
+        return tripRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    @GetMapping("/{id}")
+    public Trip getTripById(@PathVariable Long id) {
+        return tripRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Trip not found with id " + id));
+    }
+
+    // GET by sub
+    @GetMapping("/user/{userId}")
+    public List<Trip> getTripsByUserId(@PathVariable String userId) {
+        return tripRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @PostMapping
     public Trip createTrip(@RequestBody Trip trip) {
+        if (trip.getUserInfo() != null) {
+            trip.setUserId(trip.getUserInfo().getSub());
+        }
         return tripRepository.save(trip);
     }
-    
+
+    //DELETE trip
+    @DeleteMapping("/{id}")
+    public void deleteTrip(@PathVariable Long id) {
+        tripRepository.deleteById(id);
+    }
+
     @PutMapping("/{id}")
     public Trip updateTrip(@PathVariable Long id, @RequestBody Trip tripDetails) {
         Optional<Trip> optionalTrip = tripRepository.findById(id);
@@ -32,8 +54,6 @@ public class TripController {
         }
 
         Trip existingTrip = optionalTrip.get();
-        existingTrip.setUserId(tripDetails.getUserId());
-        existingTrip.setFlightNumber(tripDetails.getFlightNumber());
         existingTrip.setDepartureAirport(tripDetails.getDepartureAirport());
         existingTrip.setArrivalAirport(tripDetails.getArrivalAirport());
         existingTrip.setDepartureDate(tripDetails.getDepartureDate());

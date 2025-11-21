@@ -1,5 +1,6 @@
 package com.bagbuddy.tripservice.model;
 
+import com.bagbuddy.tripservice.config.UserInfoConverter;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,9 +13,11 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Keep domain fields; use camelCase like booking
-    private Integer userId;
-    private String flightNumber;
+    @Convert(converter = UserInfoConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private UserInfo userInfo;
+
+    private String userId;
 
     private String departureAirport;
     private String arrivalAirport;
@@ -29,18 +32,23 @@ public class Trip {
     @Column(columnDefinition = "TEXT")
     private String conditions;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     // Getters / Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public UserInfo getUserInfo() { return userInfo; }
+    public void setUserInfo(UserInfo userInfo) { this.userInfo = userInfo; }
 
-    public String getFlightNumber() { return flightNumber; }
-    public void setFlightNumber(String flightNumber) { this.flightNumber = flightNumber; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public String getDepartureAirport() { return departureAirport; }
     public void setDepartureAirport(String departureAirport) { this.departureAirport = departureAirport; }

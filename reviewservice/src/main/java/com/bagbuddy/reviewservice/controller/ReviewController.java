@@ -29,18 +29,13 @@ public class ReviewController {
 
     // GET filters
     @GetMapping("/reviewee/{revieweeId}")
-    public List<Review> byReviewee(@PathVariable Integer revieweeId) {
+    public List<Review> byReviewee(@PathVariable String revieweeId) {
         return reviewRepository.findByRevieweeId(revieweeId);
     }
 
     @GetMapping("/reviewer/{reviewerId}")
-    public List<Review> byReviewer(@PathVariable Integer reviewerId) {
+    public List<Review> byReviewer(@PathVariable String reviewerId) {
         return reviewRepository.findByReviewerId(reviewerId);
-    }
-
-    @GetMapping("/trip/{tripId}")
-    public List<Review> byTrip(@PathVariable Long tripId) {
-        return reviewRepository.findByTripId(tripId);
     }
 
     @GetMapping("/transaction/{transactionId}")
@@ -49,7 +44,7 @@ public class ReviewController {
     }
 
     @GetMapping("/reviewee/{revieweeId}/average")
-    public Double averageForReviewee(@PathVariable Integer revieweeId) {
+    public Double averageForReviewee(@PathVariable String revieweeId) {
         return reviewRepository.averageRatingForReviewee(revieweeId);
     }
 
@@ -67,7 +62,6 @@ public class ReviewController {
 
         existing.setReviewerId(body.getReviewerId());
         existing.setRevieweeId(body.getRevieweeId());
-        existing.setTripId(body.getTripId());
         existing.setTransactionId(body.getTransactionId());
         existing.setRating(body.getRating());
         existing.setComment(body.getComment());

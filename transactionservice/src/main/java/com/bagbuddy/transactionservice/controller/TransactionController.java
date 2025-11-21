@@ -2,6 +2,7 @@ package com.bagbuddy.transactionservice.controller;
 
 import com.bagbuddy.transactionservice.model.Transaction;
 import com.bagbuddy.transactionservice.repository.TransactionRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,7 +18,51 @@ public class TransactionController {
     // GET all
     @GetMapping
     public List<Transaction> getAll() {
-        return transactionRepository.findAll();
+        return transactionRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    // GET by seller
+    @GetMapping("/seller/{sellerId}")
+    @Transactional(readOnly = true)
+    public List<Transaction> getBySeller(@PathVariable String sellerId) {
+        return transactionRepository.findBySellerId(sellerId);
+    }
+
+    // GET by buyer
+    @GetMapping("/buyer/{buyerId}")
+    @Transactional(readOnly = true)
+    public List<Transaction> getByBuyer(@PathVariable String buyerId) {
+        return transactionRepository.findByBuyerId(buyerId);
+    }
+
+    // GET all transactions pour un user (buyer OU seller)
+    @GetMapping("/user/{userId}")
+    public List<Transaction> getByUser(@PathVariable String userId) {
+        return transactionRepository.findByBuyerIdOrSellerIdOrderByCreatedAtDesc(userId, userId);
+    }
+
+    //GET number of transactions for a user
+    @GetMapping("/user/{userId}/count")
+    public Long countByUser(@PathVariable String userId) {
+        return transactionRepository.countByBuyerIdOrSellerId(userId, userId);
+    }
+
+    //GET total earned by a seller
+    @GetMapping("/seller/{sellerId}/total-earned")
+    public Double getTotalEarnedBySeller(@PathVariable String sellerId) {
+        List<Transaction> transactions = transactionRepository.findBySellerId(sellerId);
+        return transactions.stream()
+                .mapToDouble(tx -> tx.getTotal().doubleValue())
+                .sum();
+    }
+
+    //GET total spent by a buyer
+    @GetMapping("/buyer/{buyerId}/total-spent")
+    public Double getTotalSpentByBuyer(@PathVariable String buyerId) {
+        List<Transaction> transactions = transactionRepository.findByBuyerId(buyerId);
+        return transactions.stream()
+                .mapToDouble(tx -> tx.getTotal().doubleValue())
+                .sum();
     }
 
     // GET by id
@@ -27,21 +72,12 @@ public class TransactionController {
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
     }
 
-    // GET by buyer
-    @GetMapping("/buyer/{buyerId}")
-    public List<Transaction> getByBuyer(@PathVariable Integer buyerId) {
-        return transactionRepository.findByBuyerId(buyerId);
-    }
-
-    // GET by seller
-    @GetMapping("/seller/{sellerId}")
-    public List<Transaction> getBySeller(@PathVariable Integer sellerId) {
-        return transactionRepository.findBySellerId(sellerId);
-    }
-
     // POST create
     @PostMapping
     public Transaction create(@RequestBody Transaction tx) {
+        if (tx.getBuyerInfo() != null) {
+            tx.setBuyerId(tx.getBuyerInfo().getSub());
+        }
         return transactionRepository.save(tx);
     }
 
@@ -51,23 +87,13 @@ public class TransactionController {
         Transaction existing = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
 
-        existing.setSellerId(body.getSellerId());
-        existing.setSellerName(body.getSellerName());
-        existing.setBuyerId(body.getBuyerId());
-        existing.setBuyerName(body.getBuyerName());
-        existing.setInitials(body.getInitials());
-        existing.setType(body.getType());
-        existing.setStatus(body.getStatus());
-        existing.setStatusText(body.getStatusText());
-        existing.setFlightNumber(body.getFlightNumber());
-        existing.setDepartureAirport(body.getDepartureAirport());
-        existing.setArrivalAirport(body.getArrivalAirport());
-        existing.setDateDeparture(body.getDateDeparture());
-        existing.setDateArrival(body.getDateArrival());
+        existing.setSellerStatus(body.getSellerStatus());
+        existing.setBuyerStatus(body.getBuyerStatus());
         existing.setWeight(body.getWeight());
-        existing.setPricePerKg(body.getPricePerKg());
         existing.setTotal(body.getTotal());
-        existing.setConditions(body.getConditions());
+        existing.setListingInfo(body.getListingInfo());
+        existing.setBuyerReview(body.getBuyerReview());
+        existing.setSellerReview(body.getSellerReview());
 
         return transactionRepository.save(existing);
     }

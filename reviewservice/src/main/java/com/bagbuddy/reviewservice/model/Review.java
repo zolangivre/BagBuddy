@@ -1,6 +1,7 @@
 package com.bagbuddy.reviewservice.model;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,36 +13,97 @@ public class Review {
     private Long id;
 
     // Qui évalue qui ?
-    private Integer reviewerId;   // auteur de la review
-    private Integer revieweeId;   // personne évaluée (ex: sellerId ou userId)
+    private String reviewerId;   // auteur de la review
+    private String reviewerName;
+    private String revieweeId;   // personne évaluée (ex: sellerId ou userId)
+    private String revieweeName;
 
-    // Contexte (optionnels) : lier à un trip/transaction si tu veux filtrer par cas d’usage
-    private Long tripId;          // nullable
     private Long transactionId;   // nullable
 
     // Contenu de la review
     private Integer rating;       // 1..5
+
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     // Getters / Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Integer getReviewerId() { return reviewerId; }
-    public void setReviewerId(Integer reviewerId) { this.reviewerId = reviewerId; }
-    public Integer getRevieweeId() { return revieweeId; }
-    public void setRevieweeId(Integer revieweeId) { this.revieweeId = revieweeId; }
-    public Long getTripId() { return tripId; }
-    public void setTripId(Long tripId) { this.tripId = tripId; }
-    public Long getTransactionId() { return transactionId; }
-    public void setTransactionId(Long transactionId) { this.transactionId = transactionId; }
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
-    public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getReviewerId() {
+        return reviewerId;
+    }
+
+    public void setReviewerId(String reviewerId) {
+        this.reviewerId = reviewerId;
+    }
+
+    public String getRevieweeId() {
+        return revieweeId;
+    }
+
+    public void setRevieweeId(String revieweeId) {
+        this.revieweeId = revieweeId;
+    }
+
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getReviewerName() {
+        return reviewerName;
+    }
+
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
+
+    public String getRevieweeName() {
+        return revieweeName;
+    }
+
+    public void setRevieweeName(String revieweeName) {
+        this.revieweeName = revieweeName;
+    }
 }
