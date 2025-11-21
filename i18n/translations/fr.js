@@ -37,6 +37,7 @@ export default {
   departure: "Départ",
   arrival: "Arrivée",
   reserve_weight: "Réserver des kilos",
+  view_your_listing: "Voir votre annonce",
   sell_weight_title: "Transformez vos kilos en argent",
   sell_weight_description:
     "Avez-vous un excédent de poids sur votre vol à venir ? Listez-le ici et gagnez de l'argent en aidant d'autres voyageurs.",
@@ -51,6 +52,8 @@ export default {
   meet_and_earn: "Rencontrez et gagnez",
   meet_at_the_airport:
     "Rencontrez-vous à l'aéroport et soyez payé instantanément",
+  listed_on: "Publié le",
+  created_on: "Créé le",
 
   //Transactions screen
   transactions_title: "Transactions",
@@ -63,11 +66,14 @@ export default {
   total: "Total",
   buying: "Achat",
   selling: "Vente",
+  no_active_transactions: "Aucune transaction active trouvée.",
+  no_completed_transactions: "Aucune transaction terminée trouvée.",
+  no_results_found: "Aucun résultat trouvé.",
 
   //Profile
   overview: "Aperçu",
   listings: "Annonces",
-  settings: "Paramètres",
+  settings: "Paramètre",
   manage_your_account: "Gérer votre compte",
   recent_transactions: "Transactions récentes",
   view_all: "Voir tout",
@@ -79,8 +85,10 @@ export default {
   dark_mode: "Mode sombre",
   toggle_dark_mode: "Activer/désactiver le mode sombre",
   change_language: "Changer de langue",
+  change_currency: "Changer de devise",
   log_out: "Déconnexion",
   reviews: "Avis",
+  no_active_listings: "Aucune annonce active trouvée.",
 
   //Edit Profile
   edit_profile: "Modifier le profil",
@@ -99,7 +107,7 @@ export default {
   bio_placeholder: "Entrez votre bio",
   save_changes: "Enregistrer les modifications",
 
-  //Edit Listing
+  //Create Edit Listing
   edit_listing: "Modifier l'annonce",
   flight_information: "Informations sur le vol",
   flight_number: "Numéro de vol",
@@ -111,7 +119,7 @@ export default {
   available_kilos: "Kilos disponibles",
   price_per_kilo: "Prix par kilo",
   total_value: "Valeur totale",
-  bagbuddy_fee: "Frais BagBuddy",
+  fee: "Frais",
   conditions_and_notes: "Conditions & notes",
   special_conditions_optional: "Conditions spéciales (facultatif)",
   special_conditions_optional_placeholder:
@@ -129,6 +137,13 @@ export default {
   search_airport: "Rechercher un aéroport...",
   flight_date_departure: "Date de vol de départ",
   flight_date_arrival: "Date de vol d'arrivée",
+  confirm_delete_listing: "Êtes-vous sûr de vouloir supprimer cette annonce ?",
+  delete_warning: "Cette action est irréversible.",
+  delete_listing_action: "Supprimer l'annonce",
+  cancel_listing_action: "Annuler",
+  listing_deleted_successfully: "Annonce supprimée avec succès.",
+  error_deleting_trip: "Erreur lors de la suppression de l'annonce.",
+  error_updating_trip: "Erreur lors de la mise à jour de l'annonce.",
 
   //Status
   browse_listings: "Parcourir les annonces",
@@ -139,6 +154,7 @@ export default {
   awaiting_payment: "En attente de paiement",
   confirmed: "Confirmé",
   cancelled: "Annulé",
+  all_statuses: "Tout les statuts",
 
   //Transaction Details
   flight: "Vol",
@@ -167,6 +183,11 @@ export default {
   step_four_title_buyer: "Terminée",
   step_four_description_buyer: "Transaction réussie !",
 
+  //Weight Selector Card
+  select_weight_to_approve: "Sélectionner le poids à approuver",
+  select_weight_to_approve_description:
+    "Choisissez combien de kilogrammes vous souhaitez approuver pour cette demande (max {{weight}} disponible).",
+
   //Status Card
   awaiting_payment_title: "En attente de paiement",
   awaiting_payment_description:
@@ -176,9 +197,6 @@ export default {
   browse_listings_title: "Prêt à réserver du poids ?",
   browse_listings_description:
     "Envoyez une demande pour réserver un espace de bagage.",
-  select_weight_to_approve: "Sélectionner le poids à approuver",
-  select_weight_to_approve_description:
-    "Choisissez combien de kilos vous souhaitez approuver pour cette demande.",
   kilograms: "kilos",
   price: "Prix",
   waiting_for_response_title: "En attente du vendeur",
@@ -188,7 +206,7 @@ export default {
   request_rejected_title: "Demande refusée",
   request_rejected_description:
     "{{seller}} a refusé votre demande pour {{weight}}.",
-  reject_request: "Refuser la demande",
+  reject_request: "Poids refusée",
   try_a_different_amount: "Essayer un autre poids",
   try_a_different_amount_description:
     "Peut-être que {{seller}} accepterait un poids différent. Essayez d’envoyer une nouvelle demande.",
@@ -209,6 +227,7 @@ export default {
   confirmed_description_seller:
     "Super ! Voici les détails du rendez-vous à l’aéroport.",
   total_paid: "Total payé",
+  amount_received: "Montant reçu",
   meeting_details: "Détails du rendez-vous",
   meeting_details_step_one: "Comptoir d’enregistrement",
   meeting_details_step_two: "{{date}}",
@@ -222,6 +241,8 @@ export default {
   cancelled_title: "Transaction annulée",
   cancelled_description:
     "Cette transaction a été annulée. Ne vous inquiétez pas, il y a beaucoup d'autres opportunités !",
+  weight_reserved: "{{weight}} réservé",
+  arrive_by: "Arrivez avant {{time}}",
 
   //Modal
   cancel_transaction_modal_title: "Voulez-vous annuler cette transaction ?",
@@ -243,4 +264,79 @@ export default {
   error_price_required: "Le prix par kilo est obligatoire.",
   listing_updated_successfully: "Annonce mise à jour avec succès.",
   listing_created_successfully: "Annonce créée avec succès.",
+  error_creating_trip: "Erreur lors de la création de l'annonce.",
+  reservation_request_error_message:
+    "Une erreur est survenue lors de l'envoi de votre demande de réservation. Veuillez réessayer plus tard.",
+  of: "sur",
+
+  //Filters
+  filters: "Filtres",
+  apply_filters: "Appliquer",
+  clear: "Effacer",
+  price_range: "Plage de prix",
+  weight_range: "Plage de poids",
+  from: "De",
+  to: "À",
+  origin: "Origine",
+  destination: "Destination",
+
+  //Alert
+  reservation_request_sent_title: "Demande envoyée",
+  reservation_request_sent_message:
+    "Votre demande de réservation a été envoyée avec succès.",
+  request_accepted_title: "Demande acceptée",
+  request_accepted_message: "Vous avez accepté la demande de réservation.",
+  request_accepted_error_message:
+    "Une erreur est survenue lors de l'acceptation de la demande de réservation. Veuillez réessayer plus tard.",
+  request_declined_title: "Demande refusée",
+  request_declined_message: "Vous avez refusé la demande de réservation.",
+  request_declined_error_message:
+    "Une erreur est survenue lors du refus de la demande de réservation. Veuillez réessayer plus tard.",
+  payment_completed_title: "Paiement effectué",
+  payment_completed_message: "Le paiement a été effectué avec succès.",
+  payment_completed_error_message:
+    "Une erreur est survenue lors du paiement. Veuillez réessayer plus tard.",
+  cancel_transaction_title: "Transaction annulée",
+  cancel_transaction_message: "Cette transaction a été annulée avec succès.",
+  cancel_transaction_error_message:
+    "Une erreur est survenue lors de l'annulation de la transaction.",
+  confirmed_completed_title: "Transaction terminée",
+  confirmed_completed_message:
+    "La transaction a été marquée comme terminée avec succès.",
+  confirmed_completed_error_message:
+    "Une erreur est survenue lors du marquage de la transaction comme terminée. Veuillez réessayer plus tard.",
+  review_submitted_title: "Avis soumis",
+  review_submitted_message: "Votre avis a été soumis avec succès.",
+  review_submitted_error_message:
+    "Une erreur est survenue lors de la soumission de votre avis. Veuillez réessayer plus tard.",
+
+  cancel: "Annuler",
+  confirm_reservation_title: "Confirmer la réservation",
+  confirm_reservation_message:
+    "Êtes-vous sûr de vouloir envoyer cette demande de réservation ?",
+  confirm_new_request_title: "Confirmer la nouvelle demande",
+  confirm_new_request_message:
+    "Êtes-vous sûr de vouloir envoyer cette nouvelle demande de réservation ?",
+  confirm_payment_title: "Confirmer le paiement",
+  confirm_payment_message:
+    "Êtes-vous sûr de vouloir procéder au paiement pour cette transaction ?",
+  confirm_accept_request_title: "Accepter la demande",
+  confirm_accept_request_message:
+    "Êtes-vous sûr de vouloir accepter cette demande de réservation ?",
+  confirm_decline_request_title: "Refuser la demande",
+  confirm_decline_request_message:
+    "Êtes-vous sûr de vouloir refuser cette demande de réservation ?",
+  confirm_cancel_transaction_title: "Annuler la transaction",
+  confirm_cancel_transaction_message:
+    "Êtes-vous sûr de vouloir annuler cette transaction ?",
+  confirm_mark_as_completed_title: "Marquer comme terminé",
+  confirm_mark_as_completed_message:
+    "Êtes-vous sûr de vouloir marquer cette transaction comme terminée ?",
+
+  sort: "Trier",
+  put_in_review: "Mettre un avis",
+  leave_a_review: "Laisser un avis",
+  write_your_review: "Écrivez votre avis...",
+  submit: "Soumettre",
+  no_reviews_yet: "Pas encore d'avis.",
 };
