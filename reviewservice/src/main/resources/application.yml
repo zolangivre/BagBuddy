@@ -3,9 +3,7 @@ spring:
     name: review-service
 
   datasource:
-    url: jdbc:postgresql://${REVIEW_SERVICE_DB_HOST:reviewservice-db}:5432/${REVIEW_SERVICE_DB:reviewservice}
-    username: ${REVIEW_SERVICE_USER:reviewuser}
-    password: ${REVIEW_SERVICE_PASSWORD:reviewpass}
+    url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
 
   jpa:

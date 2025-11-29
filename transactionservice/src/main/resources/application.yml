@@ -3,9 +3,7 @@ spring:
     name: transaction-service
 
   datasource:
-    url: jdbc:postgresql://${TRANSACTION_SERVICE_DB_HOST:transactionservice-db}:5432/${TRANSACTION_SERVICE_DB:transactionservice}
-    username: ${TRANSACTION_SERVICE_USER:transactionuser}
-    password: ${TRANSACTION_SERVICE_PASSWORD:transactionpass}
+    url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
 
   jpa:
