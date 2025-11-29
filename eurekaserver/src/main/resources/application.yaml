@@ -10,7 +10,7 @@ eureka:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com
 
 logging:
   level:

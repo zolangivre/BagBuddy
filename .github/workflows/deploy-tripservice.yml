@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - cd/back
-#    paths:
-#      - 'tripservice/**'
+    paths:
+      - 'tripservice/**'
 
 jobs:
   deploy:
