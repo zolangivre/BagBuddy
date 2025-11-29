@@ -11,6 +11,9 @@ eureka:
     fetch-registry: false
     service-url:
       defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    response-cache-update-interval-ms: 5000
 
 logging:
   level:
