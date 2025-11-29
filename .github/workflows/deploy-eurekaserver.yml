@@ -3,7 +3,6 @@ name: Deploy EurekaServer
 on:
   push:
     branches:
-      - main
       - cd/back
     paths:
       - 'eurekaserver/**'

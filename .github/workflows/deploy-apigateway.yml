@@ -3,7 +3,6 @@ name: Deploy ApiGateway
 on:
   push:
     branches:
-      - main
       - cd/back
     paths:
       - 'apigateway/**'

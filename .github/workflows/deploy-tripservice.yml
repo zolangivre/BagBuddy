@@ -3,7 +3,6 @@ name: Deploy TripService
 on:
   push:
     branches:
-      - main
       - cd/back
     paths:
       - 'tripservice/**'

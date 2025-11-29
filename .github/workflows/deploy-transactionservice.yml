@@ -3,7 +3,6 @@ name: Deploy TransactionService
 on:
   push:
     branches:
-      - main
       - cd/back
     paths:
       - 'transactionservice/**'
