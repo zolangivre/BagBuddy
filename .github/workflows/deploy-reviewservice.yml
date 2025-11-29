@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - cd/back
-    paths:
-      - 'reviewservice/**'
 
 jobs:
   deploy:
