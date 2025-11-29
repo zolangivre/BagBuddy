@@ -36,4 +36,4 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
