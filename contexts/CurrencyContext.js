@@ -10,15 +10,15 @@ export const CurrencyProvider = ({ children }) => {
 
   const [currency, setCurrency] = useState("EUR"); // devise affichée
   const [locale, setLocale] = useState(defaultLocale);
-  // const [rates, setRates] = useState({
-  //   privacy: "https://currencylayer.com/privacy",
-  //   quotes: { USDEUR: 0.86434 },
-  //   source: "USD",
-  //   success: true,
-  //   terms: "https://currencylayer.com/terms",
-  //   timestamp: 1762945266,
-  // }); // taux de conversion
-  const [rates, setRates] = useState({}); // taux de conversion
+  const [rates, setRates] = useState({
+    privacy: "https://currencylayer.com/privacy",
+    quotes: { USDEUR: 0.86434 },
+    source: "USD",
+    success: true,
+    terms: "https://currencylayer.com/terms",
+    timestamp: 1762945266,
+  }); // taux de conversion
+  // const [rates, setRates] = useState({}); // taux de conversion
 
   // Charger la devise sauvegardée
   useEffect(() => {
@@ -30,19 +30,20 @@ export const CurrencyProvider = ({ children }) => {
   }, []);
 
   // Récupérer les taux de conversion depuis exchangerate.host
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        const res = await axios.get(
-          "https://api.exchangerate.host/live?access_key=f18ca59c5dd7b683cd1ee7a0c0033bba&currencies=EUR"
-        );
-        setRates(res.data || {});
-      } catch (e) {
-        console.warn("Error fetching exchange rates:", e);
-      }
-    };
-    fetchRates();
-  }, []);
+  // useEffect(() => {
+  //   const fetchRates = async () => {
+  //     try {
+  //       const res = await axios.get(
+  //         "https://api.exchangerate.host/live?access_key=f18ca59c5dd7b683cd1ee7a0c0033bba&currencies=EUR"
+  //       );
+  //       setRates(res.data || {});
+  //     } catch (e) {
+  //       console.warn("Error fetching exchange rates:", e);
+  //     }
+  //   };
+  //   fetchRates();
+  // }, []);
+  // console.log("Currency rates:", rates);
   // Changer la devise et sauvegarder
   const changeCurrency = async (newCurrency) => {
     setCurrency(newCurrency);
