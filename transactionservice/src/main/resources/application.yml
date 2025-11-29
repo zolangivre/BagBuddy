@@ -15,16 +15,20 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port: 8082
+  port: ${PORT:8082}
 
 eureka:
   instance:
-    hostname: transaction-service
+    hostname: transactionservice-app-8f23a0c4e4b5.herokuapp.com
+    prefer-ip-address: false
+    non-secure-port: 80
+    non-secure-port-enabled: true
+    secure-port-enabled: false
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
 
 logging:
   level:

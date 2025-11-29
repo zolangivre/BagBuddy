@@ -19,12 +19,16 @@ server:
 
 eureka:
   instance:
-    hostname: trip-service
+    hostname: tripservice-app-180bcd8fc60e.herokuapp.com
+    prefer-ip-address: false
+    non-secure-port: 80
+    non-secure-port-enabled: true
+    secure-port-enabled: false
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
 
 logging:
   level:
