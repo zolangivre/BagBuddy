@@ -1,8 +1,25 @@
 package com.bagbuddy.transactionservice.model;
 
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Embeddable
+@Data
 public class ListingInfo {
-    private String id;
-    private UserInfo userInfo; // infos du seller
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="email_verified", column=@Column(name="seller_email_verified")),
+            @AttributeOverride(name="email", column=@Column(name="seller_email")),
+            @AttributeOverride(name="bio", column=@Column(name="seller_bio")),
+            @AttributeOverride(name="family_name", column=@Column(name="seller_family_name")),
+            @AttributeOverride(name="given_name", column=@Column(name="seller_given_name")),
+            @AttributeOverride(name="name", column=@Column(name="seller_name")),
+            @AttributeOverride(name="username", column=@Column(name="seller_username")),
+            @AttributeOverride(name="sub", column=@Column(name="seller_sub")),
+            @AttributeOverride(name="location", column=@Column(name="seller_location")),
+            @AttributeOverride(name="phone", column=@Column(name="seller_phone"))
+    })
+    private UserInfo sellerUserInfo;
     private String departureAirport;
     private String arrivalAirport;
     private String departureDate;
@@ -12,37 +29,4 @@ public class ListingInfo {
     private double pricePerKg;
     private String conditions;
     private String createdAt;
-
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public UserInfo getUserInfo() { return userInfo; }
-    public void setUserInfo(UserInfo userInfo) { this.userInfo = userInfo; }
-
-    public String getDepartureAirport() { return departureAirport; }
-    public void setDepartureAirport(String departureAirport) { this.departureAirport = departureAirport; }
-
-    public String getArrivalAirport() { return arrivalAirport; }
-    public void setArrivalAirport(String arrivalAirport) { this.arrivalAirport = arrivalAirport; }
-
-    public String getDepartureDate() { return departureDate; }
-    public void setDepartureDate(String departureDate) { this.departureDate = departureDate; }
-
-    public String getArrivalDate() { return arrivalDate; }
-    public void setArrivalDate(String arrivalDate) { this.arrivalDate = arrivalDate; }
-
-    public double getTotalWeightAvailable() { return totalWeightAvailable; }
-    public void setTotalWeightAvailable(double totalWeightAvailable) { this.totalWeightAvailable = totalWeightAvailable; }
-
-    public double getRemainingWeight() { return remainingWeight; }
-    public void setRemainingWeight(double remainingWeight) { this.remainingWeight = remainingWeight; }
-
-    public double getPricePerKg() { return pricePerKg; }
-    public void setPricePerKg(double pricePerKg) { this.pricePerKg = pricePerKg; }
-
-    public String getConditions() { return conditions; }
-    public void setConditions(String conditions) { this.conditions = conditions; }
-
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 }

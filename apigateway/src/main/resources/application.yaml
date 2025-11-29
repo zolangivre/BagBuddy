@@ -9,6 +9,10 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/users/**
         - id: trip-service
           uri: lb://trip-service
           predicates:

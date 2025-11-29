@@ -1,7 +1,7 @@
 package com.bagbuddy.reviewservice.controller;
 
 import com.bagbuddy.reviewservice.model.Review;
-import com.bagbuddy.reviewservice.repository.ReviewRepository;
+import com.bagbuddy.reviewservice.service.ReviewService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,69 +12,50 @@ import java.util.List;
 public class ReviewController {
 
     @Autowired
-    private ReviewRepository reviewRepository;
+    private ReviewService reviewService;
 
-    // GET all
     @GetMapping
     public List<Review> getAll() {
-        return reviewRepository.findAll();
+        return reviewService.getAll();
     }
 
-    // GET by id
     @GetMapping("/{id}")
     public Review getOne(@PathVariable Long id) {
-        return reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found with id " + id));
+        return reviewService.getOne(id);
     }
 
-    // GET filters
     @GetMapping("/reviewee/{revieweeId}")
     public List<Review> byReviewee(@PathVariable String revieweeId) {
-        return reviewRepository.findByRevieweeId(revieweeId);
+        return reviewService.byReviewee(revieweeId);
     }
 
     @GetMapping("/reviewer/{reviewerId}")
     public List<Review> byReviewer(@PathVariable String reviewerId) {
-        return reviewRepository.findByReviewerId(reviewerId);
+        return reviewService.byReviewer(reviewerId);
     }
 
     @GetMapping("/transaction/{transactionId}")
     public List<Review> byTransaction(@PathVariable Long transactionId) {
-        return reviewRepository.findByTransactionId(transactionId);
+        return reviewService.byTransaction(transactionId);
     }
 
     @GetMapping("/reviewee/{revieweeId}/average")
     public Double averageForReviewee(@PathVariable String revieweeId) {
-        return reviewRepository.averageRatingForReviewee(revieweeId);
+        return reviewService.averageForReviewee(revieweeId);
     }
 
-    // POST create
     @PostMapping
     public Review create(@RequestBody Review review) {
-        return reviewRepository.save(review);
+        return reviewService.create(review);
     }
 
-    // PUT update
     @PutMapping("/{id}")
     public Review update(@PathVariable Long id, @RequestBody Review body) {
-        Review existing = reviewRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Review not found with id " + id));
-
-        existing.setReviewerId(body.getReviewerId());
-        existing.setRevieweeId(body.getRevieweeId());
-        existing.setTransactionId(body.getTransactionId());
-        existing.setRating(body.getRating());
-        existing.setComment(body.getComment());
-
-        return reviewRepository.save(existing);
+        return reviewService.update(id, body);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        if (!reviewRepository.existsById(id)) {
-            throw new RuntimeException("Review not found with id " + id);
-        }
-        reviewRepository.deleteById(id);
+        reviewService.delete(id);
     }
 }

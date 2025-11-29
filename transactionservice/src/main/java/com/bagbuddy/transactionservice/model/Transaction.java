@@ -1,13 +1,17 @@
 package com.bagbuddy.transactionservice.model;
 
-import com.bagbuddy.transactionservice.config.ListingInfoConverter;
-import com.bagbuddy.transactionservice.config.UserInfoConverter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
+@Data
 @Entity
 @Table(name = "transaction_record")
 public class Transaction {
@@ -16,140 +20,43 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Convert(converter = ListingInfoConverter.class)
-    @Column(columnDefinition = "jsonb")
+    @Embedded
     private ListingInfo listingInfo;
 
     private Long listingId;
 
-    @Convert(converter = UserInfoConverter.class)
-    @Column(columnDefinition = "jsonb")
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="email_verified", column=@Column(name="buyer_email_verified")),
+            @AttributeOverride(name="email", column=@Column(name="buyer_email")),
+            @AttributeOverride(name="bio", column=@Column(name="buyer_bio")),
+            @AttributeOverride(name="family_name", column=@Column(name="buyer_family_name")),
+            @AttributeOverride(name="given_name", column=@Column(name="buyer_given_name")),
+            @AttributeOverride(name="name", column=@Column(name="buyer_name")),
+            @AttributeOverride(name="username", column=@Column(name="buyer_username")),
+            @AttributeOverride(name="sub", column=@Column(name="buyer_sub")),
+            @AttributeOverride(name="location", column=@Column(name="buyer_location")),
+            @AttributeOverride(name="phone", column=@Column(name="buyer_phone"))
+    })
     private UserInfo buyerInfo;
 
     private String buyerId;
     private String sellerId;
 
-    // UI helpers
     private String sellerStatus;
     private String buyerStatus;
 
-    // Tarification/poids
-    private BigDecimal weight;        // kg
-    private BigDecimal total;         // total = weight * pricePerKg
+    private BigDecimal weight;
+    private BigDecimal total;
 
     private Boolean sellerReview = false;
     private Boolean buyerReview = false;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false, name = "transaction_created_at")
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-    }
-
-    // Getters/Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getListingId() {
-        return listingId;
-    }
-
-    public void setListingId(Long listingId) {
-        this.listingId = listingId;
-    }
-
-    public String getSellerId() {
-        return sellerId;
-    }
-
-    public void setSellerId(String sellerId) {
-        this.sellerId = sellerId;
-    }
-
-    public String getBuyerId() {
-        return buyerId;
-    }
-
-    public void setBuyerId(String buyerId) {
-        this.buyerId = buyerId;
-    }
-
-    public UserInfo getBuyerInfo() {
-        return buyerInfo;
-    }
-
-    public void setBuyerInfo(UserInfo buyerInfo) {
-        this.buyerInfo = buyerInfo;
-    }
-
-    public String getSellerStatus() {
-        return sellerStatus;
-    }
-
-    public void setSellerStatus(String sellerStatus) {
-        this.sellerStatus = sellerStatus;
-    }
-
-    public String getBuyerStatus() {
-        return buyerStatus;
-    }
-
-    public void setBuyerStatus(String buyerStatus) {
-        this.buyerStatus = buyerStatus;
-    }
-
-    public BigDecimal getWeight() {
-        return weight;
-    }
-
-    public void setWeight(BigDecimal weight) {
-        this.weight = weight;
-    }
-
-    public BigDecimal getTotal() {
-        return total;
-    }
-
-    public void setTotal(BigDecimal total) {
-        this.total = total;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public ListingInfo getListingInfo() {
-        return listingInfo;
-    }
-
-    public void setListingInfo(ListingInfo listingInfo) {
-        this.listingInfo = listingInfo;
-    }
-
-    public Boolean getSellerReview() {
-        return sellerReview;
-    }
-
-    public void setSellerReview(Boolean sellerReview) {
-        this.sellerReview = sellerReview;
-    }
-
-    public Boolean getBuyerReview() {
-        return buyerReview;
-    }
-
-    public void setBuyerReview(Boolean buyerReview) {
-        this.buyerReview = buyerReview;
     }
 }

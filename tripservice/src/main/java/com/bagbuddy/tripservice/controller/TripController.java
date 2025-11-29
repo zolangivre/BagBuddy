@@ -1,10 +1,10 @@
 package com.bagbuddy.tripservice.controller;
 
 import com.bagbuddy.tripservice.model.Trip;
-import com.bagbuddy.tripservice.repository.TripRepository;
+import com.bagbuddy.tripservice.service.TripService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.util.Optional;
+
 import java.util.List;
 
 @RestController
@@ -12,57 +12,45 @@ import java.util.List;
 public class TripController {
 
     @Autowired
-    private TripRepository tripRepository;
+    private TripService tripService;
 
     @GetMapping
     public List<Trip> getAllTrips() {
-        System.out.println(tripRepository.findAllByOrderByCreatedAtDesc());
-        return tripRepository.findAllByOrderByCreatedAtDesc();
+        return tripService.getAllTrips();
     }
 
     @GetMapping("/{id}")
     public Trip getTripById(@PathVariable Long id) {
-        return tripRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Trip not found with id " + id));
+        return tripService.getTripById(id);
     }
 
-    // GET by sub
     @GetMapping("/user/{userId}")
     public List<Trip> getTripsByUserId(@PathVariable String userId) {
-        return tripRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        return tripService.getTripsByUserId(userId);
     }
 
     @PostMapping
     public Trip createTrip(@RequestBody Trip trip) {
-        if (trip.getUserInfo() != null) {
-            trip.setUserId(trip.getUserInfo().getSub());
-        }
-        return tripRepository.save(trip);
-    }
-
-    //DELETE trip
-    @DeleteMapping("/{id}")
-    public void deleteTrip(@PathVariable Long id) {
-        tripRepository.deleteById(id);
+        return tripService.createTrip(trip);
     }
 
     @PutMapping("/{id}")
     public Trip updateTrip(@PathVariable Long id, @RequestBody Trip tripDetails) {
-        Optional<Trip> optionalTrip = tripRepository.findById(id);
-        if (optionalTrip.isEmpty()) {
-            throw new RuntimeException("Trip not found with id " + id);
-        }
+        return tripService.updateTrip(id, tripDetails);
+    }
 
-        Trip existingTrip = optionalTrip.get();
-        existingTrip.setDepartureAirport(tripDetails.getDepartureAirport());
-        existingTrip.setArrivalAirport(tripDetails.getArrivalAirport());
-        existingTrip.setDepartureDate(tripDetails.getDepartureDate());
-        existingTrip.setArrivalDate(tripDetails.getArrivalDate());
-        existingTrip.setTotalWeightAvailable(tripDetails.getTotalWeightAvailable());
-        existingTrip.setRemainingWeight(tripDetails.getRemainingWeight());
-        existingTrip.setPricePerKg(tripDetails.getPricePerKg());
-        existingTrip.setConditions(tripDetails.getConditions());
+    @DeleteMapping("/{id}")
+    public void deleteTrip(@PathVariable Long id) {
+        tripService.deleteTrip(id);
+    }
 
-        return tripRepository.save(existingTrip);
+    @GetMapping("/active")
+    public List<Trip> getActiveTrips() {
+        return tripService.getActiveTrips();
+    }
+
+    @GetMapping("/inactive")
+    public List<Trip> getInactiveTrips() {
+        return tripService.getInactiveTrips();
     }
 }
