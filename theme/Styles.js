@@ -7,7 +7,6 @@ export const globalStyles = {
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
-    width: "100%",
   },
   header: {
     flexDirection: "row",
