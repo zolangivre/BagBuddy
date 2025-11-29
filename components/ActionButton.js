@@ -93,14 +93,14 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
           const textColor =
             colorScheme === "dark"
               ? isSelected
-                ? "#FFFFFF"
+                ? Colors.white
                 : "#888888"
               : isSelected
-              ? "#FFFFFF"
+              ? Colors.white
               : Colors.secondary_color;
 
           const iconColor = isSelected
-            ? "#FFFFFF"
+            ? Colors.white
             : colorScheme === "dark"
             ? "#888888"
             : Colors.secondary_color;

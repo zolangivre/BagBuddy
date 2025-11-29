@@ -37,7 +37,6 @@ const HomeCard = ({ item }) => {
     : "NN";
 
   const role = item.userInfo.sub === userInfo.sub ? "seller" : "buyer";
-
   return (
     <View
       key={item.id}

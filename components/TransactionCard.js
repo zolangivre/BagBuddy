@@ -36,7 +36,7 @@ const TransactionCard = ({ transaction }) => {
     name = transaction?.buyerInfo?.name;
   } else {
     type = USER_TRANSACTION_TYPE.BUYING;
-    name = transaction?.listingInfo?.userInfo?.name;
+    name = transaction?.listingInfo?.sellerUserInfo?.name;
   }
   const initials = name
     ? name
