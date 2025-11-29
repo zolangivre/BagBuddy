@@ -80,13 +80,15 @@ export default {
   transactions_1: "transactions",
   verified: "Vérifié",
   not_verified: "Non vérifié",
-  active_listings: "Annonces actives",
+  active_listings: "Annonces",
   new_listing: "Nouvelle annonce",
   dark_mode: "Mode sombre",
   toggle_dark_mode: "Activer/désactiver le mode sombre",
   change_language: "Changer de langue",
   change_currency: "Changer de devise",
   log_out: "Déconnexion",
+  are_you_sure_you_want_to_log_out:
+    "Êtes-vous sûr de vouloir vous déconnecter ?",
   reviews: "Avis",
   no_active_listings: "Aucune annonce active trouvée.",
 
@@ -233,6 +235,7 @@ export default {
   meeting_details_step_two: "{{date}}",
   meeting_details_step_two_description: "Arrivez avant {{time}}",
   meeting_details_step_three: "{{weight}} réservé",
+  conditions: "Conditions",
   mark_as_completed: "Marquer comme terminé",
   completed_title: "Transaction terminée !",
   completed_description:
@@ -268,6 +271,8 @@ export default {
   reservation_request_error_message:
     "Une erreur est survenue lors de l'envoi de votre demande de réservation. Veuillez réessayer plus tard.",
   of: "sur",
+  error_no_rating: "Veuillez sélectionner une note.",
+  error_no_comment: "Le commentaire ne peut pas être vide.",
 
   //Filters
   filters: "Filtres",
@@ -309,6 +314,10 @@ export default {
   review_submitted_message: "Votre avis a été soumis avec succès.",
   review_submitted_error_message:
     "Une erreur est survenue lors de la soumission de votre avis. Veuillez réessayer plus tard.",
+  review_updated_title: "Avis mis à jour",
+  review_updated_message: "Votre avis a été mis à jour avec succès.",
+  review_updated_error_message:
+    "Une erreur est survenue lors de la mise à jour de votre avis. Veuillez réessayer plus tard.",
 
   cancel: "Annuler",
   confirm_reservation_title: "Confirmer la réservation",
@@ -339,4 +348,7 @@ export default {
   write_your_review: "Écrivez votre avis...",
   submit: "Soumettre",
   no_reviews_yet: "Pas encore d'avis.",
+
+  all_listings: "Mes annonces",
+  all_reviews: "Mes avis",
 };

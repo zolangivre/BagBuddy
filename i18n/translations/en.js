@@ -77,13 +77,14 @@ export default {
   transactions_1: "transactions",
   verified: "Verified",
   not_verified: "Not verified",
-  active_listings: "Active listings",
+  active_listings: "Listings",
   new_listing: "New listing",
   dark_mode: "Dark mode",
   toggle_dark_mode: "Toggle dark mode",
   change_language: "Change language",
   change_currency: "Change currency",
   log_out: "Log out",
+  are_you_sure_you_want_to_log_out: "Are you sure you want to log out?",
   reviews: "Reviews",
   no_active_listings: "No active listings found.",
 
@@ -227,6 +228,7 @@ export default {
   meeting_details_step_two: "{{date}}",
   meeting_details_step_two_description: "Arrive by {{time}}",
   meeting_details_step_three: "{{weight}} reserved",
+  conditions: "Conditions",
   mark_as_completed: "Mark as completed",
   completed_title: "Transaction completed!",
   completed_description:
@@ -259,6 +261,8 @@ export default {
   error_creating_trip: "Error creating listing.",
   reservation_request_error_message:
     "There was an error sending your reservation request. Please try again later.",
+  error_no_rating: "Please select a rating.",
+  error_no_comment: "Comment cannot be empty.",
 
   of: "of",
 
@@ -303,6 +307,10 @@ export default {
   review_submitted_message: "Your review has been submitted successfully.",
   review_submitted_error_message:
     "There was an error submitting your review. Please try again later.",
+  review_updated_title: "Review updated",
+  review_updated_message: "Your review has been updated successfully.",
+  review_updated_error_message:
+    "There was an error updating your review. Please try again later.",
 
   cancel: "Cancel",
   confirm_reservation_title: "Confirm reservation",
@@ -333,4 +341,7 @@ export default {
   write_your_review: "Write your review...",
   submit: "Submit",
   no_reviews_yet: "No reviews yet.",
+
+  all_listings: "My listings",
+  all_reviews: "My reviews",
 };
