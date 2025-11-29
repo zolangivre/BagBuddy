@@ -10,7 +10,13 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.BagBuddy"
+      "bundleIdentifier": "com.anonymous.BagBuddy",
+      "infoPlist": {
+        "CFBundleLocalizations": [
+          "en",
+          "fr"
+        ]
+      }
     },
     "web": {
       "output": "static",
@@ -56,6 +62,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "33a90252-49a5-47a8-9787-4d08a8599a3e"
+      }
     }
   }
 }

@@ -41,6 +41,7 @@
     "expo-web-browser": "~15.0.7",
     "graphql": "^16.11.0",
     "i18n-js": "^4.5.1",
+    "jwt-decode": "^4.0.0",
     "lucide-react-native": "^0.545.0",
     "react": "19.1.0",
     "react-aria": "^3.44.0",
@@ -59,9 +60,39 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "detox": "^20.46.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^30.2.0",
+    "jest-circus": "^30.2.0",
     "typescript": "~5.9.2"
+  },
+  "detox": {
+    "testRunner": {
+      "type": "jest",
+      "config": "e2e/jest.config.js"
+    },
+    "apps": {
+      "bagbuddy.ios": {
+        "type": "ios.app",
+        "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/BagBuddy.app",
+        "build": "xcodebuild -workspace ios/BagBuddy.xcworkspace -scheme BagBuddy -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+      }
+    },
+    "devices": {
+      "simulator": {
+        "type": "ios.simulator",
+        "device": {
+          "type": "iPhone 17 Pro"
+        }
+      }
+    },
+    "configurations": {
+      "ios.sim.debug": {
+        "device": "simulator",
+        "app": "bagbuddy.ios"
+      }
+    }
   },
   "private": true
 }
