@@ -25,15 +25,47 @@ spring:
           uri: lb://review-service
           predicates:
             - Path=/reviews/**
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 5s
+        pool:
+          max-connections: 50
+    loadbalancer:
+      cache:
+        enabled: true
 
 server:
-  port: 8080
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
 
 eureka:
   instance:
-    hostname: api-gateway
+    hostname: apigateway-app-5be61210e219.herokuapp.com
+    prefer-ip-address: false
+    non-secure-port: 80
+    non-secure-port-enabled: true
+    secure-port-enabled: false
+    lease-renewal-interval-in-seconds: 10
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
       defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
+    registry-fetch-interval-seconds: 5
+    initial-instance-info-replication-interval-seconds: 5
+    eureka-connection-idle-timeout-seconds: 5
+
+logging:
+  level:
+    "[com.netflix.eureka]": ERROR
+    "[com.netflix.discovery]": ERROR
+    "[org.springframework.cloud.gateway]": INFO
+    root: INFO
