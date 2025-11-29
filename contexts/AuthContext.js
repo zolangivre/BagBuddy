@@ -2,6 +2,8 @@ import React, { createContext, useEffect, useMemo, useReducer } from "react";
 import * as AuthSession from "expo-auth-session";
 import { useAuthRequest, useAutoDiscovery } from "expo-auth-session";
 import { router } from "expo-router";
+import axios from "axios";
+import { isTokenExpired } from "@/utils/jwt";
 
 const initialState = {
   isSignedIn: false,
@@ -44,6 +46,7 @@ const AuthProvider = ({ children }) => {
           isSignedIn: true,
           accessToken: action.payload.access_token,
           idToken: action.payload.id_token,
+          refreshToken: action.payload.refresh_token,
         };
       case "USER_INFO":
         return { ...prev, userInfo: action.payload };
@@ -53,7 +56,6 @@ const AuthProvider = ({ children }) => {
         return prev;
     }
   }, initialState);
-
 
   // Échange le code contre le token
   useEffect(() => {
@@ -120,27 +122,59 @@ const AuthProvider = ({ children }) => {
     if (authState.isSignedIn) getUserInfo();
   }, [authState.accessToken, authState.isSignedIn]);
 
-  const authContext = useMemo(
-    () => ({
-      state: authState,
-      signIn: () => promptAsync(),
-      signOut: async () => {
-        try {
-          if (authState.idToken) {
-            await fetch(
-              `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${authState.idToken}`
-            );
-          }
-          dispatch({ type: "SIGN_OUT" });
-          router.replace("/start");
-        } catch (e) {
-          console.warn(e);
-        }
-      },
-      hasRole: (role) => authState.userInfo?.roles?.includes(role),
-    }),
-    [authState, promptAsync]
-  );
+const authContext = useMemo(() => ({
+  state: authState,
+  signIn: () => promptAsync(),
+  signOut: async () => {
+    try {
+      if (authState.idToken) {
+        await fetch(
+          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${authState.idToken}`
+        );
+      }
+      dispatch({ type: "SIGN_OUT" });
+      router.replace("/start");
+    } catch (e) {
+      console.warn(e);
+    }
+  },
+  updateUserInfo: (newUserInfo) =>
+    dispatch({ type: "USER_INFO", payload: newUserInfo }),
+  getValidAccessToken: async () => {
+    if (!authState.accessToken || isTokenExpired(authState.accessToken)) {
+      if (!authState.refreshToken) throw new Error("No refresh token");
+      try {
+        const tokenResponse = await axios.post(
+          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/token`,
+          new URLSearchParams({
+            grant_type: "refresh_token",
+            client_id: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
+            refresh_token: authState.refreshToken,
+          }),
+          { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+        );
+
+        const newAccessToken = tokenResponse.data.access_token;
+        const newRefreshToken = tokenResponse.data.refresh_token;
+
+        dispatch({
+          type: "SIGN_IN",
+          payload: {
+            access_token: newAccessToken,
+            id_token: authState.idToken,
+            refresh_token: newRefreshToken,
+          },
+        });
+
+        return newAccessToken;
+      } catch (err) {
+        await authContext.signOut();
+        throw err;
+      }
+    }
+    return authState.accessToken;
+  },
+}), [authState, promptAsync]);
 
   return (
     <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>
