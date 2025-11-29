@@ -1,6 +1,6 @@
 import React, { useState, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, Weight, TrendingUp } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -26,11 +26,13 @@ export default function HomeScreen() {
   const [filteredListings, setFilteredListings] = useState(listings);
   const [appliedFilters, setAppliedFilters] = useState(null);
   const [selectedSort, setSelectedSort] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchListings = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_API_URL}/trips`
+        `${process.env.EXPO_PUBLIC_API_URL}/trips/active`
       );
 
       const availableListings = response.data.filter(
@@ -44,6 +46,8 @@ export default function HomeScreen() {
       }
     } catch (error) {
       console.error("Error fetching listings:", error);
+    } finally {
+      setIsLoading(false);
     }
   }, [appliedFilters]);
 
@@ -52,7 +56,6 @@ export default function HomeScreen() {
       fetchListings();
     }, [fetchListings])
   );
-
   let totalWeight = listings.reduce(
     (sum, item) => sum + item.remainingWeight,
     0
@@ -136,7 +139,10 @@ export default function HomeScreen() {
       style={{ backgroundColor: theme.background }}
       showsVerticalScrollIndicator={false}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 130 }}
+      >
         {/* Header Section */}
         <LinearGradient
           colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
@@ -145,7 +151,7 @@ export default function HomeScreen() {
           <View style={styles.headerContent}>
             <View style={styles.headerText}>
               <Text style={theme.textStyles.titleLarge}>
-                {i18n.t("welcome_back", { name: userInfo.given_name })}
+                {i18n.t("welcome_back", { name: userInfo?.given_name })}
               </Text>
               <Text style={theme.textStyles.muted}>
                 {i18n.t("find_luggage_space")}
@@ -158,17 +164,17 @@ export default function HomeScreen() {
           <View style={styles.statsContainer}>
             <StatCard
               icon={<Plane size={20} color={Colors.white} />}
-              value={listings.length.toString()}
+              value={listings.length.toString() || "0"}
               label={i18n.t("active_routes")}
             />
             <StatCard
               icon={<Weight size={20} color={Colors.white} />}
-              value={`${totalWeight}kg`}
+              value={`${totalWeight}kg` || "0kg"}
               label={i18n.t("available_weight")}
             />
             <StatCard
               icon={<TrendingUp size={20} color={Colors.white} />}
-              value={<Currency amount={averagePrice} />}
+              value={<Currency amount={averagePrice ?? 0} />}
               label={i18n.t("avg_price")}
             />
           </View>
@@ -194,7 +200,17 @@ export default function HomeScreen() {
           <View style={styles.listingsContainer}>
             {mode === "buy" ? (
               <>
-                {filteredListings.length > 0 ? (
+                {isLoading ? (
+                  <View
+                    style={{
+                      minHeight: 300,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <ActivityIndicator size="medium" color={theme.primary} />
+                  </View>
+                ) : filteredListings.length > 0 ? (
                   filteredListings.map((item) => (
                     <HomeCard key={item.id} item={item} />
                   ))
@@ -202,7 +218,7 @@ export default function HomeScreen() {
                   <View
                     style={{
                       flex: 1,
-                      minHeight: 200,
+                      minHeight: 300,
                       justifyContent: "center",
                       alignItems: "center",
                     }}
@@ -254,15 +270,8 @@ const styles = StyleSheet.create({
   weightSection: {
     paddingHorizontal: 25,
     paddingTop: 15,
-    marginBottom: 120,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
   },
   listingsContainer: {
-    gap: 16,
+    gap: 15,
   },
 });

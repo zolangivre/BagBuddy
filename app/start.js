@@ -59,10 +59,6 @@ export default function StartScreen() {
     );
   }
 
-  // const handleStart = () => {
-  //   router.replace("/(tabs)/home");
-  // };
-
   const FeatureIconWrap = ({ title, subtitle, icon, backgroundColor }) => (
     <View style={styles.featureItem}>
       <RoundIconText icon={icon} backgroundColor={backgroundColor} size={48} />
@@ -203,19 +199,15 @@ export default function StartScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 20,
-    paddingBottom: 24,
     justifyContent: "center",
     alignItems: "center",
-  },
-  wrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 20,
     marginLeft: 25,
     marginRight: 25,
     marginBottom: 25,
     marginTop: 50,
+  },
+  wrapper: {
+    gap: 20,
     width: "100%",
   },
   headerContainer: { alignItems: "center", gap: 15, width: "100%" },
@@ -241,6 +233,7 @@ const styles = StyleSheet.create({
   },
   featureItem: { alignItems: "center", gap: 8, width: "30%" },
   gapContainer: {
+    marginTop: 16,
     gap: 16,
   },
 });

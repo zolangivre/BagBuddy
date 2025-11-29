@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Star } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
@@ -20,6 +20,8 @@ const ProfileView = () => {
   const [reviews, setReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(null);
   const [numberOfTransactions, setNumberOfTransactions] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const handleGoBack = () => {
     router.back();
   };
@@ -30,6 +32,7 @@ const ProfileView = () => {
 
   const fetchRevieweeReview = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${process.env.EXPO_PUBLIC_API_URL}/reviews/reviewee/${parsedUserInfo.sub}`
       );
@@ -44,15 +47,32 @@ const ProfileView = () => {
       setReviews(response.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchRevieweeReview();
-  }, []);
+  }, [parsedUserInfo.sub]);
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.background,
+        }}
+      >
+        <ActivityIndicator size="medium" color={theme.primary} />
+      </View>
+    );
+  }
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <LinearGradient
@@ -103,19 +123,10 @@ const ProfileView = () => {
                 <Text style={theme.textStyles.bodySmall}>Rating</Text>
               </View>
               <View style={styles.columnContainer}>
-                <Text style={theme.textStyles.titleMedium}>{numberOfTransactions !== null ? numberOfTransactions : "N/A"}</Text>
-                <Text style={theme.textStyles.bodySmall}>Transactions</Text>
-              </View>
-              <View style={styles.columnContainer}>
-                <Text
-                  style={[
-                    theme.textStyles.titleMedium,
-                    { color: Colors.primary_color },
-                  ]}
-                >
-                  98%
+                <Text style={theme.textStyles.titleMedium}>
+                  {numberOfTransactions !== null ? numberOfTransactions : "N/A"}
                 </Text>
-                <Text style={theme.textStyles.bodySmall}>Success rate</Text>
+                <Text style={theme.textStyles.bodySmall}>Transactions</Text>
               </View>
             </View>
           </View>

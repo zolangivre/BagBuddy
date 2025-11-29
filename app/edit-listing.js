@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
@@ -34,6 +41,7 @@ export default function EditListingScreen() {
   const userInfo = state.userInfo;
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [departure, setDeparture] = useState("");
   const [arrival, setArrival] = useState("");
@@ -61,8 +69,11 @@ export default function EditListingScreen() {
   useEffect(() => {
     if (id) {
       const fetchListing = async () => {
+        setIsLoading(true);
         try {
-          const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`);
+          const response = await axios.get(
+            `${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`
+          );
           const listing = response.data;
 
           setDeparture(listing.departureAirport);
@@ -76,6 +87,8 @@ export default function EditListingScreen() {
           setSpecialConditions(listing.conditions);
         } catch (error) {
           console.error("Error fetching listing:", error);
+        } finally {
+          setIsLoading(false);
         }
       };
       fetchListing();
@@ -240,14 +253,14 @@ export default function EditListingScreen() {
         arrivalAirport: arrival,
         departureDate: flightDateDeparture,
         arrivalDate: flightDateArrival,
-        totalWeightAvailable: Number(totalWeightAvailable) + Number(availableKilos),
+        totalWeightAvailable:
+          Number(totalWeightAvailable) + Number(availableKilos),
         remainingWeight: Number(remainingWeight) + Number(availableKilos),
         pricePerKg: parseFloat(pricePerKg),
         conditions: specialConditions,
       };
-      console.log("Payload :", payload);
 
-      const response = await axios.put(
+      await axios.put(
         `${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`,
         payload,
         {
@@ -255,7 +268,6 @@ export default function EditListingScreen() {
         }
       );
 
-      console.log("Trip mis à jour :", response.data);
       Alert.alert(i18n.t("success"), i18n.t("listing_updated_successfully"));
       router.back();
     } catch (error) {
@@ -280,15 +292,10 @@ export default function EditListingScreen() {
         conditions: specialConditions,
       };
 
-      const response = await axios.post(
-        `${process.env.EXPO_PUBLIC_API_URL}/trips`,
-        payload,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/trips`, payload, {
+        headers: { "Content-Type": "application/json" },
+      });
 
-      console.log("Trip créé :", response.data);
       Alert.alert(i18n.t("success"), i18n.t("listing_created_successfully"));
       router.back();
     } catch (error) {
@@ -296,6 +303,21 @@ export default function EditListingScreen() {
       Alert.alert(i18n.t("error"), i18n.t("error_creating_trip"));
     }
   };
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.background,
+        }}
+      >
+        <ActivityIndicator size="medium" color={theme.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>

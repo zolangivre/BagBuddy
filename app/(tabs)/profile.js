@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -21,7 +22,6 @@ import {
   LogOut,
   Languages,
   CurrencyIcon,
-  Eye,
 } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
@@ -39,59 +39,87 @@ import { router } from "expo-router";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import Currency from "@/components/Currency";
 import axios from "axios";
+import * as WebBrowser from "expo-web-browser";
 
 const ProfileScreen = () => {
   const { theme: colorScheme, toggleTheme } = useThemeContext();
   const theme = Colors[colorScheme] || Colors.light;
   const [mode, setMode] = useState("listings");
   const [listings, setListings] = useState([]);
-  const [isEnabled] = useState(false);
   const isDark = colorScheme === "dark";
   const { language, changeLanguage, i18n } = useLanguage();
   const { currency, changeCurrency } = useCurrency();
-  const { state, signOut } = useContext(AuthContext);
+  const { state, signOut, updateUserInfo, getValidAccessToken } =
+    useContext(AuthContext);
   const userInfo = state.userInfo;
   const [reviews, setReviews] = useState([]);
   const [numberOfTransactions, setNumberOfTransactions] = useState(null);
   const [totalEarned, setTotalEarned] = useState(null);
   const [totalSpent, setTotalSpent] = useState(null);
+  const [isLoadingListings, setIsLoadingListings] = useState(false);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
-  const handleNewListing = () => {
-    router.push("edit-listing");
+  const handleAllListing = () => {
+    router.push("all-listing");
+  };
+
+  const handleAllReviews = () => {
+    router.push("all-reviews");
   };
   const fetchListings = useCallback(async () => {
     try {
+      setIsLoadingListings(true);
+
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_API_URL}/trips/user/${userInfo.sub}`
+        `${process.env.EXPO_PUBLIC_API_URL}/trips/user/${userInfo?.sub}`
       );
       const transactionCountResponse = await axios.get(
-        `${process.env.EXPO_PUBLIC_API_URL}/transactions/user/${userInfo.sub}/count`
+        `${process.env.EXPO_PUBLIC_API_URL}/transactions/user/${userInfo?.sub}/count`
       );
       const totalSpentResponse = await axios.get(
-        `${process.env.EXPO_PUBLIC_API_URL}/transactions/buyer/${userInfo.sub}/total-spent`
+        `${process.env.EXPO_PUBLIC_API_URL}/transactions/buyer/${userInfo?.sub}/total-spent`
       );
       const totalEarnedResponse = await axios.get(
-        `${process.env.EXPO_PUBLIC_API_URL}/transactions/seller/${userInfo.sub}/total-earned`
+        `${process.env.EXPO_PUBLIC_API_URL}/transactions/seller/${userInfo?.sub}/total-earned`
       );
       setTotalSpent(totalSpentResponse.data);
       setTotalEarned(totalEarnedResponse.data);
       setNumberOfTransactions(transactionCountResponse.data);
-      setListings(response.data);
+      setListings(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error("Error fetching listings:", error);
+    } finally {
+      setIsLoadingListings(false);
     }
-  }, []);
+  }, [userInfo?.sub]);
+
+  const fetchUserInfoFromKeycloak = useCallback(async () => {
+    try {
+      const token = await getValidAccessToken();
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/userinfo`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      updateUserInfo(response.data);
+    } catch (error) {
+      console.error("Error fetching user info:", error);
+    }
+  }, [getValidAccessToken, updateUserInfo]);
 
   const fetchRevieweeReview = useCallback(async () => {
     try {
+      setIsLoadingReviews(true);
+
       const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_API_URL}/reviews/reviewee/${userInfo.sub}`
+        `${process.env.EXPO_PUBLIC_API_URL}/reviews/reviewee/${userInfo?.sub}`
       );
       setReviews(response.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
+    } finally {
+      setIsLoadingReviews(false);
     }
-  }, []);
+  }, [userInfo?.sub]);
 
   useFocusEffect(
     useCallback(() => {
@@ -100,20 +128,45 @@ const ProfileScreen = () => {
     }, [fetchListings, fetchRevieweeReview])
   );
 
+  const openProfilePage = async () => {
+    try {
+      await WebBrowser.openBrowserAsync(
+        `${process.env.EXPO_PUBLIC_KEYCLOAK_ACCOUNT_CONSOLE}`
+      );
+
+      setTimeout(async () => {
+        await fetchUserInfoFromKeycloak();
+      }, 1000);
+    } catch (error) {
+      console.error("Error opening profile page:", error);
+    }
+  };
+
   const Review = () => {
     return (
       <View
-        style={[
-          globalStyles.card,
-          { backgroundColor: theme.background_card, marginBottom: 120 },
-        ]}
+        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
       >
         <View style={styles.transactionsHeader}>
           <Text style={theme.textStyles.cardTitle}>{i18n.t("reviews")}</Text>
+
+          <TouchableOpacity onPress={handleAllReviews}>
+            <Text style={theme.textStyles.highlight}>{i18n.t("view_all")}</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.transactionsList}>
-          {reviews.length > 0 ? (
-            reviews.map((review) => (
+          {isLoadingReviews ? (
+            <View
+              style={{
+                minHeight: 100,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="medium" color={theme.primary} />
+            </View>
+          ) : reviews.length > 0 ? (
+            reviews.slice(0, 5).map((review) => (
               <View
                 style={[
                   styles.transactionItem,
@@ -152,25 +205,32 @@ const ProfileScreen = () => {
   const Listings = () => {
     return (
       <View
-        style={[
-          globalStyles.card,
-          { backgroundColor: theme.background_card, marginBottom: 120 },
-        ]}
+        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
       >
         <View style={styles.transactionsHeader}>
           <Text style={theme.textStyles.cardTitle}>
             {i18n.t("active_listings")}
           </Text>
-          <TouchableOpacity onPress={handleNewListing}>
+          <TouchableOpacity onPress={handleAllListing}>
             <Text style={theme.textStyles.highlight}>
-              {i18n.t("new_listing")}
+              {i18n.t("view_all")}
             </Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.transactionsList}>
-          {listings.length > 0 ? (
-            listings.map((listing) => (
+          {isLoadingListings ? (
+            <View
+              style={{
+                minHeight: 100,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <ActivityIndicator size="medium" color={theme.primary} />
+            </View>
+          ) : listings.length > 0 ? (
+            listings.slice(0, 5).map((listing) => (
               <View
                 key={listing.id}
                 style={[
@@ -196,13 +256,9 @@ const ProfileScreen = () => {
                 </View>
                 <ButtonIcon
                   href={{
-                    pathname: "transaction-detail",
-                    params: { listingId: listing.id },
+                    pathname: "edit-listing",
+                    params: { id: listing.id },
                   }}
-                  icon={<Eye size={20} color={Colors.primary_color} />}
-                />
-                <ButtonIcon
-                  href={`edit-listing?id=${listing.id}`}
                   icon={<Pencil size={20} color={Colors.primary_color} />}
                 />
               </View>
@@ -235,18 +291,18 @@ const ProfileScreen = () => {
   const Settings = () => {
     const handleLogout = () => {
       Alert.alert(
-        "Déconnexion",
-        "Êtes-vous sûr de vouloir vous déconnecter ?",
+        i18n.t("log_out"),
+        i18n.t("are_you_sure_you_want_to_log_out"),
         [
           {
-            text: "Annuler",
+            text: i18n.t("cancel"),
             style: "cancel",
           },
           {
-            text: "Déconnexion",
-            onPress: () => {
-              signOut();
-              router.push("/start");
+            text: i18n.t("log_out"),
+            onPress: async () => {
+              await signOut();
+              router.replace("/start");
             },
             style: "destructive",
           },
@@ -255,10 +311,7 @@ const ProfileScreen = () => {
     };
     return (
       <View
-        style={[
-          globalStyles.card,
-          { backgroundColor: theme.background_card, marginBottom: 120 },
-        ]}
+        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
       >
         <View style={styles.transactionsHeader}>
           <Text style={theme.textStyles.cardTitle}>{i18n.t("settings")}</Text>
@@ -285,7 +338,7 @@ const ProfileScreen = () => {
             </View>
             <Switch
               trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+              thumbColor={isDark ? "#f5dd4b" : "#f4f3f4"}
               ios_backgroundColor="#3e3e3e"
               onValueChange={toggleTheme}
               value={isDark}
@@ -405,7 +458,10 @@ const ProfileScreen = () => {
 
   return (
     <View style={{ backgroundColor: theme.background }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 130 }}
+      >
         {/* Header */}
         <LinearGradient
           colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
@@ -424,7 +480,7 @@ const ProfileScreen = () => {
               </Text>
             </View>
             <ButtonIcon
-              href="edit-profile"
+              onPress={openProfilePage}
               icon={<Edit3 size={24} color={Colors.white} />}
             />
           </View>
@@ -440,27 +496,46 @@ const ProfileScreen = () => {
             ]}
           >
             <View style={styles.profileInfo}>
-              <Avatar
-                initials={
-                  userInfo.name
-                    ? userInfo.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                    : ""
-                }
-                size={80}
-              />
+              <View style={{ flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <Avatar
+                  initials={
+                    userInfo?.name
+                      ? userInfo.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                      : "?"
+                  }
+                  size={80}
+                />
+                <Label
+                  text={
+                    userInfo?.email_verified
+                      ? i18n.t("verified")
+                      : i18n.t("not_verified")
+                  }
+                  icon={
+                    userInfo?.email_verified ? (
+                      <Shield size={16} color={Colors.light_green} />
+                    ) : (
+                      <Shield size={16} color={Colors.red} />
+                    )
+                  }
+                  backgroundColor={
+                    userInfo?.email_verified
+                      ? Colors.light_green_translucent
+                      : Colors.red_translucent
+                  }
+                  colorText={
+                    userInfo?.email_verified ? Colors.light_green : Colors.red
+                  }
+                />
+              </View>
 
               <View style={styles.userDetails}>
                 <View
                   style={[
                     styles.nameRow,
-                    {
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                      alignItems: "flex-start",
-                    },
                   ]}
                 >
                   <Text
@@ -468,47 +543,24 @@ const ProfileScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {userInfo.name}
+                    {userInfo?.name}
                   </Text>
-                  <Label
-                    text={
-                      userInfo.email_verified
-                        ? i18n.t("verified")
-                        : i18n.t("not_verified")
-                    }
-                    icon={
-                      userInfo.email_verified ? (
-                        <Shield size={16} color={Colors.light_green} />
-                      ) : (
-                        <Shield size={16} color={Colors.red} />
-                      )
-                    }
-                    backgroundColor={
-                      userInfo.email_verified
-                        ? Colors.light_green_translucent
-                        : Colors.red_translucent
-                    }
-                    colorText={
-                      userInfo.email_verified ? Colors.light_green : Colors.red
-                    }
-                    style={{ marginLeft: 8 }}
-                  />
                 </View>
-                <Text style={theme.textStyles.subtitle}>{userInfo.email}</Text>
+                <Text style={theme.textStyles.subtitle}>{userInfo?.email}</Text>
                 <Text style={theme.textStyles.bodyMedium}>
                   {numberOfTransactions} {i18n.t("transactions_1")}
                 </Text>
               </View>
             </View>
-            <Text style={theme.textStyles.subtitle}>
-              {i18n.t("bio")} : {userInfo.bio}
+            <Text style={[theme.textStyles.subtitle, { textAlign: "justify" }]}>
+              {i18n.t("bio")} : {userInfo?.bio}
             </Text>
 
             {/* Stats Row */}
             <View style={styles.statsRow}>
               <StatCard
                 icon={<TrendingUp size={20} color={Colors.light_green} />}
-                value={`$${totalEarned}`}
+                value={<Currency amount={totalEarned ?? 0} />}
                 label={i18n.t("total_earned")}
                 backgroundColor={Colors.light_green_translucent}
                 borderColor={Colors.light_green_translucent_2}
@@ -517,7 +569,7 @@ const ProfileScreen = () => {
               />
               <StatCard
                 icon={<Activity size={20} color={Colors.primary_color} />}
-                value={`$${totalSpent}`}
+                value={<Currency amount={totalSpent ?? 0} />}
                 label={i18n.t("total_spent")}
                 backgroundColor={Colors.dark_cyan_translucent}
                 borderColor={Colors.dark_cyan_translucent_2}

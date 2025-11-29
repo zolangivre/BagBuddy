@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TrendingUp, Activity } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -28,15 +28,21 @@ export default function TransactionsScreen() {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedSort, setSelectedSort] = useState(null);
+  const [numberOfTransactions, setNumberOfTransactions] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchTransactions = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await axios.get(
         `${process.env.EXPO_PUBLIC_API_URL}/transactions/user/${userInfo.sub}`
       );
       setTransactions(response.data);
+      setNumberOfTransactions(response.data.length);
     } catch (error) {
       console.error("Error fetching listings:", error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -136,7 +142,10 @@ export default function TransactionsScreen() {
       style={{ backgroundColor: theme.background }}
       showsVerticalScrollIndicator={false}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 130 }}
+      >
         {/* Header Section */}
         <LinearGradient
           colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
@@ -152,7 +161,7 @@ export default function TransactionsScreen() {
               </Text>
             </View>
             <Label
-              text={`4 ${i18n.t("total")}`}
+              text={`${numberOfTransactions} ${i18n.t("total")}`}
               backgroundColor={"rgba(255, 255, 255, 0.10)"}
               borderColor="transparent"
               colorText={Colors.white}
@@ -163,12 +172,12 @@ export default function TransactionsScreen() {
           <View style={styles.statsContainer}>
             <StatCard
               icon={<TrendingUp size={20} color={Colors.white} />}
-              value={<Currency amount={totalEarned} />}
+              value={<Currency amount={totalEarned ?? 0} />}
               label={i18n.t("total_earned")}
             />
             <StatCard
               icon={<Activity size={20} color={Colors.white} />}
-              value={<Currency amount={totalSpent} />}
+              value={<Currency amount={totalSpent ?? 0} />}
               label={i18n.t("total_spent")}
             />
           </View>
@@ -190,32 +199,47 @@ export default function TransactionsScreen() {
         <ActionButton onSelectionChange={setMode} type="transactions" />
 
         {/* Transactions List */}
-        <View style={styles.transactionsContainer}>
-          {filteredTransactions.length > 0 ? (
-            filteredTransactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
-            ))
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                minHeight: 300,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={[
-                  theme.textStyles.bodyLarge,
-                  { fontStyle: "italic", textAlign: "center" },
-                ]}
+        <View style={styles.weightSection}>
+          <View style={styles.transactionsContainer}>
+            {isLoading ? (
+              <View
+                style={{
+                  minHeight: 350,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
-                {mode === "active"
-                  ? i18n.t("no_active_transactions")
-                  : i18n.t("no_completed_transactions")}
-              </Text>
-            </View>
-          )}
+                <ActivityIndicator size="medium" color={theme.primary} />
+              </View>
+            ) : filteredTransactions.length > 0 ? (
+              filteredTransactions.map((transaction) => (
+                <TransactionCard
+                  key={transaction.id}
+                  transaction={transaction}
+                />
+              ))
+            ) : (
+              <View
+                style={{
+                  flex: 1,
+                  minHeight: 350,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={[
+                    theme.textStyles.bodyLarge,
+                    { fontStyle: "italic", textAlign: "center" },
+                  ]}
+                >
+                  {mode === "active"
+                    ? i18n.t("no_active_transactions")
+                    : i18n.t("no_completed_transactions")}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -246,10 +270,11 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 8,
   },
-  transactionsContainer: {
+  weightSection: {
     paddingHorizontal: 25,
     paddingTop: 15,
+  },
+  transactionsContainer: {
     gap: 15,
-    marginBottom: 120,
   },
 });
