@@ -190,6 +190,23 @@ services:
     networks:
       - bagbuddy-network
 
+  stripe-service:
+    build:
+      context: ./stripeservice
+      dockerfile: Dockerfile
+    container_name: stripe-service-dev
+    env_file:
+      - ./.env
+    ports:
+      - "8085:8085"
+    depends_on:
+      - eureka-server
+    environment:
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
+    networks:
+      - bagbuddy-network
+
 # --- VOLUMES & NETWORK ---
 volumes:
   transaction_pgdata:

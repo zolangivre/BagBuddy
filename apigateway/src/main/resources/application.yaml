@@ -9,10 +9,10 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: user-service
-          uri: lb://user-service
-          predicates:
-            - Path=/users/**
+#        - id: user-service
+#          uri: lb://user-service
+#          predicates:
+#            - Path=/users/**
         - id: trip-service
           uri: lb://trip-service
           predicates:
@@ -25,6 +25,10 @@ spring:
           uri: lb://review-service
           predicates:
             - Path=/reviews/**
+        - id: stripe-service
+          uri: lb://stripe-service
+          predicates:
+            - Path=/stripe/**
       httpclient:
         connect-timeout: 3000
         response-timeout: 5s
