@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/stripe")
+@RequestMapping("/stripe")
 public class StripeController {
 
     private final StripeService stripeService;
