@@ -67,11 +67,24 @@ public class TripService {
         existingTrip.setRemainingWeight(tripDetails.getRemainingWeight());
         existingTrip.setPricePerKg(tripDetails.getPricePerKg());
         existingTrip.setConditions(tripDetails.getConditions());
+        existingTrip.setStripeAccountId(tripDetails.getStripeAccountId());
 
         return tripRepository.save(existingTrip);
     }
 
     public void deleteTrip(Long id) {
         tripRepository.deleteById(id);
+    }
+
+    public String getStripeAccountIdByUser(String userId) {
+        List<Trip> userTrips = getTripsByUserId(userId); // utilise ton repo existant
+
+        if (userTrips.isEmpty()) {
+            return null; // ou lever une exception si nécessaire
+        }
+
+        // Retourne le dernier trip créé (userTrips est trié par createdAt desc)
+        Trip latestTrip = userTrips.get(0);
+        return latestTrip.getStripeAccountId();
     }
 }

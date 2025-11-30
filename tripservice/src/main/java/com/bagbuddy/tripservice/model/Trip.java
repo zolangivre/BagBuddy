@@ -22,6 +22,8 @@ public class Trip {
 
     private String userId;
 
+    private String stripeAccountId;
+
     private String departureAirport;
     private String arrivalAirport;
 

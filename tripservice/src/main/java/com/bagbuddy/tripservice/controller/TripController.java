@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/trips")
@@ -52,5 +53,11 @@ public class TripController {
     @GetMapping("/inactive")
     public List<Trip> getInactiveTrips() {
         return tripService.getInactiveTrips();
+    }
+
+    @GetMapping("/user/{userId}/stripe-account")
+    public Map<String, String> getStripeAccountIdByUser(@PathVariable String userId) {
+        String stripeAccountId = tripService.getStripeAccountIdByUser(userId);
+        return Map.of("stripeAccountId", stripeAccountId != null ? stripeAccountId : "");
     }
 }
