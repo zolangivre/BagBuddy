@@ -16,6 +16,12 @@ eureka:
     service-url:
       defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 logging:
   level:
     "[com.netflix.eureka]": ERROR
