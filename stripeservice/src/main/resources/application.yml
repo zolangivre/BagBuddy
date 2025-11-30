@@ -2,8 +2,7 @@ spring:
   application:
     name: stripe-service
 server:
-  port: ${PORT:8082}
-
+  port: ${PORT}
 eureka:
   instance:
     hostname: stripeservice-app-e0349536e242.herokuapp.com
