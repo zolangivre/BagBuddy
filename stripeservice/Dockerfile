@@ -11,6 +11,6 @@ FROM amazoncorretto:21-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/target/stripeservice-0.0.1-SNAPSHOT.jar ./
+COPY --from=build /app/target/stripeservice-0.0.1-SNAPSHOT.jar ./
 
 CMD [ "java", "-jar", "stripeservice-0.0.1-SNAPSHOT.jar"]
