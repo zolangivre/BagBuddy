@@ -52,6 +52,18 @@ public class Transaction {
     private Boolean sellerReview = false;
     private Boolean buyerReview = false;
 
+    @Column(name = "stripe_payment_intent_id", length = 255)
+    private String stripePaymentIntentId;
+
+    @Column(name = "stripe_currency", length = 3)
+    private String stripeCurrency; // "USD" ou "EUR"
+
+    @Column(name = "stripe_amount")
+    private Long stripeAmount;
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
     @Column(nullable = false, updatable = false, name = "transaction_created_at")
     private LocalDateTime createdAt;
 

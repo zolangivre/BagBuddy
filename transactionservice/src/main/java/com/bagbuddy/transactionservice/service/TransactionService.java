@@ -86,6 +86,19 @@ public class TransactionService {
         existing.setBuyerReview(body.getBuyerReview());
         existing.setSellerReview(body.getSellerReview());
 
+        if (body.getStripePaymentIntentId() != null) {
+            existing.setStripePaymentIntentId(body.getStripePaymentIntentId());
+        }
+        if (body.getStripeCurrency() != null) {
+            existing.setStripeCurrency(body.getStripeCurrency());
+        }
+        if (body.getStripeAmount() != null) {
+            existing.setStripeAmount(body.getStripeAmount());
+        }
+        if (body.getPaidAt() != null) {
+            existing.setPaidAt(body.getPaidAt());
+        }
+
         return transactionRepository.save(existing);
     }
 
