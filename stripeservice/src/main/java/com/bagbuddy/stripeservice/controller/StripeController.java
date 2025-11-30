@@ -77,4 +77,14 @@ public class StripeController {
     public Map<String, String> getPublicKey() {
         return Map.of("public-key", stripeService.getPublicKey());
     }
+
+    @GetMapping("/onboarding/success")
+    public void redirectSuccess(@RequestParam String accountId, HttpServletResponse response) throws IOException {
+        response.sendRedirect("bagbuddy://onboarding/success?accountId=" + accountId);
+    }
+
+    @GetMapping("/onboarding/retry")
+    public void redirectRetry(@RequestParam String accountId, HttpServletResponse response) throws IOException {
+        response.sendRedirect("bagbuddy://onboarding/retry?accountId=" + accountId);
+    }
 }

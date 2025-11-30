@@ -37,8 +37,8 @@ public class StripeService {
         AccountLink accountLink = AccountLink.create(
                 AccountLinkCreateParams.builder()
                         .setAccount(accountId)
-                        .setReturnUrl("bagbuddy://onboarding/success?accountId=" + accountId)
-                        .setRefreshUrl("bagbuddy://onboarding/retry?accountId=" + accountId)
+                        .setReturnUrl("https://stripeservice-app-e0349536e242.herokuapp.com/onboarding/success?accountId=" + accountId)
+                        .setRefreshUrl("https://stripeservice-app-e0349536e242.herokuapp.com/onboarding/retry?accountId=" + accountId)
                         .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
                         .build()
         );
