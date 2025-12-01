@@ -244,37 +244,46 @@ export default function EditListingScreen() {
     return isValid;
   };
 
-  const handleUpdateListing = async () => {
-    if (!validateForm()) return;
+const handleUpdateListing = async () => {
+  if (!validateForm()) return;
 
-    try {
-      const payload = {
-        departureAirport: departure,
-        arrivalAirport: arrival,
-        departureDate: flightDateDeparture,
-        arrivalDate: flightDateArrival,
-        totalWeightAvailable:
-          Number(totalWeightAvailable) + Number(availableKilos),
-        remainingWeight: Number(remainingWeight) + Number(availableKilos),
-        pricePerKg: parseFloat(pricePerKg),
-        conditions: specialConditions,
-      };
+  try {
+    const currentTotal = Number(totalWeightAvailable);
+    const currentRemaining = Number(remainingWeight);
+    const soldWeight = currentTotal - currentRemaining;
+    let newTotal = currentTotal;
+    let newRemaining = currentRemaining;
 
-      await axios.put(
-        `${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`,
-        payload,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      Alert.alert(i18n.t("success"), i18n.t("listing_updated_successfully"));
-      router.back();
-    } catch (error) {
-      console.error("Erreur mise à jour trip :", error);
-      Alert.alert(i18n.t("error"), i18n.t("error_updating_trip"));
+    if (soldWeight === 0) {
+      newTotal = Number(availableKilos);
+      newRemaining = Number(availableKilos);
+    } else {
+      newRemaining = Number(availableKilos);
+      newTotal = soldWeight + newRemaining;
     }
-  };
+
+    const payload = {
+      departureAirport: departure,
+      arrivalAirport: arrival,
+      departureDate: flightDateDeparture,
+      arrivalDate: flightDateArrival,
+      totalWeightAvailable: newTotal,
+      remainingWeight: newRemaining,
+      pricePerKg: parseFloat(pricePerKg),
+      conditions: specialConditions,
+    };
+
+    await axios.put(`${process.env.EXPO_PUBLIC_API_URL}/trips/${id}`, payload, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    Alert.alert(i18n.t("success"), i18n.t("listing_updated_successfully"));
+    router.back();
+  } catch (error) {
+    console.error("Erreur mise à jour trip :", error);
+    Alert.alert(i18n.t("error"), i18n.t("error_updating_trip"));
+  }
+};
 
   const handleCreateTrip = async () => {
     if (!validateForm()) return;
