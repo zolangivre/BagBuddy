@@ -13,5 +13,6 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
+    "**/*.js",
   "app/start.js", "app/index.js", "app/_layout.js", "app/(tabs)/home.js", "app/(tabs)/_layout.js", "app/(tabs)/transactions.js", "app/edit-listing.js", "app/edit-profile.js", "app/transaction-detail.js"]
 }

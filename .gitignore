@@ -155,3 +155,7 @@ expo-env.d.ts
 .idea
 
 .DS_Store
+
+ios/
+
+android/
