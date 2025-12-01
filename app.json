@@ -27,7 +27,8 @@
         "backgroundColor": "#E6F4FE"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.BagBuddy"
     },
     "plugins": [
       "expo-router",
@@ -56,6 +57,13 @@
               "fr"
             ]
           }
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.bagbuddy",
+          "enableGooglePay": false
         }
       ]
     ],
