@@ -37,7 +37,7 @@ export default {
   departure: "Departure",
   arrival: "Arrival",
   reserve_weight: "Reserve weight",
-  view_your_listing: "View your listing",
+  view_your_listings: "View your listings",
   sell_weight_title: "Turn extra weight into cash",
   sell_weight_description:
     "Have extra luggage allowance on your upcoming flight? List it here and earn money by helping other travelers.",
@@ -344,4 +344,18 @@ export default {
 
   all_listings: "My listings",
   all_reviews: "My reviews",
+
+  //STRIPE PAYMENT
+  error_payment_declined_title: "Payment declined",
+  error_payment_declined_message:
+    "Your payment was declined. Please check your card details or use a different payment method.",
+  error_payment_processing_message:
+    "Unable to process the payment. Please try again.",
+
+  secure_payment: "Secure payment",
+  amount_to_pay: "Amount to pay",
+  card_details: "Card details",
+  pay: "Pay",
+  invalid_amount: "Invalid amount",
+  please_fill_card_details: "Please fill in your card details.",
 };

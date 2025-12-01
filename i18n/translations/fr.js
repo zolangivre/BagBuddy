@@ -37,7 +37,7 @@ export default {
   departure: "Départ",
   arrival: "Arrivée",
   reserve_weight: "Réserver des kilos",
-  view_your_listing: "Voir votre annonce",
+  view_your_listings: "Voir vos annonces",
   sell_weight_title: "Transformez vos kilos en argent",
   sell_weight_description:
     "Avez-vous un excédent de poids sur votre vol à venir ? Listez-le ici et gagnez de l'argent en aidant d'autres voyageurs.",
@@ -351,4 +351,18 @@ export default {
 
   all_listings: "Mes annonces",
   all_reviews: "Mes avis",
+
+  //STRIPE PAYMENT
+  error_payment_declined_title: "Paiement refusé",
+  error_payment_declined_message:
+    "Votre paiement a été refusé. Veuillez vérifier les informations de votre carte ou utiliser un autre mode de paiement.",
+  error_payment_processing_message:
+    "Impossible de traiter le paiement. Veuillez réessayer.",
+
+  secure_payment: "Paiement sécurisé",
+  amount_to_pay: "Montant à payer",
+  card_details: "Détails de la carte",
+  pay: "Payer",
+  invalid_amount: "Montant invalide",
+  please_fill_card_details: "Veuillez remplir les détails de votre carte.",
 };
