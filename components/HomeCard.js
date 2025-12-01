@@ -27,6 +27,11 @@ const HomeCard = ({ item }) => {
       params: { userInfo: JSON.stringify(item.userInfo) },
     });
   };
+
+  const handleAllListing = () => {
+    router.push("all-listing");
+  };
+
   const total = (item.remainingWeight * item.pricePerKg).toFixed(2);
   const { state } = useContext(AuthContext);
   const userInfo = state.userInfo;
@@ -116,11 +121,8 @@ const HomeCard = ({ item }) => {
       )}
       {role === "seller" && (
         <Button
-          href={{
-            pathname: "transaction-detail",
-            params: { listingId: item.id },
-          }}
-          text={i18n.t("view_your_listing")}
+          onPress={handleAllListing}
+          text={i18n.t("view_your_listings")}
           rightIcon={<ArrowRight size={24} color={Colors.white} />}
         />
       )}
