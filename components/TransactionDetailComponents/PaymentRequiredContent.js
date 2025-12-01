@@ -10,41 +10,38 @@ import CancelTransaction from "./CancelTransaction";
 import Colors from "@/theme/Colors";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import i18n from "@/i18n";
+import StripeBottomSheet from "@/components/StripeBottomSheet";
+import { useState } from "react";
 
 export default function PaymentRequiredContent({ transaction, role, status }) {
+  const [showStripeModal, setShowStripeModal] = useState(false);
+
   const handleCompletePayment = () => {
-    Alert.alert(
-      i18n.t("confirm_payment_title"),
-      i18n.t("confirm_payment_message"),
-      [
-        {
-          text: i18n.t("cancel"),
-          style: "cancel",
-        },
-        {
-          text: i18n.t("confirm"),
-          onPress: () => completePayment(),
-        },
-      ]
-    );
+    setShowStripeModal(true);
   };
 
-  const completePayment = async () => {
+  const handlePaymentSuccess = async (paymentIntent) => {
     try {
       const payload = {
         ...transaction,
         sellerStatus: TRANSACTION_STATUS.CONFIRMED,
         buyerStatus: TRANSACTION_STATUS.CONFIRMED,
+        stripePaymentIntentId: paymentIntent.id,
+        stripeCurrency: paymentIntent.currency,
+        stripeAmount: paymentIntent.amount,
+        paidAt: new Date().toISOString(),
       };
 
       const response = await axios.put(
         `${process.env.EXPO_PUBLIC_API_URL}/transactions/${transaction.id}`,
         payload
       );
+
       Alert.alert(
         i18n.t("payment_completed_title"),
         i18n.t("payment_completed_message")
       );
+
       router.replace(`/transaction-detail?transactionId=${response.data.id}`);
     } catch (error) {
       console.error("Error updating transaction:", error);
@@ -63,6 +60,12 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
         onPress={handleCompletePayment}
       />
       <CancelTransaction transaction={transaction} />
+      <StripeBottomSheet
+        visible={showStripeModal}
+        onClose={() => setShowStripeModal(false)}
+        amountUSD={transaction.total}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </>
   );
 }
