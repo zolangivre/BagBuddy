@@ -4,10 +4,11 @@ Le principe est simple : chaque utilisateur peut, selon le moment, proposer des 
 L’application favorise la confiance, la transparence et la simplicité des échanges entre particuliers, à la manière de BlaBlaCar, Leboncoin ou Vinted.
 
 # Pour tester BagBuddy
-git clone https://github.com/zolangivre/BagBuddy.git
-git branch -> *staging/frontend
-npm install
-npx expo start
-s -> switch to Expo Go
-i -> open IOS Simulator (recommandé) version ios 26 recommandé pour une meilleure experience utilisateur
-a -> open Android
+- git clone https://github.com/zolangivre/BagBuddy.git
+- git branch -> *staging/frontend
+- npm install
+- npx expo start
+- s -> switch to Expo Go
+- i -> open IOS Simulator (recommandé) version ios 26 recommandé pour une meilleure experience utilisateur
+- a -> open Android
+- scan QR code pour tester sur votre propre appareil (avoir Expo Go installé sur votre appareil)
