@@ -18,10 +18,6 @@
         ]
       }
     },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE"
