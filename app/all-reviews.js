@@ -5,7 +5,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
@@ -17,6 +16,7 @@ import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import ReviewCard from "@/components/ReviewCard";
 import { AuthContext } from "@/contexts/AuthContext";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function AllReviewsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -57,7 +57,7 @@ export default function AllReviewsScreen() {
           backgroundColor: theme.background,
         }}
       >
-        <ActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator size="medium" color={theme.primary} />
       </View>
     );
   }

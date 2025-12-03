@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
@@ -19,6 +18,7 @@ import axios from "axios";
 import { AuthContext } from "@/contexts/AuthContext";
 import Content from "@/components/TransactionDetailComponents/Content";
 import ButtonIcon from "@/components/ButtonIcon";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function TransactionDetailScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -102,7 +102,7 @@ export default function TransactionDetailScreen() {
           backgroundColor: theme.background,
         }}
       >
-        <ActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator size="medium" color={theme.primary} />
       </View>
     );
   }

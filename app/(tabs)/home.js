@@ -1,6 +1,6 @@
 import React, { useState, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, Weight, TrendingUp } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -15,6 +15,7 @@ import i18n from "@/i18n";
 import { AuthContext } from "@/contexts/AuthContext";
 import axios from "axios";
 import Currency from "@/components/Currency";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function HomeScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -208,7 +209,7 @@ export default function HomeScreen() {
                       alignItems: "center",
                     }}
                   >
-                    <ActivityIndicator size="medium" color={theme.primary} />
+                    <SafeActivityIndicator size="medium" color={theme.primary} />
                   </View>
                 ) : filteredListings.length > 0 ? (
                   filteredListings.map((item) => (

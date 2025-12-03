@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
@@ -33,6 +32,7 @@ import { globalStyles } from "@/theme/Styles";
 import Currency from "@/components/Currency";
 import axios from "axios";
 import { AuthContext } from "@/contexts/AuthContext";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function EditListingScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -323,7 +323,7 @@ const handleUpdateListing = async () => {
           backgroundColor: theme.background,
         }}
       >
-        <ActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator size="medium" color={theme.primary} />
       </View>
     );
   }

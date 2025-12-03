@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TrendingUp, Activity } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -16,6 +16,7 @@ import axios from "axios";
 import { AuthContext } from "@/contexts/AuthContext";
 import Currency from "@/components/Currency";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function TransactionsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -209,7 +210,7 @@ export default function TransactionsScreen() {
                   alignItems: "center",
                 }}
               >
-                <ActivityIndicator size="medium" color={theme.primary} />
+                <SafeActivityIndicator size="medium" color={theme.primary} />
               </View>
             ) : filteredTransactions.length > 0 ? (
               filteredTransactions.map((transaction) => (

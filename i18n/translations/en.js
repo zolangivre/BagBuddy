@@ -207,7 +207,7 @@ export default {
     "Maybe {{seller}} would accept a different weight amount. You can send another request with adjusted terms.",
   payment_required_title: "Request approved!",
   payment_required_description:
-    "{{seller}} approved 8kg of weight. Confirm to proceed with the transaction.",
+    "{{seller}} approved {{weight}} of weight. Pay to proceed with the transaction.",
   total_amount: "Total amount",
   complete_payment: "Complete payment",
   reservation_received_title: "New reservation received",

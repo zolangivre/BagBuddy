@@ -7,13 +7,13 @@ import {
   Modal,
   FlatList,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 import Colors from "@/theme/Colors";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { Search, Plane } from "lucide-react-native";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 const FlightInputModal = ({
   label,
@@ -148,7 +148,7 @@ const FlightInputModal = ({
 
             {/* Loader / Erreur / Résultats */}
             {loading ? (
-              <ActivityIndicator size="large" color={theme.text} />
+              <SafeActivityIndicator size="large" color={theme.text} />
             ) : error ? (
               <Text style={[styles.error, { color: theme.text }]}>{error}</Text>
             ) : (

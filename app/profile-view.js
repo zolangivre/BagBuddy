@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowLeft, Star } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
@@ -10,6 +10,7 @@ import { globalStyles } from "@/theme/Styles";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import i18n from "@/i18n";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 const ProfileView = () => {
   const { theme: colorScheme } = useThemeContext();
@@ -66,7 +67,7 @@ const ProfileView = () => {
           backgroundColor: theme.background,
         }}
       >
-        <ActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator size="medium" color={theme.primary} />
       </View>
     );
   }

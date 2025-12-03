@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { View, Text, StyleSheet, Image, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, DollarSign, Shield, ArrowRight } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -11,6 +11,7 @@ import i18n from "@/i18n";
 import { globalStyles } from "@/theme/Styles";
 import { router } from "expo-router";
 import { AuthContext } from "@/contexts/AuthContext";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 // import { gql } from "@apollo/client";
 // import { useQuery } from "@apollo/client/react";
 // import axios from "axios";
@@ -44,7 +45,7 @@ export default function StartScreen() {
   if (state.isSignedIn && !state.userInfo) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0891b2" />
+        <SafeActivityIndicator size="large" color="#0891b2" />
         <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
@@ -53,7 +54,7 @@ export default function StartScreen() {
   if (state.isSignedIn && state.userInfo) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0891b2" />
+        <SafeActivityIndicator size="large" color="#0891b2" />
         <Text style={styles.loadingText}>Redirection...</Text>
       </View>
     );

@@ -7,7 +7,6 @@ import {
   Animated,
   Easing,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import {
   StripeProvider,
@@ -19,6 +18,7 @@ import Colors from "@/theme/Colors";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import i18n from "@/i18n";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 const StripeBottomSheet = ({
   visible,
@@ -196,7 +196,7 @@ const StripeBottomSheet = ({
             disabled={loading || stripeLoading}
           >
             {loading || stripeLoading ? (
-              <ActivityIndicator size="medium" color={theme.primary} />
+              <SafeActivityIndicator size="medium" color={theme.primary} />
             ) : (
               <Text style={[styles.payButtonText, { color: Colors.white }]}>
                 {i18n.t("pay")} {format(displayAmount)}

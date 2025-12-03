@@ -60,18 +60,19 @@ export default function RequestRejectedContent({ transaction, role, status }) {
       Alert.alert(i18n.t("error"), i18n.t("reservation_request_error_message"));
     }
   };
-  let name = transaction?.listingInfo?.userInfo?.name;
+  let sellerName = transaction?.listingInfo?.sellerUserInfo?.name;
+  console.log("Seller Name:", sellerName);
   return (
     <>
       <TransactionProgressCard step={1} role={role} />
       <SellerInformationCard item={transaction} />
       <StatusCard status={status} transaction={transaction} />
-      <Text style={[theme.textStyles.cardStatusTitle, { textAlign: "center" }]}>
+      <Text style={[theme.textStyles.titleMedium, { textAlign: "center" }]}>
         {i18n.t("try_a_different_amount")}
       </Text>
       <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
         {i18n.t("try_a_different_amount_description", {
-          seller: { name },
+          seller: sellerName,
         })}
       </Text>
       <WeightSelectorCard

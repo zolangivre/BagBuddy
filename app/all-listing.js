@@ -5,7 +5,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  ActivityIndicator,
 } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
@@ -17,6 +16,8 @@ import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import ListingCard from "@/components/ListingCard";
 import { AuthContext } from "@/contexts/AuthContext";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+
 
 export default function AllListingsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -61,7 +62,7 @@ export default function AllListingsScreen() {
           backgroundColor: theme.background,
         }}
       >
-        <ActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator size="medium" color={theme.primary} />
       </View>
     );
   }

@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -40,6 +39,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import Currency from "@/components/Currency";
 import axios from "axios";
 import * as WebBrowser from "expo-web-browser";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 const ProfileScreen = () => {
   const { theme: colorScheme, toggleTheme } = useThemeContext();
@@ -163,7 +163,7 @@ const ProfileScreen = () => {
                 alignItems: "center",
               }}
             >
-              <ActivityIndicator size="medium" color={theme.primary} />
+              <SafeActivityIndicator size="medium" color={theme.primary} />
             </View>
           ) : reviews.length > 0 ? (
             reviews.slice(0, 5).map((review) => (
@@ -227,7 +227,7 @@ const ProfileScreen = () => {
                 alignItems: "center",
               }}
             >
-              <ActivityIndicator size="medium" color={theme.primary} />
+              <SafeActivityIndicator size="medium" color={theme.primary} />
             </View>
           ) : listings.length > 0 ? (
             listings.slice(0, 5).map((listing) => (

@@ -214,7 +214,7 @@ export default {
     "Peut-être que {{seller}} accepterait un poids différent. Essayez d’envoyer une nouvelle demande.",
   payment_required_title: "Demande approuvée !",
   payment_required_description:
-    "{{seller}} a approuvé {{weight}}. Confirmez pour continuer la transaction.",
+    "{{seller}} a approuvé {{weight}}. Payez pour continuer la transaction.",
   total_amount: "Montant total",
   complete_payment: "Effectuer le paiement",
   reservation_received_title: "Nouvelle réservation reçue",

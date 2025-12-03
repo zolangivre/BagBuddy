@@ -17,6 +17,7 @@ import Currency from "@/components/Currency";
 const StatusCard = ({ status, role, transaction }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
+  let name = transaction?.listingInfo?.sellerUserInfo?.name;
 
   const BottomContentConfirmedCompleted = ({ role, status }) => (
     <View
@@ -49,7 +50,8 @@ const StatusCard = ({ status, role, transaction }) => {
       <View style={styles.bottomInfo}>
         <Text style={[theme.textStyles.bodyLarge]}>
           {transaction?.weight}kg -{" "}
-          <Currency amount={transaction?.listingInfo?.pricePerKg} />/kg
+          <Currency amount={transaction?.listingInfo?.pricePerKg} />
+          /kg
         </Text>
       </View>
     </View>
@@ -128,7 +130,7 @@ const StatusCard = ({ status, role, transaction }) => {
           </Text>
           <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
             {i18n.t("waiting_for_response_description", {
-              seller: "Karim Benzema",
+              seller: name,
             })}
           </Text>
           <View
@@ -164,7 +166,7 @@ const StatusCard = ({ status, role, transaction }) => {
           </Text>
           <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
             {i18n.t("waiting_for_response_description", {
-              seller: "Karim Benzema",
+              seller: name,
             })}
           </Text>
           <View
@@ -207,8 +209,8 @@ const StatusCard = ({ status, role, transaction }) => {
         </Text>
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("request_rejected_description", {
-            seller: "Karim Benzema",
-            weight: "8kg",
+            seller: name,
+            weight: transaction.weight + "kg",
           })}
         </Text>
         <View
@@ -251,8 +253,8 @@ const StatusCard = ({ status, role, transaction }) => {
         </Text>
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("payment_required_description", {
-            seller: "Karim Benzema",
-            weight: "8kg",
+            seller: name,
+            weight: transaction.weight + "kg",
           })}
         </Text>
         <BottomContentPaymentReservation
@@ -362,6 +364,7 @@ const StatusCard = ({ status, role, transaction }) => {
   };
 
   const ReservationReceivedStatus = () => {
+    let buyerName = transaction?.buyerInfo?.name;
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -377,8 +380,8 @@ const StatusCard = ({ status, role, transaction }) => {
         </Text>
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("reservation_received_description", {
-            buyer: "Vin Diesel",
-            weight: "8kg",
+            buyer: buyerName,
+            weight: transaction.weight + "kg",
           })}
         </Text>
         <BottomContentPaymentReservation
