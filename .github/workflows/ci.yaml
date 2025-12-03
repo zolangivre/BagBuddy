@@ -37,6 +37,10 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-      # Build Expo Web (facultatif mais utile comme sanity check)
-      - name: Build Expo Web
-        run: npx expo export --platform web
+      # Build Expo IOS
+      - name: Build Expo IOS
+        run: npx expo export --platform ios
+
+      # Build Expo Android
+      - name: Build Expo Android
+        run: npx expo export --platform android
