@@ -10,7 +10,9 @@ import {
 } from "react-native";
 import Colors from "@/theme/Colors";
 import { useThemeContext } from "@/contexts/ThemeContext";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
 import { Calendar } from "lucide-react-native";
 import i18n from "@/i18n";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -34,28 +36,66 @@ const DateInputModal = ({
   const today = new Date();
   const { language } = useLanguage();
 
-  // Mettre à jour tempDate si la date minimale change
   useEffect(() => {
     if (minimumDate) {
       const minDate = new Date(minimumDate);
-      setTempDate((currentDate) => {
-        if (currentDate < minDate) {
-          return minDate;
-        }
-        return currentDate;
-      });
+      setTempDate((currentDate) =>
+        currentDate < minDate ? minDate : currentDate
+      );
     }
   }, [minimumDate]);
 
   useEffect(() => {
-    if (value) {
-      setTempDate(new Date(value));
-    }
+    if (value) setTempDate(new Date(value));
   }, [value]);
 
-  const handleConfirm = () => {
-    onChangeText(tempDate.toISOString());
+  const handleConfirm = (selectedDate) => {
+    const date = selectedDate || tempDate;
+    setTempDate(date);
+    onChangeText(date.toISOString());
     setModalVisible(false);
+  };
+
+  const handlePressInput = () => {
+    if (Platform.OS === "android") {
+      DateTimePickerAndroid.open({
+        value: tempDate,
+        onChange: (event, selectedDate) => {
+          if (selectedDate) {
+            const dateWithNewDate = new Date(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth(),
+              selectedDate.getDate(),
+              tempDate.getHours(),
+              tempDate.getMinutes()
+            );
+
+            DateTimePickerAndroid.open({
+              value: dateWithNewDate,
+              onChange: (timeEvent, selectedTime) => {
+                if (selectedTime) {
+                  const finalDate = new Date(
+                    dateWithNewDate.getFullYear(),
+                    dateWithNewDate.getMonth(),
+                    dateWithNewDate.getDate(),
+                    selectedTime.getHours(),
+                    selectedTime.getMinutes()
+                  );
+                  handleConfirm(finalDate);
+                }
+              },
+              mode: "time",
+              is24Hour: true,
+            });
+          }
+        },
+        mode: "date",
+        minimumDate: minimumDate || today,
+        maximumDate: new Date(2100, 11, 31),
+      });
+    } else {
+      setModalVisible(true);
+    }
   };
 
   return (
@@ -67,7 +107,7 @@ const DateInputModal = ({
       </View>
 
       {/* Input */}
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
+      <TouchableOpacity onPress={handlePressInput}>
         <View pointerEvents="none">
           <TextInput
             style={[
@@ -85,54 +125,49 @@ const DateInputModal = ({
 
       {error ? <Text style={theme.textStyles.errorText}>{error}</Text> : null}
 
-      {/* Modal */}
-      <Modal visible={modalVisible} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View
-            style={[
-              styles.modalContainer,
-              { backgroundColor: theme.background_card },
-            ]}
-          >
-            {/* Date Picker */}
-            <DateTimePicker
-              value={tempDate}
-              mode="datetime"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={(event, selectedDate) => {
-                if (selectedDate) setTempDate(selectedDate);
-                if (Platform.OS === "android") handleConfirm();
-              }}
-              maximumDate={new Date(2100, 11, 31)}
-              minimumDate={minimumDate || today}
-              textColor={theme.title}
-              locale={language}
-            />
+      {/* Modal pour iOS */}
+      {Platform.OS === "ios" && (
+        <Modal visible={modalVisible} animationType="fade" transparent>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modalContainer,
+                { backgroundColor: theme.background_card },
+              ]}
+            >
+              <DateTimePicker
+                value={tempDate}
+                mode="datetime"
+                display="spinner"
+                onChange={(event, selectedDate) => {
+                  if (selectedDate) setTempDate(selectedDate);
+                }}
+                maximumDate={new Date(2100, 11, 31)}
+                minimumDate={minimumDate || today}
+                textColor={theme.title}
+                locale={language}
+              />
 
-            {/* Bouton de confirmation (iOS uniquement) */}
-            {Platform.OS === "ios" && (
-              <>
-                <TouchableOpacity
-                  style={styles.confirmButton}
-                  onPress={handleConfirm}
-                >
-                  <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
-                    {i18n.t("confirm")}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
-                    {i18n.t("close")}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={() => handleConfirm(tempDate)}
+              >
+                <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
+                  {i18n.t("confirm")}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
+                  {i18n.t("close")}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
     </View>
   );
 };
