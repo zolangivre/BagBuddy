@@ -61,7 +61,6 @@ export default function RequestRejectedContent({ transaction, role, status }) {
     }
   };
   let sellerName = transaction?.listingInfo?.sellerUserInfo?.name;
-  console.log("Seller Name:", sellerName);
   return (
     <>
       <TransactionProgressCard step={1} role={role} />
