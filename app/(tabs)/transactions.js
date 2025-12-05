@@ -210,7 +210,7 @@ export default function TransactionsScreen() {
                   alignItems: "center",
                 }}
               >
-                <SafeActivityIndicator size="medium" color={theme.primary} />
+                <SafeActivityIndicator />
               </View>
             ) : filteredTransactions.length > 0 ? (
               filteredTransactions.map((transaction) => (

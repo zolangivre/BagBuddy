@@ -163,7 +163,7 @@ const ProfileScreen = () => {
                 alignItems: "center",
               }}
             >
-              <SafeActivityIndicator size="medium" color={theme.primary} />
+              <SafeActivityIndicator size="medium"/>
             </View>
           ) : reviews.length > 0 ? (
             reviews.slice(0, 5).map((review) => (
@@ -212,9 +212,7 @@ const ProfileScreen = () => {
             {i18n.t("active_listings")}
           </Text>
           <TouchableOpacity onPress={handleAllListing}>
-            <Text style={theme.textStyles.highlight}>
-              {i18n.t("view_all")}
-            </Text>
+            <Text style={theme.textStyles.highlight}>{i18n.t("view_all")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -227,7 +225,7 @@ const ProfileScreen = () => {
                 alignItems: "center",
               }}
             >
-              <SafeActivityIndicator size="medium" color={theme.primary} />
+              <SafeActivityIndicator size="medium"/>
             </View>
           ) : listings.length > 0 ? (
             listings.slice(0, 5).map((listing) => (

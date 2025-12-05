@@ -1,11 +1,6 @@
 import { useState, useCallback, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
@@ -17,7 +12,6 @@ import i18n from "@/i18n";
 import ListingCard from "@/components/ListingCard";
 import { AuthContext } from "@/contexts/AuthContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
-
 
 export default function AllListingsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -62,7 +56,7 @@ export default function AllListingsScreen() {
           backgroundColor: theme.background,
         }}
       >
-        <SafeActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator />
       </View>
     );
   }

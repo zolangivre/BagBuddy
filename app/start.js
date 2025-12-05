@@ -12,32 +12,24 @@ import { globalStyles } from "@/theme/Styles";
 import { router } from "expo-router";
 import { AuthContext } from "@/contexts/AuthContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
-// import { gql } from "@apollo/client";
-// import { useQuery } from "@apollo/client/react";
-// import axios from "axios";
-
-// const GET_USERS = gql`
-//   query {
-//     users {
-//       id
-//       firstName
-//       lastName
-//     }
-//   }
-// `;
 
 export default function StartScreen() {
-  // const { loading, error, data } = useQuery(GET_USERS);
-  const { state, signIn } = useContext(AuthContext);
+  const { state, signIn, isReady } = useContext(AuthContext);
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
+
   useEffect(() => {
     if (state.isSignedIn && state.userInfo) {
       router.replace("/(tabs)/home");
     }
   }, [state.isSignedIn, state.userInfo]);
-  const handleStart = () => {
-    signIn();
+
+  const handleStart = async () => {
+    if (!isReady) {
+      console.warn("Authentication not ready yet");
+      return;
+    }
+    await signIn();
   };
 
   if (!state) return null;
@@ -45,7 +37,7 @@ export default function StartScreen() {
   if (state.isSignedIn && !state.userInfo) {
     return (
       <View style={styles.container}>
-        <SafeActivityIndicator size="large" color="#0891b2" />
+        <SafeActivityIndicator />
         <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
@@ -54,7 +46,7 @@ export default function StartScreen() {
   if (state.isSignedIn && state.userInfo) {
     return (
       <View style={styles.container}>
-        <SafeActivityIndicator size="large" color="#0891b2" />
+        <SafeActivityIndicator />
         <Text style={styles.loadingText}>Redirection...</Text>
       </View>
     );
@@ -181,6 +173,7 @@ export default function StartScreen() {
           <Button
             onPress={handleStart}
             text={i18n.t("start_button")}
+            disabled={!isReady}
             rightIcon={
               <ArrowRight
                 width={24}
@@ -236,5 +229,14 @@ const styles = StyleSheet.create({
   gapContainer: {
     marginTop: 16,
     gap: 16,
+  },
+  authLoadingContainer: {
+    alignItems: "center",
+    gap: 8,
+    marginTop: -10,
+  },
+  loadingText: {
+    marginTop: 10,
+    textAlign: "center",
   },
 });

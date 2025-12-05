@@ -209,7 +209,7 @@ export default function HomeScreen() {
                       alignItems: "center",
                     }}
                   >
-                    <SafeActivityIndicator size="medium" color={theme.primary} />
+                    <SafeActivityIndicator/>
                   </View>
                 ) : filteredListings.length > 0 ? (
                   filteredListings.map((item) => (

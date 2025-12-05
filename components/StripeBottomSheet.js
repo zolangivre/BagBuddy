@@ -196,7 +196,7 @@ const StripeBottomSheet = ({
             disabled={loading || stripeLoading}
           >
             {loading || stripeLoading ? (
-              <SafeActivityIndicator size="medium" color={theme.primary} />
+              <SafeActivityIndicator size="small" />
             ) : (
               <Text style={[styles.payButtonText, { color: Colors.white }]}>
                 {i18n.t("pay")} {format(displayAmount)}

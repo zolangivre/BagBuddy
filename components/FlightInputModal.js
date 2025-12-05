@@ -86,7 +86,7 @@ const FlightInputModal = ({
         {i18n.t("date") || "Date"} : {item.flight_date || "-"}
       </Text>
       <Text style={[styles.flightDate, { color: theme.text }]}>
-        { "Date scheduled"} : {item.dep_scheduled_time_dep || "-"}
+        {"Date scheduled"} : {item.dep_scheduled_time_dep || "-"}
       </Text>
     </TouchableOpacity>
   );
@@ -148,7 +148,7 @@ const FlightInputModal = ({
 
             {/* Loader / Erreur / Résultats */}
             {loading ? (
-              <SafeActivityIndicator size="large" color={theme.text} />
+              <SafeActivityIndicator />
             ) : error ? (
               <Text style={[styles.error, { color: theme.text }]}>{error}</Text>
             ) : (

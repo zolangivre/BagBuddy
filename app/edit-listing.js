@@ -323,7 +323,7 @@ const handleUpdateListing = async () => {
           backgroundColor: theme.background,
         }}
       >
-        <SafeActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator />
       </View>
     );
   }
@@ -531,8 +531,12 @@ const handleUpdateListing = async () => {
           {/* Listing Tips Card */}
           <View
             style={[
-              globalStyles.card,
-              { backgroundColor: Colors.dark_cyan_translucent },
+              {
+                backgroundColor: Colors.dark_cyan_translucent,
+                flex: 1,
+                borderRadius: 16,
+                padding: 24,
+              },
             ]}
           >
             <View style={styles.cardHeader}>

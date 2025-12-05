@@ -1,10 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -102,13 +97,13 @@ export default function TransactionDetailScreen() {
           backgroundColor: theme.background,
         }}
       >
-        <SafeActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator />
       </View>
     );
   }
-    const handleGoBack = () => {
-      router.back();
-    };
+  const handleGoBack = () => {
+    router.back();
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>

@@ -67,7 +67,7 @@ const ProfileView = () => {
           backgroundColor: theme.background,
         }}
       >
-        <SafeActivityIndicator size="medium" color={theme.primary} />
+        <SafeActivityIndicator />
       </View>
     );
   }
