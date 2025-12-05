@@ -20,7 +20,7 @@ export default function ListingConditionsCard({ transaction }) {
           <Text style={theme.textStyles.cardTitle}>{i18n.t("conditions")}</Text>
         </View>
         <View style={[styles.contentColumn, { gap: 10 }]}>
-          <Text style={theme.textStyles.bodyMedium}>{listing?.conditions}</Text>
+          <Text style={theme.textStyles.bodyMedium}>{listing?.conditions || i18n.t("no_conditions")}</Text>
         </View>
       </View>
     </View>
