@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import Button from "@/components/Button";
+import { View, Text, Pressable, Platform, StyleSheet } from "react-native";
 import Colors from "@/theme/Colors";
-import { Weight, Plus, Activity, Calendar } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
+import { Weight, Plus, Activity, Calendar } from "lucide-react-native";
 
-const ActionButton = ({ onSelectionChange, type = "home" }) => {
+const ActionButton = ({ type = "home", onSelectionChange }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -22,9 +21,7 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
 
   const handleSelect = (value) => {
     setSelected(value);
-    if (onSelectionChange) {
-      onSelectionChange(value);
-    }
+    onSelectionChange?.(value);
   };
 
   let buttons = [];
@@ -65,15 +62,11 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
         text: i18n.t("listings"),
         color: Colors.primary_color,
       },
-      {
-        key: "reviews",
-        text: i18n.t("reviews"),
-        color: Colors.success_color,
-      },
+      { key: "reviews", text: i18n.t("reviews"), color: Colors.success_color },
       {
         key: "settings",
         text: i18n.t("settings"),
-        color: Colors.warning_color || "#FFA500",
+        color: Colors.light_yellow,
       },
     ];
   }
@@ -105,26 +98,78 @@ const ActionButton = ({ onSelectionChange, type = "home" }) => {
             ? "#888888"
             : Colors.secondary_color;
 
-          return (
-            <Button
-              key={btn.key}
-              text={btn.text}
-              leftIcon={Icon ? <Icon size={22} color={iconColor} /> : null}
-              style={[
-                { backgroundColor: theme.background.card },
-                styles.baseButton,
-                isSelected
-                  ? { backgroundColor: btn.color, ...styles.selectedShadow }
-                  : styles.notSelected,
-              ]}
-              textStyle={{
-                color: textColor,
-                fontSize: 14,
-                fontWeight: "500",
-              }}
-              onPress={() => handleSelect(btn.key)}
-            />
-          );
+          // iOS
+          if (Platform.OS === "ios") {
+            return (
+              <Pressable
+                key={btn.key}
+                onPress={() => handleSelect(btn.key)}
+                style={[
+                  styles.baseButton,
+                  {
+                    backgroundColor: isSelected
+                      ? btn.color
+                      : theme.background_card,
+                  },
+                  isSelected && styles.iosShadow,
+                ]}
+              >
+                {Icon && (
+                  <Icon
+                    size={22}
+                    color={iconColor}
+                    style={{ marginRight: 6 }}
+                  />
+                )}
+                <Text
+                  style={{ color: textColor, fontSize: 14, fontWeight: "500" }}
+                >
+                  {btn.text}
+                </Text>
+              </Pressable>
+            );
+          } else {
+            // Android
+            return (
+              <View
+                key={btn.key}
+                style={[
+                  styles.androidWrapper,
+                  {
+                    backgroundColor: isSelected
+                      ? btn.color
+                      : theme.background_card,
+                  },
+                  { elevation: isSelected ? 6 : 2 },
+                ]}
+              >
+                <Pressable
+                  onPress={() => handleSelect(btn.key)}
+                  style={({ pressed }) => [
+                    styles.baseButton,
+                    pressed && { opacity: 0.85 },
+                  ]}
+                >
+                  {Icon && (
+                    <Icon
+                      size={22}
+                      color={iconColor}
+                      style={{ marginRight: 6 }}
+                    />
+                  )}
+                  <Text
+                    style={{
+                      color: textColor,
+                      fontSize: 14,
+                      fontWeight: "500",
+                    }}
+                  >
+                    {btn.text}
+                  </Text>
+                </Pressable>
+              </View>
+            );
+          }
         })}
       </View>
     </View>
@@ -156,6 +201,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     paddingHorizontal: 18,
+    borderRadius: 16,
+  },
+  iosShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+  androidWrapper: {
+    flex: 1,
     borderRadius: 16,
   },
 });

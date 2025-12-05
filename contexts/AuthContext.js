@@ -26,7 +26,6 @@ const AuthProvider = ({ children }) => {
     native: "bagbuddy://redirect",
     useProxy: false,
   });
-  console.log("Redirect URI:", redirectUri);
 
   const [request, response, promptAsync] = useAuthRequest(
     {
@@ -122,59 +121,78 @@ const AuthProvider = ({ children }) => {
     if (authState.isSignedIn) getUserInfo();
   }, [authState.accessToken, authState.isSignedIn]);
 
-const authContext = useMemo(() => ({
-  state: authState,
-  signIn: () => promptAsync(),
-  signOut: async () => {
-    try {
-      if (authState.idToken) {
-        await fetch(
-          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${authState.idToken}`
-        );
-      }
-      dispatch({ type: "SIGN_OUT" });
-      router.replace("/start");
-    } catch (e) {
-      console.warn(e);
-    }
-  },
-  updateUserInfo: (newUserInfo) =>
-    dispatch({ type: "USER_INFO", payload: newUserInfo }),
-  getValidAccessToken: async () => {
-    if (!authState.accessToken || isTokenExpired(authState.accessToken)) {
-      if (!authState.refreshToken) throw new Error("No refresh token");
-      try {
-        const tokenResponse = await axios.post(
-          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/token`,
-          new URLSearchParams({
-            grant_type: "refresh_token",
-            client_id: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
-            refresh_token: authState.refreshToken,
-          }),
-          { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-        );
+  const authContext = useMemo(
+    () => ({
+      state: authState,
+      signIn: async () => {
+        // Check if request is ready before prompting
+        if (!request) {
+          console.warn("Auth request not ready yet");
+          return;
+        }
+        try {
+          await promptAsync();
+        } catch (error) {
+          console.warn("Sign in error:", error);
+        }
+      },
+      signOut: async () => {
+        try {
+          if (authState.idToken) {
+            await fetch(
+              `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${authState.idToken}`
+            );
+          }
+          dispatch({ type: "SIGN_OUT" });
+          router.replace("/start");
+        } catch (e) {
+          console.warn(e);
+        }
+      },
+      updateUserInfo: (newUserInfo) =>
+        dispatch({ type: "USER_INFO", payload: newUserInfo }),
+      getValidAccessToken: async () => {
+        if (!authState.accessToken || isTokenExpired(authState.accessToken)) {
+          if (!authState.refreshToken) throw new Error("No refresh token");
+          try {
+            const tokenResponse = await axios.post(
+              `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/token`,
+              new URLSearchParams({
+                grant_type: "refresh_token",
+                client_id: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
+                refresh_token: authState.refreshToken,
+              }),
+              {
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+              }
+            );
 
-        const newAccessToken = tokenResponse.data.access_token;
-        const newRefreshToken = tokenResponse.data.refresh_token;
+            const newAccessToken = tokenResponse.data.access_token;
+            const newRefreshToken = tokenResponse.data.refresh_token;
 
-        dispatch({
-          type: "SIGN_IN",
-          payload: {
-            access_token: newAccessToken,
-            id_token: authState.idToken,
-            refresh_token: newRefreshToken,
-          },
-        });
+            dispatch({
+              type: "SIGN_IN",
+              payload: {
+                access_token: newAccessToken,
+                id_token: authState.idToken,
+                refresh_token: newRefreshToken,
+              },
+            });
 
-        return newAccessToken;
-      } catch (err) {
-        await authContext.signOut();
-        throw err;
-      }
-    }
-    return authState.accessToken;
-  },
-}), [authState, promptAsync]);
+            return newAccessToken;
+          } catch (err) {
+            await authContext.signOut();
+            throw err;
+          }
+        }
+        return authState.accessToken;
+      },
+      isReady: !!request, // Add this flag to check auth readiness
+    }),
+    [authState, promptAsync, request]
+  );
 
   return (
     <AuthContext.Provider value={authContext}>{children}</AuthContext.Provider>

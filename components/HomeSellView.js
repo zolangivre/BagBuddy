@@ -18,8 +18,14 @@ const HomeSellView = () => {
       {/* Turn Extra Weight into Cash Section */}
       <View
         style={[
-          globalStyles.card,
-          { backgroundColor: Colors.light_green_translucent, alignItems: "center", gap: 15},
+          {
+            backgroundColor: Colors.light_green_translucent,
+            alignItems: "center",
+            gap: 15,
+            flex: 1,
+            borderRadius: 16,
+            padding: 24,
+          },
         ]}
       >
         <RoundIconText
@@ -52,8 +58,15 @@ const HomeSellView = () => {
       </View>
 
       {/* How Selling Works Section */}
-      <View style={[globalStyles.card, { backgroundColor: theme.background_card }]}>
-        <Text style={[theme.textStyles.cardTitle, { textAlign: "center", marginBottom: 10 }]}>
+      <View
+        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
+      >
+        <Text
+          style={[
+            theme.textStyles.cardTitle,
+            { textAlign: "center", marginBottom: 10 },
+          ]}
+        >
           {i18n.t("how_selling_works")}
         </Text>
 

@@ -496,11 +496,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     gap: 17,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
   },
   reserveIcon: {
     justifyContent: "center",
