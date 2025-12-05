@@ -79,7 +79,7 @@ const SellerInformationCard = ({ item }) => {
     const fetchAverageRating = async () => {
       try {
         const revieweeId =
-          role === "seller" ? item?.buyerId : item?.sellerId;
+          role === "seller" ? item?.buyerId : item?.sellerId || item?.listingInfo?.userInfo?.sub;
         if (!revieweeId) return;
 
         const response = await axios.get(
