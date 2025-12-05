@@ -358,4 +358,6 @@ export default {
   pay: "Pay",
   invalid_amount: "Invalid amount",
   please_fill_card_details: "Please fill in your card details.",
+
+  no_conditions: "No special conditions provided.",
 };

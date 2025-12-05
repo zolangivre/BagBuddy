@@ -365,4 +365,6 @@ export default {
   pay: "Payer",
   invalid_amount: "Montant invalide",
   please_fill_card_details: "Veuillez remplir les détails de votre carte.",
+
+  no_conditions: "Aucune condition spéciale fournie.",
 };
