@@ -26,8 +26,8 @@ spring:
             - Path=/stripe/**
 
       httpclient:
-        connect-timeout: 3000
-        response-timeout: 5s
+        connect-timeout: 5000
+        response-timeout: 20000
         pool:
           max-connections: 50
 
