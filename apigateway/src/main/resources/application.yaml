@@ -4,40 +4,32 @@ spring:
 
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
       routes:
-#        - id: user-service
-#          uri: lb://user-service
-#          predicates:
-#            - Path=/users/**
         - id: trip-service
-          uri: lb://trip-service
+          uri: ${TRIP_SERVICE_URL}
           predicates:
             - Path=/trips/**
+
         - id: transaction-service
-          uri: lb://transaction-service
+          uri: ${TRANSACTION_SERVICE_URL}
           predicates:
             - Path=/transactions/**
+
         - id: review-service
-          uri: lb://review-service
+          uri: ${REVIEW_SERVICE_URL}
           predicates:
             - Path=/reviews/**
+
         - id: stripe-service
-          uri: lb://stripe-service
+          uri: ${STRIPE_SERVICE_URL}
           predicates:
             - Path=/stripe/**
+
       httpclient:
         connect-timeout: 3000
         response-timeout: 5s
         pool:
           max-connections: 50
-    loadbalancer:
-      cache:
-        enabled: true
-        ttl: 30s
 
 server:
   port: ${PORT:8080}
@@ -51,26 +43,7 @@ management:
     health:
       show-details: always
 
-eureka:
-  instance:
-    hostname: apigateway-app-5be61210e219.herokuapp.com
-    prefer-ip-address: false
-    non-secure-port: 80
-    non-secure-port-enabled: true
-    secure-port-enabled: false
-    lease-renewal-interval-in-seconds: 10
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
-    registry-fetch-interval-seconds: 15
-    initial-instance-info-replication-interval-seconds: 15
-    eureka-connection-idle-timeout-seconds: 5
-
 logging:
   level:
-    "[com.netflix.eureka]": ERROR
-    "[com.netflix.discovery]": ERROR
     "[org.springframework.cloud.gateway]": INFO
     root: INFO

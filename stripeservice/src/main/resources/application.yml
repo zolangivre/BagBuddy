@@ -3,18 +3,18 @@ spring:
     name: stripe-service
 server:
   port: ${PORT}
-eureka:
-  instance:
-    hostname: stripeservice-app-e0349536e242.herokuapp.com
-    prefer-ip-address: false
-    non-secure-port: 80
-    non-secure-port-enabled: true
-    secure-port-enabled: false
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
+#eureka:
+#  instance:
+#    hostname: stripeservice-app-e0349536e242.herokuapp.com
+#    prefer-ip-address: false
+#    non-secure-port: 80
+#    non-secure-port-enabled: true
+#    secure-port-enabled: false
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: https://eurekaserver-app-dd87242b5252.herokuapp.com/eureka/
 
 management:
   endpoints:
