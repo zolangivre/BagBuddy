@@ -156,6 +156,7 @@ expo-env.d.ts
 
 .DS_Store
 
-ios/
+ios/Pods/
+ios/build/
 
 android/
