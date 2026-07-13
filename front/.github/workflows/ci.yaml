@@ -1,0 +1,46 @@
+name: BagBuddy CI
+
+on:
+  push:
+    branches:
+      - staging/frontend
+  pull_request:
+    branches:
+      - staging/frontend
+
+jobs:
+  install-and-test:
+    name: Install, Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Récupère le code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configure Node
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "npm"
+
+      # Installe les dépendances
+      - name: Install dependencies
+        run: npm install
+
+      # Vérifie TypeScript
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # Lint
+      - name: Run linter
+        run: npm run lint
+
+      # Build Expo IOS
+      - name: Build Expo IOS
+        run: npx expo export --platform ios
+
+      # Build Expo Android
+      - name: Build Expo Android
+        run: npx expo export --platform android
