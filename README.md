@@ -1,35 +1,76 @@
-# BagBuddy
+# BagBuddy — application mobile
 
 BagBuddy est une application mobile collaborative qui met en relation des voyageurs ayant de la place libre dans leurs bagages avec des utilisateurs souhaitant envoyer ou ramener des produits d'un autre pays.
-Le principe est simple : chaque utilisateur peut, selon le moment, proposer des kilos disponibles (comme un vendeur) ou réserver des kilos (comme un acheteur), à la manière de BlaBlaCar, Leboncoin ou Vinted.
+Le principe est simple : chaque utilisateur peut, selon le moment, proposer des kilos disponibles (comme un vendeur) ou réserver des kilos (comme un acheteur).
+L'application favorise la confiance, la transparence et la simplicité des échanges entre particuliers, à la manière de BlaBlaCar, Leboncoin ou Vinted.
 
-## Structure du repo
+Ce repo contient **uniquement l'application mobile** (Expo Router / React Native).
+Le backend (microservices Spring Boot + Keycloak) vit dans un repo séparé :
+[zolangivre/bagbuddy-back](https://github.com/zolangivre/bagbuddy-back).
 
-- [`front/`](front) — application mobile (Expo Router / React Native)
-- [`back/`](back) — microservices backend (Spring Boot) + Keycloak, via Docker Compose
+## Prérequis
 
-## Tester l'application en local
+- [Node.js](https://nodejs.org/) et npm
+- [Xcode](https://developer.apple.com/xcode/) avec un simulateur iOS (recommandé, iOS 26+) — ou Android Studio pour un émulateur Android
+- Le backend lancé en local (voir ci-dessous) pour que le login et les données fonctionnent
 
-Deux terminaux, dans cet ordre :
+## Lancer le backend
 
-**1. Backend** — voir [back/README.md](back/README.md) pour le détail
+Dans un dossier voisin, une seule fois :
+
 ```bash
-cd back
+git clone git@github.com:zolangivre/bagbuddy-back.git
+cd bagbuddy-back
 cp .env.example .env   # remplir avec des mots de passe locaux au choix
 docker compose -f docker-compose.dev.yml up --build -d
 ```
 
-**2. App mobile** — voir [front/README.md](front/README.md) pour le détail
+Voir le README de `bagbuddy-back` pour le détail.
+
+## Setup de l'app
+
 ```bash
-cd front
 npm install
-cp .env.example .env   # fonctionne tel quel contre le backend local
+cp .env.example .env
+```
+
+Les valeurs par défaut de `.env.example` pointent directement vers le backend
+local — si celui-ci tourne, aucune modification n'est nécessaire.
+
+## Lancer l'app
+
+```bash
 npx expo start
 ```
-Puis `i` pour ouvrir le simulateur iOS (recommandé).
 
-**3. Se connecter** avec le compte de test créé automatiquement :
-- identifiant : `testuser`
-- mot de passe : `Test1234!`
+- `i` → ouvrir sur le simulateur iOS (recommandé)
+- `a` → ouvrir sur un émulateur Android
+- `s` → basculer vers Expo Go
+- scanner le QR code pour tester sur son propre appareil (avoir Expo Go installé)
 
-C'est tout — pas de configuration manuelle de Keycloak ni de base de données nécessaire.
+La première fois (ou après un ajout de module natif), utilisez plutôt :
+```bash
+npm run ios      # ou npm run android
+```
+qui build et installe un dev client avant de lancer Metro.
+
+## Se connecter
+
+Une fois le backend démarré, les comptes de test sont créés automatiquement par
+Keycloak. Tous ont le mot de passe **`Test1234!`** :
+
+- `testuser` — compte vierge, pour tester le parcours d'un nouvel inscrit
+- `camille.martin@bagbuddy.local`, `lea.fontaine@bagbuddy.local`, etc. — comptes
+  pré-remplis avec annonces, réservations et avis (liste complète dans le README
+  de `bagbuddy-back`)
+
+## Autres commandes
+
+```bash
+npm run lint        # eslint
+npx tsc --noEmit     # vérification des types
+npx expo export --platform ios      # build de production (utilisé en CI)
+npx expo export --platform android
+```
+
+Voir [CLAUDE.md](CLAUDE.md) pour le détail de l'architecture.
