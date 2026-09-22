@@ -6,11 +6,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
 import ButtonIcon from "@/components/ButtonIcon";
-import { ArrowLeft, Bell, Trash2 } from "lucide-react-native";
+import ScreenHeader from "@/components/ScreenHeader";
+import { Bell, Trash2 } from "lucide-react-native";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { MY_TRIP_ALERTS, DELETE_TRIP_ALERT } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
-import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import Currency from "@/components/Currency";
 import { formatLocalizedDate } from "@/components/LocalizedDateTime";
@@ -20,7 +20,6 @@ export default function TripAlertsScreen() {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const { language } = useLanguage();
-  const router = useRouter();
 
   const { data, loading, refetch } = useQuery(MY_TRIP_ALERTS, {
     context: withEndpoint("trips"),
@@ -64,30 +63,10 @@ export default function TripAlertsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View
-        style={[
-          globalStyles.header,
-          {
-            backgroundColor: theme.background_card,
-            borderBottomColor: theme.navTopBorder,
-          },
-        ]}
-      >
-        <View style={styles.headerContent}>
-          <ButtonIcon
-            onPress={() => router.back()}
-            icon={<ArrowLeft size={20} color={theme.title} />}
-          />
-          <View style={styles.titleContainer}>
-            <Text style={theme.textStyles.sectionTitle}>
-              {i18n.t("trip_alerts")}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <ScreenHeader title={i18n.t("trip_alerts")} />
 
       {loading && !data ? (
-        <View style={styles.centered}>
+        <View style={globalStyles.centered}>
           <SafeActivityIndicator />
         </View>
       ) : (
@@ -101,7 +80,7 @@ export default function TripAlertsScreen() {
             </Text>
 
             {alerts.length === 0 ? (
-              <View style={[styles.centered, { minHeight: 100, padding: 20 }]}>
+              <View style={[globalStyles.centered, { minHeight: 100, padding: 20 }]}>
                 <Text
                   style={[
                     theme.textStyles.bodyLarge,
@@ -167,19 +146,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   intro: {
     marginBottom: 4,

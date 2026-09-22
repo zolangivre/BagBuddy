@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { MailWarning } from "lucide-react-native";
 import { useMutation } from "@apollo/client/react";
 import { SEND_VERIFICATION_EMAIL } from "@/lib/graphql/users";
 import { withEndpoint } from "@/lib/apolloClient";
+import { graphqlErrorMessage } from "@/lib/graphqlError";
 import Button from "@/components/Button";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
@@ -46,12 +47,13 @@ export default function EmailVerificationNotice({ emailVerified }) {
           : i18n.t("verification_email_already_verified")
       );
     } catch (error) {
-      const code = error?.graphQLErrors?.[0]?.extensions?.code;
       Alert.alert(
         i18n.t("error"),
-        code === "verification_email_throttled"
-          ? i18n.t("verification_email_throttled")
-          : i18n.t("verification_email_error")
+        graphqlErrorMessage(
+          error,
+          ["verification_email_throttled"],
+          "verification_email_error"
+        )
       );
       console.error("Error sending verification email:", error);
     } finally {
@@ -63,11 +65,11 @@ export default function EmailVerificationNotice({ emailVerified }) {
     <View
       style={[
         globalStyles.card,
-        styles.card,
+        globalStyles.cardStack,
         { backgroundColor: theme.background_card },
       ]}
     >
-      <View style={styles.headerRow}>
+      <View style={globalStyles.cardHeaderRow}>
         <MailWarning size={20} color={Colors.light_yellow} />
         <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
           {i18n.t("verify_your_email")}
@@ -78,26 +80,13 @@ export default function EmailVerificationNotice({ emailVerified }) {
       </Text>
       <Button
         text={
-          pending
-            ? i18n.t("loading")
-            : sent
-              ? i18n.t("resend_verification_email")
-              : i18n.t("send_verification_email")
+          sent
+            ? i18n.t("resend_verification_email")
+            : i18n.t("send_verification_email")
         }
         onPress={handleSend}
-        disabled={pending}
+        loading={pending}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    gap: 12,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-});

@@ -3,6 +3,7 @@ import { Alert, TouchableOpacity } from "react-native";
 import { Heart } from "lucide-react-native";
 import Colors from "@/theme/Colors";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { graphqlErrorMessage } from "@/lib/graphqlError";
 import i18n from "@/i18n";
 
 /**
@@ -21,12 +22,9 @@ export default function FavoriteButton({ listingId, size = 24 }) {
     try {
       await toggleFavorite(listingId);
     } catch (error) {
-      const code = error?.graphQLErrors?.[0]?.extensions?.code;
       Alert.alert(
         i18n.t("error"),
-        code === "too_many_favorites"
-          ? i18n.t("too_many_favorites")
-          : i18n.t("favorite_error")
+        graphqlErrorMessage(error, ["too_many_favorites"], "favorite_error")
       );
     } finally {
       setPending(false);

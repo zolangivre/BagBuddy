@@ -6,7 +6,7 @@ import { ArrowLeft, Save, UserCog } from "lucide-react-native";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { ME, UPDATE_PROFILE } from "@/lib/graphql/users";
 import { withEndpoint } from "@/lib/apolloClient";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import LoadingScreen from "@/components/LoadingScreen";
 import Colors from "@/theme/Colors";
 import Button from "@/components/Button";
 import ButtonIcon from "@/components/ButtonIcon";
@@ -81,18 +81,7 @@ export default function EditProfileScreen() {
   };
 
   if (loading && !profile) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <SafeActivityIndicator />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -170,9 +159,9 @@ export default function EditProfileScreen() {
             </View>
           </View>
           <Button
-            text={saving ? i18n.t("loading") : i18n.t("save_changes")}
+            text={i18n.t("save_changes")}
             onPress={handleUpdateProfile}
-            disabled={saving}
+            loading={saving}
             leftIcon={<Save size={24} color={Colors.white} />}
             color={Colors.blue}
           />

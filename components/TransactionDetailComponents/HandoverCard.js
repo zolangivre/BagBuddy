@@ -4,6 +4,7 @@ import { KeyRound } from "lucide-react-native";
 import { useMutation } from "@apollo/client/react";
 import { CONFIRM_HANDOVER } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
+import { graphqlErrorMessage } from "@/lib/graphqlError";
 import Button from "@/components/Button";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
@@ -57,14 +58,17 @@ export default function HandoverCard({ transaction, role }) {
         `/transaction-detail?transactionId=${data.confirmHandover.id}`
       );
     } catch (error) {
-      const errorCode = error?.graphQLErrors?.[0]?.extensions?.code;
       Alert.alert(
         i18n.t("error"),
-        {
-          invalid_handover_code: i18n.t("invalid_handover_code"),
-          handover_locked: i18n.t("handover_locked"),
-          handover_not_expected: i18n.t("handover_not_expected"),
-        }[errorCode] ?? i18n.t("handover_error")
+        graphqlErrorMessage(
+          error,
+          [
+            "invalid_handover_code",
+            "handover_locked",
+            "handover_not_expected",
+          ],
+          "handover_error"
+        )
       );
       console.error("Error confirming handover:", error);
     } finally {
@@ -76,11 +80,11 @@ export default function HandoverCard({ transaction, role }) {
     <View
       style={[
         globalStyles.card,
-        styles.card,
+        globalStyles.cardStack,
         { backgroundColor: theme.background_card },
       ]}
     >
-      <View style={styles.headerRow}>
+      <View style={globalStyles.cardHeaderRow}>
         <KeyRound size={20} color={Colors.primary_color} />
         <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
           {i18n.t("handover_title")}
@@ -129,9 +133,9 @@ export default function HandoverCard({ transaction, role }) {
                 maxLength={HANDOVER_CODE_LENGTH}
               />
               <Button
-                text={pending ? i18n.t("loading") : i18n.t("confirm_handover")}
+                text={i18n.t("confirm_handover")}
                 onPress={handleConfirm}
-                disabled={pending}
+                loading={pending}
                 color={Colors.success_color}
               />
             </>
@@ -143,14 +147,6 @@ export default function HandoverCard({ transaction, role }) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    gap: 12,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
   code: {
     textAlign: "center",
     letterSpacing: 8,

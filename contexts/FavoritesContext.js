@@ -44,9 +44,13 @@ export const FavoritesProvider = ({ children }) => {
     [data]
   );
 
+  // Un ensemble plutôt qu'un parcours : `isFavorite` est appelé une fois par
+  // carte, sur des pages de 50, à chaque rendu de la liste.
+  const favoriteSet = useMemo(() => new Set(favoriteIds), [favoriteIds]);
+
   const isFavorite = useCallback(
-    (listingId) => favoriteIds.includes(String(listingId)),
-    [favoriteIds]
+    (listingId) => favoriteSet.has(String(listingId)),
+    [favoriteSet]
   );
 
   /**
@@ -57,7 +61,7 @@ export const FavoritesProvider = ({ children }) => {
   const toggleFavorite = useCallback(
     async (listingId) => {
       const id = String(listingId);
-      const wasFavorite = favoriteIds.includes(id);
+      const wasFavorite = favoriteSet.has(id);
       try {
         if (wasFavorite) {
           await removeFavorite({ variables: { listingId: id } });
@@ -65,13 +69,12 @@ export const FavoritesProvider = ({ children }) => {
           await addFavorite({ variables: { listingId: id } });
         }
         await refetch();
-        return !wasFavorite;
       } catch (error) {
         console.error("Error updating favorite:", error);
         throw error;
       }
     },
-    [favoriteIds, addFavorite, removeFavorite, refetch]
+    [favoriteSet, addFavorite, removeFavorite, refetch]
   );
 
   const value = useMemo(

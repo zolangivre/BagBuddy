@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { Alert, View } from "react-native";
 import { useMutation } from "@apollo/client/react";
 import { CREATE_REVIEW } from "@/lib/graphql/reviews";
-import {
-  UPDATE_TRANSACTION,
-  toTransactionUpdateInput,
-} from "@/lib/graphql/transactions";
+import { UPDATE_TRANSACTION } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
 import { router } from "expo-router";
 import { Star } from "lucide-react-native";
@@ -50,10 +47,10 @@ export default function CompletedContent({
       await updateTransaction({
         variables: {
           id: transaction.id,
-          input: toTransactionUpdateInput({
+          input: {
             sellerReview: role === "seller" ? true : transaction.sellerReview,
             buyerReview: role === "buyer" ? true : transaction.buyerReview,
-          }),
+          },
         },
       });
       router.replace(`/transaction-detail?transactionId=${transaction.id}`);

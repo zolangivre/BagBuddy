@@ -4,7 +4,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import Colors from "@/theme/Colors";
@@ -13,6 +12,7 @@ import StatusCard from "@/components/StatusCard";
 import WeightSelectorCard from "@/components/WeightSelectorCard";
 import TransactionProgressCard from "@/components/TransactionProgressCard";
 import Button from "@/components/Button";
+import Input from "@/components/Input";
 import i18n from "@/i18n";
 import { router } from "expo-router";
 import { Check, Send } from "lucide-react-native";
@@ -22,7 +22,7 @@ import { withEndpoint } from "@/lib/apolloClient";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { globalStyles } from "@/theme/Styles";
 
-export default function BrowseListingContent({ listing, role, userInfo, status }) {
+export default function BrowseListingContent({ listing, role, status }) {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const [selectedWeight, setSelectedWeight] = useState(1);
@@ -109,22 +109,13 @@ export default function BrowseListingContent({ listing, role, userInfo, status }
               { backgroundColor: theme.background_card },
             ]}
           >
-            <Text style={theme.textStyles.label}>
-              {i18n.t("content_description_label")}
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: theme.textStyles.bodyLarge.color,
-                  borderColor: theme.border ?? Colors.primary_color,
-                },
-              ]}
+            <Input
+              label={i18n.t("content_description_label")}
               value={contentDescription}
               onChangeText={setContentDescription}
               placeholder={i18n.t("content_description_placeholder")}
-              placeholderTextColor={theme.textStyles.muted.color}
               multiline
+              numberOfLines={3}
               maxLength={500}
             />
             <Pressable
@@ -169,14 +160,6 @@ export default function BrowseListingContent({ listing, role, userInfo, status }
 };
 
 const styles = StyleSheet.create({
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 8,
-    minHeight: 72,
-    textAlignVertical: "top",
-  },
   checkboxRow: {
     flexDirection: "row",
     alignItems: "center",

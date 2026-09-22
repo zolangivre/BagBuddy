@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext, useMemo } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { View, Text, ScrollView, StyleSheet } from "react-native";
@@ -27,7 +27,6 @@ export default function TransactionsScreen() {
   const userInfo = state.userInfo;
   const [mode, setMode] = useState("active");
   const [appliedFilters, setAppliedFilters] = useState(null);
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedSort, setSelectedSort] = useState(null);
 
@@ -38,9 +37,7 @@ export default function TransactionsScreen() {
     onError: (error) => console.error("Error fetching transactions:", error),
   });
 
-  // Mémoïsé : cette liste est une dépendance du useEffect de filtrage, et un
-  // tableau recréé à chaque rendu le relancerait en boucle.
-  const transactions = useMemo(() => data?.myTransactions ?? [], [data]);
+  const transactions = data?.myTransactions ?? [];
   const numberOfTransactions = transactions.length;
 
   useFocusEffect(
@@ -85,16 +82,16 @@ export default function TransactionsScreen() {
     )
     .reduce((sum, t) => sum + t.total, 0);
 
-  const applyFilters = () => {
-    if (!appliedFilters) {
-      setFilteredTransactions(list);
-      return;
-    }
+  // La liste affichée est une pure fonction de `list`, du filtre et du mode :
+  // la tenir en état imposait un effet, donc un rendu de plus, et forçait à
+  // mémoïser `transactions` pour que cet effet ne boucle pas.
+  const filterTransactions = () => {
+    if (!appliedFilters) return list;
 
     const { from, to, minPrice, maxPrice, minWeight, maxWeight, status } =
       appliedFilters;
 
-    const filtered = list.filter((item) => {
+    return list.filter((item) => {
       const matchFrom = from ? item.departureAirport === from : true;
       const matchTo = to ? item.arrivalAirport === to : true;
       const matchPrice =
@@ -112,9 +109,9 @@ export default function TransactionsScreen() {
         mode === "active" && status ? itemStatus === status : true;
       return matchFrom && matchTo && matchPrice && matchWeight && matchStatus;
     });
-
-    setFilteredTransactions(filtered);
   };
+
+  const filteredTransactions = filterTransactions();
 
   const handleFilterApply = (filters) => {
     setAppliedFilters(
@@ -129,10 +126,6 @@ export default function TransactionsScreen() {
     setSelectedStatus(null);
     setSelectedSort(null);
   };
-
-  useEffect(() => {
-    applyFilters();
-  }, [mode, transactions, appliedFilters]);
 
   return (
     <View

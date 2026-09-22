@@ -13,7 +13,7 @@ import { REVIEW_SUMMARY } from "@/lib/graphql/reviews";
 import { TRANSACTION_COUNT } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
 import i18n from "@/i18n";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import LoadingScreen from "@/components/LoadingScreen";
 import ReportMemberModal from "@/components/ReportMemberModal";
 
 const ProfileView = () => {
@@ -55,18 +55,7 @@ const ProfileView = () => {
   const isLoading = reviewsLoading || countLoading;
 
   if (isLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <SafeActivityIndicator />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (

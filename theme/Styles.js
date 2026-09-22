@@ -17,4 +17,20 @@ export const globalStyles = {
     borderBottomWidth: 1,
     marginTop: 55,
   },
+  /** Espacement d'une carte empilant titre, texte et action. */
+  cardStack: {
+    gap: 12,
+  },
+  /** Ligne « icône + titre » en tête de carte. */
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  /** Occupe l'écran et centre son contenu (chargement, état vide). */
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 };

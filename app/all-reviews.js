@@ -9,21 +9,18 @@ import {
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
-import ButtonIcon from "@/components/ButtonIcon";
-import { ArrowLeft } from "lucide-react-native";
+import ScreenHeader from "@/components/ScreenHeader";
 import { useQuery } from "@apollo/client/react";
 import { REVIEWS_BY_REVIEWEE } from "@/lib/graphql/reviews";
 import { withEndpoint } from "@/lib/apolloClient";
-import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import ReviewCard from "@/components/ReviewCard";
 import { AuthContext } from "@/contexts/AuthContext";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function AllReviewsScreen() {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-  const router = useRouter();
   const { state } = useContext(AuthContext);
   const userInfo = state.userInfo;
   const { data, loading, refetch } = useQuery(REVIEWS_BY_REVIEWEE, {
@@ -43,48 +40,14 @@ export default function AllReviewsScreen() {
   );
 
   if (isLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <SafeActivityIndicator />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
-  const handleGoBack = () => {
-    router.back();
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View
-        style={[
-          globalStyles.header,
-          {
-            backgroundColor: theme.background_card,
-            borderBottomColor: theme.navTopBorder,
-          },
-        ]}
-      >
-        <View style={styles.headerContent}>
-          <ButtonIcon
-            onPress={handleGoBack}
-            icon={<ArrowLeft size={20} color={theme.title} />}
-          />
-          <View style={styles.titleContainer}>
-            <Text style={theme.textStyles.sectionTitle}>
-              {i18n.t("all_reviews")}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <ScreenHeader title={i18n.t("all_reviews")} />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -134,11 +97,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
   },
   backButton: {
     width: 36,

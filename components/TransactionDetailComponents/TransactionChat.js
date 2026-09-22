@@ -13,13 +13,14 @@ import {
   SEND_TRANSACTION_MESSAGE,
 } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
+import { graphqlErrorMessage } from "@/lib/graphqlError";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import ButtonIcon from "@/components/ButtonIcon";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { formatLocalizedDate } from "@/components/LocalizedDateTime";
+import { formatLocalizedDateTime } from "@/components/LocalizedDateTime";
 import i18n from "@/i18n";
 
 /** Rythme de relecture du fil tant que l'écran est ouvert. */
@@ -92,12 +93,21 @@ export default function TransactionChat({ transaction }) {
     };
 
     refresh(true);
+
+    // Une transaction annulée a un fil figé côté serveur : le relire en boucle
+    // ne peut rien rapporter.
+    if (closed) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const timer = setInterval(() => refresh(false), POLL_INTERVAL_MS);
     return () => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [transactionId, client, append]);
+  }, [transactionId, client, append, closed]);
 
   const handleSend = async () => {
     const body = draft.trim();
@@ -111,13 +121,16 @@ export default function TransactionChat({ transaction }) {
       setDraft("");
       setError(null);
     } catch (cause) {
-      const code = cause?.graphQLErrors?.[0]?.extensions?.code;
       setError(
-        {
-          invalid_message: i18n.t("chat_invalid_message"),
-          conversation_closed: i18n.t("chat_closed"),
-          too_many_messages: i18n.t("chat_too_many_messages"),
-        }[code] ?? i18n.t("chat_send_error")
+        graphqlErrorMessage(
+          cause,
+          {
+            invalid_message: "chat_invalid_message",
+            conversation_closed: "chat_closed",
+            too_many_messages: "chat_too_many_messages",
+          },
+          "chat_send_error"
+        )
       );
       console.error("Error sending message:", cause);
     } finally {
@@ -183,7 +196,7 @@ export default function TransactionChat({ transaction }) {
                     : theme.textStyles.muted,
                 ]}
               >
-                {formatLocalizedDate(message.createdAt, language)}
+                {formatLocalizedDateTime(message.createdAt, language)}
               </Text>
             </View>
           ))

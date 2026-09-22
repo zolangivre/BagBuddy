@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import { Banknote, CheckCircle, AlertCircle } from "lucide-react-native";
 import * as WebBrowser from "expo-web-browser";
 import { useQuery, useMutation } from "@apollo/client/react";
@@ -69,11 +69,11 @@ export default function PayoutAccountCard() {
     <View
       style={[
         globalStyles.card,
-        styles.card,
+        globalStyles.cardStack,
         { backgroundColor: theme.background_card },
       ]}
     >
-      <View style={styles.headerRow}>
+      <View style={globalStyles.cardHeaderRow}>
         <Banknote size={20} color={Colors.primary_color} />
         <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
           {i18n.t("payout_account")}
@@ -90,27 +90,14 @@ export default function PayoutAccountCard() {
       {ready ? null : (
         <Button
           text={
-            pending
-              ? i18n.t("loading")
-              : account?.connected
-                ? i18n.t("payout_continue_setup")
-                : i18n.t("payout_start_setup")
+            account?.connected
+              ? i18n.t("payout_continue_setup")
+              : i18n.t("payout_start_setup")
           }
           onPress={handleStart}
-          disabled={pending}
+          loading={pending}
         />
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    gap: 12,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-});

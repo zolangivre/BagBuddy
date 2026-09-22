@@ -3,7 +3,6 @@ import { useApolloClient, useMutation } from "@apollo/client/react";
 import {
   UPDATE_TRANSACTION,
   TRANSACTION_PAID_AT,
-  toTransactionUpdateInput,
 } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
 import { router } from "expo-router";
@@ -19,9 +18,13 @@ import i18n from "@/i18n";
 import StripeBottomSheet from "@/components/StripeBottomSheet";
 import { useState } from "react";
 
-/** Combien de temps on laisse au webhook Stripe pour arriver. */
-const PAID_AT_POLL_INTERVAL_MS = 2000;
-const PAID_AT_POLL_ATTEMPTS = 15;
+/**
+ * Combien de temps on laisse au webhook Stripe pour arriver. Les délais
+ * doublent : le cas courant, où il arrive en moins d'une seconde, est confirmé
+ * vite, sans marteler le serveur pendant les trente secondes du cas lent.
+ */
+const PAID_AT_FIRST_DELAY_MS = 400;
+const PAID_AT_POLL_ATTEMPTS = 7;
 
 export default function PaymentRequiredContent({ transaction, role, status }) {
   const [showStripeModal, setShowStripeModal] = useState(false);
@@ -40,6 +43,7 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
    * qu'il n'est pas arrivé. On l'attend donc avant de demander la transition.
    */
   const waitForPayment = async () => {
+    let delay = PAID_AT_FIRST_DELAY_MS;
     for (let attempt = 0; attempt < PAID_AT_POLL_ATTEMPTS; attempt++) {
       try {
         const { data } = await client.query({
@@ -54,9 +58,8 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
         // déjà parti chez Stripe, seul le webhook reste à arriver.
         console.warn("Waiting for payment confirmation:", error);
       }
-      await new Promise((resolve) =>
-        setTimeout(resolve, PAID_AT_POLL_INTERVAL_MS)
-      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay *= 2;
     }
     return false;
   };
@@ -80,10 +83,10 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
       const { data } = await updateTransaction({
         variables: {
           id: transaction.id,
-          input: toTransactionUpdateInput({
+          input: {
             sellerStatus: TRANSACTION_STATUS.CONFIRMED,
             buyerStatus: TRANSACTION_STATUS.CONFIRMED,
-          }),
+          },
         },
       });
 

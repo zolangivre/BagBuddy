@@ -2,6 +2,7 @@ import React from "react";
 import { TouchableOpacity, Text, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import Colors from "@/theme/Colors";
+import i18n from "@/i18n";
 import { useThemeContext } from "../contexts/ThemeContext";
 
 const Button = ({
@@ -13,6 +14,9 @@ const Button = ({
   style,
   textStyle,
   color = Colors.primary_color,
+  /** Affiche le libellé d'attente et bloque l'appui, le temps d'un envoi. */
+  loading = false,
+  disabled = false,
   ...props
 }) => {
   const router = useRouter();
@@ -31,10 +35,13 @@ const Button = ({
       style={[styles.button, { backgroundColor: color }, style]}
       onPress={handlePress}
       activeOpacity={0.8}
+      disabled={disabled || loading}
       {...props}
     >
       {leftIcon ? <View style={styles.iconLeft}>{leftIcon}</View> : null}
-      <Text style={[theme.textStyles.buttonText, textStyle]}>{text}</Text>
+      <Text style={[theme.textStyles.buttonText, textStyle]}>
+        {loading ? i18n.t("loading") : text}
+      </Text>
       {rightIcon ? <View style={styles.iconRight}>{rightIcon}</View> : null}
     </TouchableOpacity>
   );

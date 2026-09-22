@@ -132,12 +132,12 @@ export default function HomeScreen() {
             />
             <StatCard
               icon={<Weight size={20} color={Colors.white} />}
-              value={`${Number(totalWeight).toFixed(0)}kg`}
+              value={`${totalWeight.toFixed(0)}kg`}
               label={i18n.t("available_weight")}
             />
             <StatCard
               icon={<TrendingUp size={20} color={Colors.white} />}
-              value={<Currency amount={averagePrice ?? 0} />}
+              value={<Currency amount={averagePrice} />}
               label={i18n.t("avg_price")}
             />
           </View>
@@ -182,16 +182,12 @@ export default function HomeScreen() {
                     ))}
                     {hasMore ? (
                       <Button
-                        text={
-                          isLoading
-                            ? i18n.t("loading")
-                            : i18n.t("load_more_listings", {
-                                shown: filteredListings.length,
-                                total: totalCount,
-                              })
-                        }
+                        text={i18n.t("load_more_listings", {
+                          shown: filteredListings.length,
+                          total: totalCount,
+                        })}
                         onPress={handleLoadMore}
-                        disabled={isLoading}
+                        loading={isLoading}
                       />
                     ) : null}
                   </>

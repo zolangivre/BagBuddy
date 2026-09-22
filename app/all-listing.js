@@ -3,9 +3,9 @@ import { useFocusEffect } from "@react-navigation/native";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
-import { globalStyles } from "@/theme/Styles";
 import ButtonIcon from "@/components/ButtonIcon";
-import { ArrowLeft, PlusCircle } from "lucide-react-native";
+import ScreenHeader from "@/components/ScreenHeader";
+import { PlusCircle } from "lucide-react-native";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
@@ -13,7 +13,7 @@ import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import ListingCard from "@/components/ListingCard";
 import { AuthContext } from "@/contexts/AuthContext";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function AllListingsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -44,52 +44,22 @@ export default function AllListingsScreen() {
   );
 
   if (isLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <SafeActivityIndicator />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
-  const handleGoBack = () => {
-    router.back();
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Header */}
-      <View
-        style={[
-          globalStyles.header,
-          {
-            backgroundColor: theme.background_card,
-            borderBottomColor: theme.navTopBorder,
-          },
-        ]}
-      >
-        <View style={styles.headerContent}>
+      <ScreenHeader
+        title={i18n.t("all_listings")}
+        right={
           <ButtonIcon
-            onPress={handleGoBack}
-            icon={<ArrowLeft size={20} color={theme.title} />}
+            onPress={handleNewListing}
+            icon={<PlusCircle size={24} color={Colors.primary_color} />}
           />
-          <View style={styles.titleContainer}>
-            <Text style={theme.textStyles.sectionTitle}>
-              {i18n.t("all_listings")}
-            </Text>
-          </View>
-        </View>
-        <ButtonIcon
-          onPress={handleNewListing}
-          icon={<PlusCircle size={24} color={Colors.primary_color} />}
-        />
-      </View>
+        }
+      />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -131,11 +101,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
   },
   backButton: {
     width: 36,

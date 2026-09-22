@@ -78,7 +78,8 @@ const ProfileScreen = () => {
     refetch: refetchListings,
   } = useQuery(TRIPS_BY_USER, {
     context: withEndpoint("trips"),
-    variables: { userId: userInfo?.sub },
+    // Le profil n'en montre que cinq, « voir tout » ouvre l'écran dédié.
+    variables: { userId: userInfo?.sub, limit: 5 },
     skip: skipUser,
     onError: (error) => console.error("Error fetching listings:", error),
   });
@@ -98,7 +99,7 @@ const ProfileScreen = () => {
     refetch: refetchReviews,
   } = useQuery(REVIEWS_BY_REVIEWEE, {
     context: withEndpoint("reviews"),
-    variables: { revieweeId: userInfo?.sub },
+    variables: { revieweeId: userInfo?.sub, limit: 5 },
     skip: skipUser,
     onError: (error) => console.error("Error fetching reviews:", error),
   });
@@ -661,9 +662,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   shortcutRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
+    ...globalStyles.cardHeaderRow,
     paddingVertical: 10,
   },
   profileInfo: {

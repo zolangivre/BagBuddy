@@ -20,12 +20,7 @@ export default function Content({
   switch (status) {
     case TRANSACTION_STATUS.BROWSE_LISTING:
       return (
-        <BrowseListingContent
-          listing={listing}
-          role={role}
-          userInfo={userInfo}
-          status={status}
-        />
+        <BrowseListingContent listing={listing} role={role} status={status} />
       );
     case TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER:
     case TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER:

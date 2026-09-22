@@ -40,7 +40,7 @@ import {
 } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
 import { AuthContext } from "@/contexts/AuthContext";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function EditListingScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -57,8 +57,6 @@ export default function EditListingScreen() {
   const [availableKilos, setAvailableKilos] = useState("");
   const [pricePerKg, setPricePerKg] = useState("");
   const [specialConditions, setSpecialConditions] = useState("");
-  const [totalWeightAvailable, setTotalWeightAvailable] = useState(0);
-  const [remainingWeight, setRemainingWeight] = useState(0);
 
   const [errors, setErrors] = useState({
     departure: null,
@@ -93,8 +91,6 @@ export default function EditListingScreen() {
     setArrival(listing.arrivalAirport);
     setFlightDateDeparture(listing.departureDate);
     setFlightDateArrival(listing.arrivalDate);
-    setTotalWeightAvailable(listing.totalWeightAvailable);
-    setRemainingWeight(listing.remainingWeight);
     setAvailableKilos(listing.remainingWeight.toString());
     setPricePerKg(listing.pricePerKg.toString());
     setSpecialConditions(listing.conditions);
@@ -251,23 +247,13 @@ const handleUpdateListing = async () => {
   if (!validateForm()) return;
 
   try {
-    const currentTotal = Number(totalWeightAvailable);
-    const currentRemaining = Number(remainingWeight);
-    const soldWeight = currentTotal - currentRemaining;
-    let newTotal = currentTotal;
-    let newRemaining = currentRemaining;
-
-    if (soldWeight === 0) {
-      newTotal = Number(availableKilos);
-      newRemaining = Number(availableKilos);
-    } else {
-      newRemaining = Number(availableKilos);
-      newTotal = soldWeight + newRemaining;
-    }
-
-    // newRemaining n'est pas envoyé : le schéma ne l'accepte pas. Le serveur
-    // reporte sur la capacité restante la variation de la capacité totale, ce
-    // qui donne exactement newRemaining puisque newTotal vaut vendu + saisie.
+    // Le champ saisi est la capacité encore disponible ; le total envoyé lui
+    // rajoute ce qui est déjà réservé. Le serveur reporte sur la capacité
+    // restante la variation du total, ce qui redonne exactement la saisie.
+    const soldWeight =
+      Number(listing?.totalWeightAvailable ?? 0) -
+      Number(listing?.remainingWeight ?? 0);
+    const newTotal = soldWeight + Number(availableKilos);
     await updateTrip({
       variables: {
         id,
@@ -322,18 +308,7 @@ const handleUpdateListing = async () => {
   };
 
   if (tripLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <SafeActivityIndicator />
-      </View>
-    );
+    return <LoadingScreen />;
   }
 
   return (

@@ -1,10 +1,7 @@
 import React from "react";
 import { Alert } from "react-native";
 import { useMutation } from "@apollo/client/react";
-import {
-  UPDATE_TRANSACTION,
-  toTransactionUpdateInput,
-} from "@/lib/graphql/transactions";
+import { UPDATE_TRANSACTION } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
 import { router } from "expo-router";
 import { CheckCircle, XCircle } from "lucide-react-native";
@@ -48,10 +45,10 @@ export default function ReservationReceivedContent({
       const { data: transactionRes } = await updateTransaction({
         variables: {
           id: transaction.id,
-          input: toTransactionUpdateInput({
+          input: {
             sellerStatus: TRANSACTION_STATUS.AWAITING_PAYMENT,
             buyerStatus: TRANSACTION_STATUS.PAYMENT_REQUIRED,
-          }),
+          },
         },
       });
 
@@ -89,10 +86,10 @@ export default function ReservationReceivedContent({
       const { data } = await updateTransaction({
         variables: {
           id: transaction.id,
-          input: toTransactionUpdateInput({
+          input: {
             sellerStatus: TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER,
             buyerStatus: TRANSACTION_STATUS.REQUEST_REJECTED,
-          }),
+          },
         },
       });
       Alert.alert(

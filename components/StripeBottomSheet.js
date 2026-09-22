@@ -42,6 +42,10 @@ const StripeBottomSheet = ({
   // stripeservice tourne (il est éteint en développement).
   const { data: stripeConfigData } = useQuery(STRIPE_CONFIG, {
     context: withEndpoint("stripe"),
+    // Clé immuable, et inutile tant que la feuille est fermée : sans cela la
+    // valeur par défaut cache-and-network la relirait à chaque montage.
+    skip: !visible,
+    fetchPolicy: "cache-first",
     onError: (error) => console.error("Stripe unavailable:", error),
   });
   const [createPaymentIntent] = useMutation(CREATE_PAYMENT_INTENT, {

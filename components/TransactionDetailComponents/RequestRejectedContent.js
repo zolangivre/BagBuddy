@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { Alert, Text } from "react-native";
 import { useMutation } from "@apollo/client/react";
-import {
-  UPDATE_TRANSACTION,
-  toTransactionUpdateInput,
-} from "@/lib/graphql/transactions";
+import { UPDATE_TRANSACTION } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
 import { router } from "expo-router";
 import { Send } from "lucide-react-native";
@@ -51,11 +48,11 @@ export default function RequestRejectedContent({ transaction, role, status }) {
       const { data } = await updateTransaction({
         variables: {
           id: transaction.id,
-          input: toTransactionUpdateInput({
+          input: {
             sellerStatus: TRANSACTION_STATUS.RESERVATION_RECEIVED,
             buyerStatus: TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER,
             weight: selectedWeight,
-          }),
+          },
         },
       });
       Alert.alert(

@@ -6,13 +6,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useMutation } from "@apollo/client/react";
 import { REPORT_MEMBER, REPORT_REASONS } from "@/lib/graphql/users";
 import { withEndpoint } from "@/lib/apolloClient";
+import { graphqlErrorMessage } from "@/lib/graphqlError";
 import Button from "@/components/Button";
+import Input from "@/components/Input";
 import Colors from "@/theme/Colors";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
@@ -60,13 +61,13 @@ export default function ReportMemberModal({
       setReason(REPORT_REASONS[0]);
       onClose();
     } catch (error) {
-      const code = error?.graphQLErrors?.[0]?.extensions?.code;
       Alert.alert(
         i18n.t("error"),
-        {
-          cannot_report_self: i18n.t("cannot_report_self"),
-          too_many_reports: i18n.t("too_many_reports"),
-        }[code] ?? i18n.t("report_error")
+        graphqlErrorMessage(
+          error,
+          ["cannot_report_self", "too_many_reports"],
+          "report_error"
+        )
       );
       console.error("Error reporting member:", error);
     } finally {
@@ -121,26 +122,19 @@ export default function ReportMemberModal({
             })}
           </ScrollView>
 
-          <TextInput
-            style={[
-              styles.input,
-              {
-                color: theme.textStyles.bodyLarge.color,
-                borderColor: Colors.very_light_grey,
-              },
-            ]}
+          <Input
             value={details}
             onChangeText={setDetails}
             placeholder={i18n.t("report_details_placeholder")}
-            placeholderTextColor={theme.textStyles.muted.color}
             maxLength={MAX_DETAILS_LENGTH}
             multiline
+            numberOfLines={3}
           />
 
           <Button
-            text={pending ? i18n.t("loading") : i18n.t("send_report")}
+            text={i18n.t("send_report")}
             onPress={handleSubmit}
-            disabled={pending}
+            loading={pending}
             color={Colors.error_color}
           />
           <Button
@@ -175,12 +169,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    minHeight: 72,
-    textAlignVertical: "top",
   },
 });

@@ -4,12 +4,10 @@ import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
-import ButtonIcon from "@/components/ButtonIcon";
-import { ArrowLeft } from "lucide-react-native";
+import ScreenHeader from "@/components/ScreenHeader";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_IDS } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
-import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import HomeCard from "@/components/HomeCard";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -18,7 +16,6 @@ import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 export default function FavoritesScreen() {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-  const router = useRouter();
   const {
     favoriteIds,
     loading: favoritesLoading,
@@ -35,9 +32,10 @@ export default function FavoritesScreen() {
     onError: (error) => console.error("Error fetching favorites:", error),
   });
 
-  const listings = favoriteIds.length === 0 ? [] : data?.tripsByIds ?? [];
-  const isLoading =
-    favoritesLoading || (favoriteIds.length > 0 && tripsLoading && !data);
+  const listings = favoriteIds.length === 0 ? [] : (data?.tripsByIds ?? []);
+  // Sans favori la requête est en attente, et une requête en attente ne se
+  // déclare jamais chargeante : le test sur la longueur serait redondant.
+  const isLoading = favoritesLoading || (tripsLoading && !data);
 
   useFocusEffect(
     useCallback(() => {
@@ -45,36 +43,13 @@ export default function FavoritesScreen() {
     }, [refreshFavorites])
   );
 
-  const handleGoBack = () => {
-    router.back();
-  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View
-        style={[
-          globalStyles.header,
-          {
-            backgroundColor: theme.background_card,
-            borderBottomColor: theme.navTopBorder,
-          },
-        ]}
-      >
-        <View style={styles.headerContent}>
-          <ButtonIcon
-            onPress={handleGoBack}
-            icon={<ArrowLeft size={20} color={theme.title} />}
-          />
-          <View style={styles.titleContainer}>
-            <Text style={theme.textStyles.sectionTitle}>
-              {i18n.t("favorites")}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <ScreenHeader title={i18n.t("favorites")} />
 
       {isLoading ? (
-        <View style={styles.centered}>
+        <View style={globalStyles.centered}>
           <SafeActivityIndicator />
         </View>
       ) : (
@@ -84,7 +59,7 @@ export default function FavoritesScreen() {
         >
           <View style={styles.content}>
             {listings.length === 0 ? (
-              <View style={[styles.centered, { minHeight: 100, padding: 20 }]}>
+              <View style={[globalStyles.centered, { minHeight: 100, padding: 20 }]}>
                 <Text
                   style={[
                     theme.textStyles.bodyLarge,
@@ -112,19 +87,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  headerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   content: {
     padding: 16,

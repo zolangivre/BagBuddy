@@ -20,7 +20,7 @@ import TransactionChat from "@/components/TransactionDetailComponents/Transactio
 import ReportMemberModal from "@/components/ReportMemberModal";
 import ButtonIcon from "@/components/ButtonIcon";
 import i18n from "@/i18n";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function TransactionDetailScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -55,55 +55,46 @@ export default function TransactionDetailScreen() {
 
   // Les avis ne sont lus que si l'un des deux camps en a laissé un : c'est ce
   // que faisait déjà l'appel conditionnel à fetchReviews.
+  // `hasReview` vaut déjà faux sans transaction : nul besoin de retester l'id.
   const hasReview = !!(transaction?.buyerReview || transaction?.sellerReview);
   const { data: reviewsData } = useQuery(REVIEWS_BY_TRANSACTION, {
     context: withEndpoint("reviews"),
     variables: { transactionId },
-    skip: !transactionId || !hasReview,
+    skip: !hasReview,
     onError: (error) => console.error("Error fetching reviews:", error),
   });
 
   const reviews = reviewsData?.reviewsByTransaction ?? [];
+  const trip = tripData?.trip ?? null;
 
   // Une réservation porte l'instantané de l'annonce ; sans réservation, c'est
   // l'annonce elle-même qui est affichée.
-  const listing = transaction ? transaction.listingInfo : tripData?.trip ?? null;
+  const listing = transaction?.listingInfo ?? trip;
 
   const isBuyer = transaction
     ? userInfo?.sub === transaction.buyerId
-    : userInfo?.sub !== tripData?.trip?.userId;
+    : userInfo?.sub !== trip?.userId;
   const role = isBuyer ? "buyer" : "seller";
 
-  const status = transaction
-    ? isBuyer
+  const status = !transaction
+    ? TRANSACTION_STATUS.BROWSE_LISTING
+    : isBuyer
       ? transaction.buyerStatus
-      : transaction.sellerStatus
-    : TRANSACTION_STATUS.BROWSE_LISTING;
+      : transaction.sellerStatus;
 
   const isLoading = tripLoading || transactionLoading;
 
   const [reportVisible, setReportVisible] = useState(false);
   // On signale l'autre partie, jamais soi-même : le serveur refuserait
   // (cannot_report_self).
-  const otherPartySub = transaction
-    ? isBuyer
+  const otherPartySub = !transaction
+    ? trip?.userId
+    : isBuyer
       ? transaction.sellerId
-      : transaction.buyerId
-    : tripData?.trip?.userId;
+      : transaction.buyerId;
 
   if (isLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <SafeActivityIndicator />
-      </View>
-    );
+    return <LoadingScreen />;
   }
   const handleGoBack = () => {
     router.back();
