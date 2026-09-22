@@ -21,6 +21,9 @@ import {
   LogOut,
   Languages,
   CurrencyIcon,
+  Heart,
+  Bell,
+  ChevronRight,
 } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
@@ -42,9 +45,12 @@ import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
 import { TRANSACTION_STATS } from "@/lib/graphql/transactions";
 import { REVIEWS_BY_REVIEWEE } from "@/lib/graphql/reviews";
+import { ME } from "@/lib/graphql/users";
 import { withEndpoint } from "@/lib/apolloClient";
 import * as WebBrowser from "expo-web-browser";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import EmailVerificationNotice from "@/components/EmailVerificationNotice";
+import PayoutAccountCard from "@/components/PayoutAccountCard";
 
 const ProfileScreen = () => {
   const { theme: colorScheme, toggleTheme } = useThemeContext();
@@ -97,6 +103,15 @@ const ProfileScreen = () => {
     onError: (error) => console.error("Error fetching reviews:", error),
   });
 
+  // Le profil applicatif complète le /userinfo de Keycloak : bio, localisation,
+  // téléphone et compte de versement n'y figurent pas. Il est créé à la volée
+  // côté serveur à la première lecture.
+  const { data: profileData, refetch: refetchProfile } = useQuery(ME, {
+    context: withEndpoint("users"),
+    onError: (error) => console.error("Error fetching profile:", error),
+  });
+
+  const profile = profileData?.me;
   const listings = listingsData?.tripsByUser ?? [];
   const reviews = reviewsData?.reviewsByReviewee ?? [];
   const numberOfTransactions = statsData?.transactionCount ?? null;
@@ -122,7 +137,8 @@ const ProfileScreen = () => {
       refetchListings();
       refetchStats();
       refetchReviews();
-    }, [skipUser, refetchListings, refetchStats, refetchReviews])
+      refetchProfile();
+    }, [skipUser, refetchListings, refetchStats, refetchReviews, refetchProfile])
   );
 
   const openProfilePage = async () => {
@@ -548,7 +564,7 @@ const ProfileScreen = () => {
               </View>
             </View>
             <Text style={[theme.textStyles.subtitle, { textAlign: "justify" }]}>
-              {i18n.t("bio")} : {userInfo?.bio}
+              {i18n.t("bio")} : {profile?.bio ?? userInfo?.bio}
             </Text>
 
             {/* Stats Row */}
@@ -573,6 +589,40 @@ const ProfileScreen = () => {
               />
             </View>
           </View>
+
+          <EmailVerificationNotice emailVerified={profile?.emailVerified} />
+
+          {/* Favoris et alertes de trajet */}
+          <View
+            style={[
+              globalStyles.card,
+              styles.shortcuts,
+              { backgroundColor: theme.background_card },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.shortcutRow}
+              onPress={() => router.push("favorites")}
+            >
+              <Heart size={20} color={Colors.error_color} />
+              <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
+                {i18n.t("favorites")}
+              </Text>
+              <ChevronRight size={20} color={theme.title} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.shortcutRow}
+              onPress={() => router.push("trip-alerts")}
+            >
+              <Bell size={20} color={Colors.primary_color} />
+              <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
+                {i18n.t("trip_alerts")}
+              </Text>
+              <ChevronRight size={20} color={theme.title} />
+            </TouchableOpacity>
+          </View>
+
+          <PayoutAccountCard />
 
           {/* Tab Navigation */}
           <ActionButton onSelectionChange={setMode} type="profile" />
@@ -606,6 +656,15 @@ const styles = StyleSheet.create({
     marginTop: -50,
     paddingHorizontal: 15,
     gap: 25,
+  },
+  shortcuts: {
+    gap: 4,
+  },
+  shortcutRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 10,
   },
   profileInfo: {
     flexDirection: "row",

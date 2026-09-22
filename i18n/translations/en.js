@@ -366,4 +366,122 @@ export default {
   content_description_required: "Please describe what you are sending.",
   prohibited_items_label: "I confirm my parcel contains no prohibited items",
   prohibited_items_required: "You must confirm your parcel contains no prohibited items.",
+
+  // --- Favoris ---
+  favorites: "Favorites",
+  no_favorites: "You haven't saved any listing yet.",
+  add_to_favorites: "Add to favorites",
+  remove_from_favorites: "Remove from favorites",
+  favorite_error: "Could not update your favorites.",
+  too_many_favorites: "You have reached the maximum of 200 saved listings.",
+
+  // --- Alertes de trajet ---
+  trip_alerts: "Trip alerts",
+  trip_alerts_intro:
+    "We email you as soon as a listing matches one of these routes.",
+  no_trip_alerts: "You have no trip alert yet.",
+  create_trip_alert: "Alert me about this route",
+  alert_cta_title: "No listing for {{from}} → {{to}} yet",
+  alert_cta_message:
+    "Create an alert and we'll email you as soon as one is published.",
+  alert_created_title: "Alert created",
+  alert_created_message: "We'll email you as soon as a listing matches.",
+  alert_created_error: "Could not create this alert.",
+  alert_needs_email:
+    "Your account needs a verified email address to receive alerts.",
+  alert_invalid_route: "This route is not valid.",
+  too_many_alerts: "You have reached the maximum of 10 alerts.",
+  see_trip_alerts: "See my alerts",
+  delete_alert_title: "Delete this alert?",
+  delete_alert_message: "You will stop receiving emails for this route.",
+  delete_alert_error: "Could not delete this alert.",
+  any_date: "Any date",
+  max_price_per_kg: "Max price per kg",
+  min_weight: "Min weight",
+  days: "days",
+
+  // --- Recherche ---
+  load_more_listings: "Load more ({{shown}} of {{total}})",
+  no_results: "No results",
+  search_flight: "Search flight",
+  error_loading_flights: "Could not load flights.",
+  date: "Date",
+  status: "Status",
+
+  // --- Messagerie ---
+  messages: "Messages",
+  no_messages_yet: "No message yet. Say hello!",
+  write_a_message: "Write a message",
+  chat_load_error: "Could not load the conversation.",
+  chat_send_error: "Could not send your message.",
+  chat_invalid_message: "A message must be between 1 and 2000 characters.",
+  chat_closed: "This conversation is closed.",
+  chat_too_many_messages: "You are sending messages too quickly.",
+
+  // --- Code de remise ---
+  handover_title: "Handover code",
+  handover_buyer_message:
+    "Give this code to the person receiving the parcel. The traveller enters it to close the booking.",
+  handover_code_pending: "The code will appear once the payment is confirmed.",
+  handover_seller_message:
+    "Ask the recipient for the 6-digit code and enter it to close this booking.",
+  handover_locked:
+    "Too many wrong codes: only the buyer can now close this booking.",
+  handover_code_length: "The code has 6 digits.",
+  confirm_handover: "Confirm handover",
+  handover_confirmed_title: "Handover confirmed",
+  handover_confirmed_message: "This booking is now completed.",
+  invalid_handover_code: "This code is not correct.",
+  handover_not_expected: "This booking is not waiting for a handover.",
+  handover_error: "Could not confirm the handover.",
+
+  // --- Signalement ---
+  report_member: "Report member",
+  report_member_intro:
+    "Tell us what happened. Our moderation team reviews every report.",
+  report_reason_prohibited_items: "Prohibited or undeclared items",
+  report_reason_no_show: "Did not show up for the handover",
+  report_reason_fraud: "Fraud",
+  report_reason_harassment: "Harassment",
+  report_reason_other: "Other",
+  report_details_placeholder: "Add any detail that can help us (optional)",
+  send_report: "Send report",
+  report_sent_title: "Report sent",
+  report_sent_message: "Thank you. Our moderation team will look into it.",
+  report_error: "Could not send your report.",
+  cannot_report_self: "You cannot report yourself.",
+  too_many_reports: "You have sent too many reports in the last 24 hours.",
+
+  // --- Versements (Stripe Connect) ---
+  payout_account: "Payout account",
+  payout_status_ready: "Your payout account is active.",
+  payout_status_pending: "Stripe is reviewing your details.",
+  payout_status_incomplete: "Your payout setup is not finished yet.",
+  payout_status_none:
+    "Set up your payout account to get paid for your trips.",
+  payout_start_setup: "Set up payouts",
+  payout_continue_setup: "Finish payout setup",
+  payout_onboarding_error: "Could not open the payout setup.",
+
+  // --- Vérification d'email ---
+  verify_your_email: "Verify your email",
+  verify_your_email_message:
+    "Confirm your address to receive trip alerts and booking emails.",
+  send_verification_email: "Send verification email",
+  resend_verification_email: "Send it again",
+  verification_email_title: "Verification email",
+  verification_email_sent: "Check your inbox for the confirmation link.",
+  verification_email_already_verified: "Your address is already verified.",
+  verification_email_throttled: "Please wait a minute before asking again.",
+  verification_email_error: "Could not send the verification email.",
+
+  // --- Divers ---
+  loading: "Loading...",
+  payment_failed: "Payment failed",
+  invalid_payment_request: "This payment request is not valid.",
+
+  profile_updated_successfully: "Your profile has been updated.",
+  profile_update_error: "Could not update your profile.",
+  identity_managed_by_account:
+    "Signed in as {{name}} ({{email}}). Your name and email are managed in your account settings, from the icon above.",
 };

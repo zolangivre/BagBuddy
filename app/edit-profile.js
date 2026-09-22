@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Alert, View, Text, ScrollView, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Save, Trash } from "lucide-react-native";
+import * as WebBrowser from "expo-web-browser";
+import { ArrowLeft, Save, UserCog } from "lucide-react-native";
+import { useQuery, useMutation } from "@apollo/client/react";
+import { ME, UPDATE_PROFILE } from "@/lib/graphql/users";
+import { withEndpoint } from "@/lib/apolloClient";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 import Colors from "@/theme/Colors";
 import Button from "@/components/Button";
 import ButtonIcon from "@/components/ButtonIcon";
@@ -15,25 +20,80 @@ export default function EditProfileScreen() {
   const theme = Colors[colorScheme] ?? Colors.light;
 
   const router = useRouter();
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
-  const [phone, setPhone] = useState("123-456-7890");
-  const [location, setLocation] = useState("New York, NY");
-  const [bio, setBio] = useState("Hello! I'm John.");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [bio, setBio] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const { data, loading } = useQuery(ME, {
+    context: withEndpoint("users"),
+    onError: (error) => console.error("Error fetching profile:", error),
+  });
+
+  const [updateProfile] = useMutation(UPDATE_PROFILE, {
+    context: withEndpoint("users"),
+  });
+
+  const profile = data?.me;
+
+  useEffect(() => {
+    if (!profile) return;
+    setPhone(profile.phone ?? "");
+    setLocation(profile.location ?? "");
+    setBio(profile.bio ?? "");
+  }, [profile]);
 
   const handleGoBack = () => {
     router.back();
   };
 
-  const handleDelete = () => {
-    console.log("Delete account");
+  /**
+   * Le nom et l'email appartiennent à Keycloak, pas au profil applicatif :
+   * `UpdateProfileInput` ne les accepte pas, et changer son adresse exige son
+   * mot de passe actuel. Ces champs se modifient donc dans la console du compte.
+   */
+  const openAccountConsole = async () => {
+    await WebBrowser.openBrowserAsync(
+      `${process.env.EXPO_PUBLIC_KEYCLOAK_ACCOUNT_CONSOLE}`
+    );
   };
 
-  const handleUpdateProfile = () => {
-    // TODO: Implement update functionality
-    console.log("Update listing");
+  const handleUpdateProfile = async () => {
+    setSaving(true);
+    try {
+      await updateProfile({
+        variables: {
+          input: {
+            bio: bio.trim(),
+            location: location.trim(),
+            phone: phone.trim(),
+          },
+        },
+      });
+      Alert.alert(i18n.t("success"), i18n.t("profile_updated_successfully"));
+      router.back();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      Alert.alert(i18n.t("error"), i18n.t("profile_update_error"));
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading && !profile) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.background,
+        }}
+      >
+        <SafeActivityIndicator />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -59,8 +119,9 @@ export default function EditProfileScreen() {
           </View>
         </View>
         <ButtonIcon
-          onPress={handleDelete}
-          icon={<Trash size={24} color={Colors.error_color} />}
+          onPress={openAccountConsole}
+          icon={<UserCog size={24} color={Colors.primary_color} />}
+          accessibilityLabel={i18n.t("manage_your_account")}
         />
       </View>
 
@@ -79,25 +140,12 @@ export default function EditProfileScreen() {
             </View>
 
             <View style={styles.cardContent}>
-              <Input
-                label={i18n.t("first_name")}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder={i18n.t("first_name_placeholder")}
-              />
-              <Input
-                label={i18n.t("last_name")}
-                value={lastName}
-                onChangeText={setLastName}
-                placeholder={i18n.t("last_name_placeholder")}
-              />
-              <Input
-                label={i18n.t("email")}
-                value={email}
-                onChangeText={setEmail}
-                placeholder={i18n.t("email_placeholder")}
-                keyboardType="email-address"
-              />
+              <Text style={theme.textStyles.bodyMedium}>
+                {i18n.t("identity_managed_by_account", {
+                  name: profile?.name ?? "",
+                  email: profile?.email ?? "",
+                })}
+              </Text>
               <Input
                 label={i18n.t("phone_number")}
                 value={phone}
@@ -122,8 +170,9 @@ export default function EditProfileScreen() {
             </View>
           </View>
           <Button
-            text={i18n.t("save_changes")}
+            text={saving ? i18n.t("loading") : i18n.t("save_changes")}
             onPress={handleUpdateProfile}
+            disabled={saving}
             leftIcon={<Save size={24} color={Colors.white} />}
             color={Colors.blue}
           />

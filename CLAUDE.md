@@ -97,6 +97,14 @@ Server-owned state is never written by the client: prices and totals are compute
 
 `axios` remains only for calls that do not go to the backend: Keycloak's `/userinfo` and token refresh, and the external flight lookup in `components/FlightInputModal.js`.
 
+### Two sources of user data
+
+`AuthContext.state.userInfo` is Keycloak's `/userinfo` (identity: `sub`, `name`, snake_case claims). The `me` query is the **application** profile (bio, location, phone, `stripeAccountId`, `emailVerified`), created server-side on first read. Identity is edited in Keycloak's account console, not here: `UpdateProfileInput` accepts only bio, location and phone, and changing an email requires the current password.
+
+### Favorites
+
+`FavoritesProvider` (`contexts/FavoritesContext.js`, mounted under `AuthProvider`) holds the caller's favorite listing **ids** — one query for every card on screen. `components/FavoriteButton.js` toggles them; `app/favorites.js` turns the ids into listings with `tripsByIds`. Both mutations are idempotent server-side, and the list is re-read rather than guessed because the server caps favorites at 200.
+
 ### Path aliasing
 
 `@/*` maps to the repo root (configured in `tsconfig.json` and `babel-plugin-module-resolver`), e.g. `import Colors from "@/theme/Colors"`. Use this instead of relative `../../` imports.

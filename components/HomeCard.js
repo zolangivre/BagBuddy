@@ -15,6 +15,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { AuthContext } from "@/contexts/AuthContext";
 import { formatLocalizedDate } from "@/components/LocalizedDateTime";
 import { useLanguage } from "@/contexts/LanguageContext";
+import FavoriteButton from "@/components/FavoriteButton";
 
 const HomeCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
@@ -54,12 +55,12 @@ const HomeCard = ({ item }) => {
     >
       {/* User Header */}
       <View style={styles.listingUserHeader}>
-        <TouchableOpacity onPress={handleUserPress}>
+        <TouchableOpacity onPress={handleUserPress} style={{ flex: 1 }}>
           <View style={styles.listingUserInfo}>
             <Avatar initials={initials} />
             <View style={{ flex: 1 }}>
               <Text style={theme.textStyles.sectionTitle}>
-                {item.userInfo.name}
+                {item.userInfo?.name}
               </Text>
               <Text style={theme.textStyles.bodyMedium}>
                 {i18n.t("listed_on")}:{" "}
@@ -68,6 +69,7 @@ const HomeCard = ({ item }) => {
             </View>
           </View>
         </TouchableOpacity>
+        <FavoriteButton listingId={item.id} />
       </View>
 
       {/* Flight Info */}
@@ -134,6 +136,9 @@ const HomeCard = ({ item }) => {
 
 const styles = StyleSheet.create({
   listingUserHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
     marginBottom: 10,
   },
   listingUserInfo: {

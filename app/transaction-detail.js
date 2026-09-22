@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import { ArrowLeft, Flag } from "lucide-react-native";
 import Colors from "@/theme/Colors";
 import StatusBadge from "@/components/StatusBadge";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
@@ -16,7 +16,10 @@ import { REVIEWS_BY_TRANSACTION } from "@/lib/graphql/reviews";
 import { withEndpoint } from "@/lib/apolloClient";
 import { AuthContext } from "@/contexts/AuthContext";
 import Content from "@/components/TransactionDetailComponents/Content";
+import TransactionChat from "@/components/TransactionDetailComponents/TransactionChat";
+import ReportMemberModal from "@/components/ReportMemberModal";
 import ButtonIcon from "@/components/ButtonIcon";
+import i18n from "@/i18n";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function TransactionDetailScreen() {
@@ -79,6 +82,15 @@ export default function TransactionDetailScreen() {
 
   const isLoading = tripLoading || transactionLoading;
 
+  const [reportVisible, setReportVisible] = useState(false);
+  // On signale l'autre partie, jamais soi-même : le serveur refuserait
+  // (cannot_report_self).
+  const otherPartySub = transaction
+    ? isBuyer
+      ? transaction.sellerId
+      : transaction.buyerId
+    : tripData?.trip?.userId;
+
   if (isLoading) {
     return (
       <View
@@ -124,6 +136,14 @@ export default function TransactionDetailScreen() {
             </Text>
           </View>
           <StatusBadge status={status} />
+          {otherPartySub && otherPartySub !== userInfo?.sub ? (
+            <ButtonIcon
+              onPress={() => setReportVisible(true)}
+              icon={<Flag size={18} color={Colors.error_color} />}
+              color="transparent"
+              accessibilityLabel={i18n.t("report_member")}
+            />
+          ) : null}
         </View>
       </View>
       <ScrollView
@@ -139,8 +159,18 @@ export default function TransactionDetailScreen() {
             reviews={reviews}
             userInfo={userInfo}
           />
+          {/* Une réservation existe : ses deux participants peuvent se parler,
+              quel que soit l'état. Une annonce simplement consultée, non. */}
+          {transaction ? <TransactionChat transaction={transaction} /> : null}
         </View>
       </ScrollView>
+
+      <ReportMemberModal
+        visible={reportVisible}
+        onClose={() => setReportVisible(false)}
+        reportedSub={otherPartySub}
+        transactionId={transaction?.id}
+      />
     </View>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,10 +14,16 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useQuery } from "@apollo/client/react";
-import { ACTIVE_TRIPS } from "@/lib/graphql/trips";
+import {
+  SEARCH_TRIPS,
+  TRIP_PAGE_SIZE,
+  toTripSearchInput,
+} from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
 import Currency from "@/components/Currency";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import TripAlertCta from "@/components/TripAlertCta";
+import Button from "@/components/Button";
 
 export default function HomeScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -25,21 +31,34 @@ export default function HomeScreen() {
   const { state } = useContext(AuthContext);
   const userInfo = state.userInfo;
   const [mode, setMode] = useState("buy");
-  const [filteredListings, setFilteredListings] = useState([]);
   const [appliedFilters, setAppliedFilters] = useState(null);
   const [selectedSort, setSelectedSort] = useState(null);
 
-  const { data, loading: isLoading, refetch } = useQuery(ACTIVE_TRIPS, {
-    context: withEndpoint("trips"),
-    onError: (error) => console.error("Error fetching listings:", error),
-  });
-
-  // activeTrips exclut déjà les annonces sans capacité, mais la liste sert aussi
-  // aux compteurs du bandeau : on garde le filtre, il ne coûte rien.
-  const listings = useMemo(
-    () => (data?.activeTrips ?? []).filter((listing) => listing.remainingWeight > 0),
-    [data]
+  // Le filtrage, le tri et la pagination sont faits par le serveur. `overview`
+  // porte les chiffres du bandeau (tout le catalogue) et `results` la page
+  // courante du filtre : les agrégats valent pour le filtre entier, pas pour la
+  // seule page affichée.
+  const { data, loading: isLoading, refetch, fetchMore } = useQuery(
+    SEARCH_TRIPS,
+    {
+      context: withEndpoint("trips"),
+      variables: {
+        filter: toTripSearchInput(appliedFilters),
+        limit: TRIP_PAGE_SIZE,
+        offset: 0,
+      },
+      notifyOnNetworkStatusChange: true,
+      onError: (error) => console.error("Error fetching listings:", error),
+    }
   );
+
+  const filteredListings = data?.results?.items ?? [];
+  const totalCount = data?.results?.totalCount ?? 0;
+  const hasMore = filteredListings.length < totalCount;
+
+  const overview = data?.overview;
+  const totalWeight = overview?.totalRemainingWeight ?? 0;
+  const averagePrice = overview?.averagePricePerKg ?? 0;
 
   useFocusEffect(
     useCallback(() => {
@@ -47,89 +66,33 @@ export default function HomeScreen() {
     }, [refetch])
   );
 
-  // Les filtres s'appliquent côté client, sur la liste rendue par le serveur :
-  // il faut donc les rejouer chaque fois que cette liste change.
-  useEffect(() => {
-    if (appliedFilters) {
-      applyFilters(listings, appliedFilters);
-    } else {
-      setFilteredListings(listings);
-    }
-  }, [listings, appliedFilters]);
-  let totalWeight = listings.reduce(
-    (sum, item) => sum + item.remainingWeight,
-    0
-  );
-  let averagePrice =
-    listings.length > 0
-      ? (
-          listings.reduce((sum, item) => sum + item.pricePerKg, 0) /
-          listings.length
-        ).toFixed(2)
-      : 0;
-
-  const applyFilters = (data, filters) => {
-    const { from, to, minPrice, maxPrice, minWeight, maxWeight, sort } =
-      filters;
-
-    let filtered = data.filter((item) => {
-      const matchFrom = from ? item.departureAirport === from : true;
-      const matchTo = to ? item.arrivalAirport === to : true;
-      const matchPrice =
-        (minPrice === undefined || item.pricePerKg >= minPrice) &&
-        (maxPrice === undefined || item.pricePerKg <= maxPrice);
-      const matchWeight =
-        (minWeight === undefined || item.remainingWeight >= minWeight) &&
-        (maxWeight === undefined || item.remainingWeight <= maxWeight);
-      return matchFrom && matchTo && matchPrice && matchWeight;
+  const handleLoadMore = () => {
+    fetchMore({
+      variables: { offset: filteredListings.length },
+      updateQuery: (previous, { fetchMoreResult }) => {
+        if (!fetchMoreResult?.results) return previous;
+        return {
+          ...fetchMoreResult,
+          results: {
+            ...fetchMoreResult.results,
+            items: [
+              ...previous.results.items,
+              ...fetchMoreResult.results.items,
+            ],
+          },
+        };
+      },
     });
-
-    if (sort) {
-      switch (sort) {
-        case "recent":
-          filtered = filtered.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          );
-          break;
-        case "earliest_departure":
-          filtered = filtered.sort(
-            (a, b) => new Date(a.departureDate) - new Date(b.departureDate)
-          );
-          break;
-        case "price_low":
-          filtered = filtered.sort((a, b) => a.pricePerKg - b.pricePerKg);
-          break;
-        case "price_high":
-          filtered = filtered.sort((a, b) => b.pricePerKg - a.pricePerKg);
-          break;
-        case "weight_high":
-          filtered = filtered.sort(
-            (a, b) => b.remainingWeight - a.remainingWeight
-          );
-          break;
-        case "weight_low":
-          filtered = filtered.sort(
-            (a, b) => a.remainingWeight - b.remainingWeight
-          );
-          break;
-      }
-    }
-
-    setFilteredListings(filtered);
   };
 
+  // Les filtres ne sont plus appliqués ici : ils partent dans les variables de
+  // la requête, et le serveur rend la page déjà filtrée et triée.
   const handleFilterApply = (filters) => {
     setAppliedFilters(filters);
-    if (!filters) {
-      setFilteredListings(listings);
-      return;
-    }
     setSelectedSort(filters?.sort ?? null);
-    applyFilters(listings, filters);
   };
 
   const handleClearFilters = () => {
-    setFilteredListings(listings);
     setAppliedFilters(null);
     setSelectedSort(null);
   };
@@ -164,12 +127,12 @@ export default function HomeScreen() {
           <View style={styles.statsContainer}>
             <StatCard
               icon={<Plane size={20} color={Colors.white} />}
-              value={listings.length.toString() || "0"}
+              value={String(overview?.totalCount ?? 0)}
               label={i18n.t("active_routes")}
             />
             <StatCard
               icon={<Weight size={20} color={Colors.white} />}
-              value={`${totalWeight}kg` || "0kg"}
+              value={`${Number(totalWeight).toFixed(0)}kg`}
               label={i18n.t("available_weight")}
             />
             <StatCard
@@ -200,7 +163,9 @@ export default function HomeScreen() {
           <View style={styles.listingsContainer}>
             {mode === "buy" ? (
               <>
-                {isLoading ? (
+                {/* `isLoading` repasse à true pendant « charger plus » : sans
+                    le test sur data, la liste disparaîtrait à chaque page. */}
+                {isLoading && !data ? (
                   <View
                     style={{
                       minHeight: 300,
@@ -211,9 +176,25 @@ export default function HomeScreen() {
                     <SafeActivityIndicator/>
                   </View>
                 ) : filteredListings.length > 0 ? (
-                  filteredListings.map((item) => (
-                    <HomeCard key={item.id} item={item} />
-                  ))
+                  <>
+                    {filteredListings.map((item) => (
+                      <HomeCard key={item.id} item={item} />
+                    ))}
+                    {hasMore ? (
+                      <Button
+                        text={
+                          isLoading
+                            ? i18n.t("loading")
+                            : i18n.t("load_more_listings", {
+                                shown: filteredListings.length,
+                                total: totalCount,
+                              })
+                        }
+                        onPress={handleLoadMore}
+                        disabled={isLoading}
+                      />
+                    ) : null}
+                  </>
                 ) : (
                   <View
                     style={{
@@ -231,6 +212,7 @@ export default function HomeScreen() {
                     >
                       {i18n.t("no_results_found")}
                     </Text>
+                    <TripAlertCta filters={appliedFilters} />
                   </View>
                 )}
               </>

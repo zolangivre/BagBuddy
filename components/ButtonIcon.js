@@ -3,7 +3,7 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import Colors from "@/theme/Colors";
 
-const ButtonIcon = ({ href, icon, onPress, style, color }) => {
+const ButtonIcon = ({ href, icon, onPress, style, color, ...props }) => {
   const router = useRouter();
 
   const handlePress = (e) => {
@@ -14,7 +14,11 @@ const ButtonIcon = ({ href, icon, onPress, style, color }) => {
     }
   };
   return (
-    <TouchableOpacity style={[styles.buttonIcon, { backgroundColor: color }, style]} onPress={handlePress}>
+    <TouchableOpacity
+      style={[styles.buttonIcon, { backgroundColor: color }, style]}
+      onPress={handlePress}
+      {...props}
+    >
       {icon}
     </TouchableOpacity>
   );

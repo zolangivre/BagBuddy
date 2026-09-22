@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowLeft, Star } from "lucide-react-native";
+import { useState } from "react";
+import { ArrowLeft, Flag, Star } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import ButtonIcon from "@/components/ButtonIcon";
@@ -13,6 +14,7 @@ import { TRANSACTION_COUNT } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
 import i18n from "@/i18n";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import ReportMemberModal from "@/components/ReportMemberModal";
 
 const ProfileView = () => {
   const { theme: colorScheme } = useThemeContext();
@@ -20,6 +22,8 @@ const ProfileView = () => {
   const router = useRouter();
   const { userInfo } = useLocalSearchParams();
   const parsedUserInfo = JSON.parse(userInfo);
+  const [reportVisible, setReportVisible] = useState(false);
+
   const handleGoBack = () => {
     router.back();
   };
@@ -80,6 +84,11 @@ const ProfileView = () => {
             <ButtonIcon
               onPress={handleGoBack}
               icon={<ArrowLeft size={24} color={Colors.white} />}
+            />
+            <ButtonIcon
+              onPress={() => setReportVisible(true)}
+              icon={<Flag size={20} color={Colors.white} />}
+              accessibilityLabel={i18n.t("report_member")}
             />
           </View>
           <View style={styles.headerContent}>
@@ -176,6 +185,12 @@ const ProfileView = () => {
           </View>
         </View>
       </ScrollView>
+
+      <ReportMemberModal
+        visible={reportVisible}
+        onClose={() => setReportVisible(false)}
+        reportedSub={parsedUserInfo.sub}
+      />
     </View>
   );
 };
@@ -191,6 +206,8 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   headerContent: {

@@ -373,4 +373,122 @@ export default {
   content_description_required: "Merci de décrire ce que vous envoyez.",
   prohibited_items_label: "Je certifie que mon colis ne contient aucun objet interdit",
   prohibited_items_required: "Vous devez certifier que votre colis ne contient aucun objet interdit.",
+
+  // --- Favoris ---
+  favorites: "Favoris",
+  no_favorites: "Vous n'avez encore enregistré aucune annonce.",
+  add_to_favorites: "Ajouter aux favoris",
+  remove_from_favorites: "Retirer des favoris",
+  favorite_error: "Impossible de mettre à jour vos favoris.",
+  too_many_favorites: "Vous avez atteint la limite de 200 annonces enregistrées.",
+
+  // --- Alertes de trajet ---
+  trip_alerts: "Alertes de trajet",
+  trip_alerts_intro:
+    "Nous vous écrivons dès qu'une annonce correspond à l'un de ces trajets.",
+  no_trip_alerts: "Vous n'avez encore aucune alerte.",
+  create_trip_alert: "Me prévenir pour ce trajet",
+  alert_cta_title: "Aucune annonce pour {{from}} → {{to}}",
+  alert_cta_message:
+    "Créez une alerte et nous vous écrirons dès qu'une annonce sera publiée.",
+  alert_created_title: "Alerte créée",
+  alert_created_message: "Nous vous écrirons dès qu'une annonce correspondra.",
+  alert_created_error: "Impossible de créer cette alerte.",
+  alert_needs_email:
+    "Votre compte doit avoir une adresse email vérifiée pour recevoir des alertes.",
+  alert_invalid_route: "Ce trajet n'est pas valide.",
+  too_many_alerts: "Vous avez atteint la limite de 10 alertes.",
+  see_trip_alerts: "Voir mes alertes",
+  delete_alert_title: "Supprimer cette alerte ?",
+  delete_alert_message: "Vous ne recevrez plus d'email pour ce trajet.",
+  delete_alert_error: "Impossible de supprimer cette alerte.",
+  any_date: "Toutes les dates",
+  max_price_per_kg: "Prix max par kg",
+  min_weight: "Poids min",
+  days: "jours",
+
+  // --- Recherche ---
+  load_more_listings: "Voir plus ({{shown}} sur {{total}})",
+  no_results: "Aucun résultat",
+  search_flight: "Rechercher un vol",
+  error_loading_flights: "Impossible de charger les vols.",
+  date: "Date",
+  status: "Statut",
+
+  // --- Messagerie ---
+  messages: "Messages",
+  no_messages_yet: "Aucun message pour l'instant. Dites bonjour !",
+  write_a_message: "Écrire un message",
+  chat_load_error: "Impossible de charger la conversation.",
+  chat_send_error: "Impossible d'envoyer votre message.",
+  chat_invalid_message: "Un message doit faire entre 1 et 2000 caractères.",
+  chat_closed: "Cette conversation est close.",
+  chat_too_many_messages: "Vous envoyez des messages trop rapidement.",
+
+  // --- Code de remise ---
+  handover_title: "Code de remise",
+  handover_buyer_message:
+    "Donnez ce code à la personne qui réceptionne le colis. Le voyageur le saisit pour clore la réservation.",
+  handover_code_pending: "Le code apparaîtra une fois le paiement confirmé.",
+  handover_seller_message:
+    "Demandez le code à 6 chiffres au destinataire et saisissez-le pour clore cette réservation.",
+  handover_locked:
+    "Trop de codes erronés : seul l'acheteur peut désormais clore cette réservation.",
+  handover_code_length: "Le code comporte 6 chiffres.",
+  confirm_handover: "Confirmer la remise",
+  handover_confirmed_title: "Remise confirmée",
+  handover_confirmed_message: "Cette réservation est terminée.",
+  invalid_handover_code: "Ce code n'est pas le bon.",
+  handover_not_expected: "Cette réservation n'attend pas de remise.",
+  handover_error: "Impossible de confirmer la remise.",
+
+  // --- Signalement ---
+  report_member: "Signaler ce membre",
+  report_member_intro:
+    "Dites-nous ce qui s'est passé. Notre équipe de modération examine chaque signalement.",
+  report_reason_prohibited_items: "Objets interdits ou non déclarés",
+  report_reason_no_show: "Absent au rendez-vous de remise",
+  report_reason_fraud: "Fraude",
+  report_reason_harassment: "Harcèlement",
+  report_reason_other: "Autre",
+  report_details_placeholder: "Ajoutez tout détail utile (facultatif)",
+  send_report: "Envoyer le signalement",
+  report_sent_title: "Signalement envoyé",
+  report_sent_message: "Merci. Notre équipe de modération va l'examiner.",
+  report_error: "Impossible d'envoyer votre signalement.",
+  cannot_report_self: "Vous ne pouvez pas vous signaler vous-même.",
+  too_many_reports: "Vous avez envoyé trop de signalements ces dernières 24 h.",
+
+  // --- Versements (Stripe Connect) ---
+  payout_account: "Compte de versement",
+  payout_status_ready: "Votre compte de versement est actif.",
+  payout_status_pending: "Stripe examine vos informations.",
+  payout_status_incomplete: "Votre configuration des versements n'est pas terminée.",
+  payout_status_none:
+    "Configurez votre compte de versement pour être payé de vos trajets.",
+  payout_start_setup: "Configurer les versements",
+  payout_continue_setup: "Terminer la configuration",
+  payout_onboarding_error: "Impossible d'ouvrir la configuration des versements.",
+
+  // --- Vérification d'email ---
+  verify_your_email: "Vérifiez votre email",
+  verify_your_email_message:
+    "Confirmez votre adresse pour recevoir les alertes de trajet et les emails de réservation.",
+  send_verification_email: "Envoyer l'email de vérification",
+  resend_verification_email: "Renvoyer l'email",
+  verification_email_title: "Email de vérification",
+  verification_email_sent: "Consultez votre boîte mail pour le lien de confirmation.",
+  verification_email_already_verified: "Votre adresse est déjà vérifiée.",
+  verification_email_throttled: "Merci de patienter une minute avant de réessayer.",
+  verification_email_error: "Impossible d'envoyer l'email de vérification.",
+
+  // --- Divers ---
+  loading: "Chargement...",
+  payment_failed: "Paiement refusé",
+  invalid_payment_request: "Cette demande de paiement n'est pas valide.",
+
+  profile_updated_successfully: "Votre profil a été mis à jour.",
+  profile_update_error: "Impossible de mettre à jour votre profil.",
+  identity_managed_by_account:
+    "Connecté en tant que {{name}} ({{email}}). Votre nom et votre email se modifient dans les paramètres de votre compte, via l'icône ci-dessus.",
 };

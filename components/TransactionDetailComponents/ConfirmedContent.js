@@ -9,7 +9,7 @@ import { router } from "expo-router";
 import TransactionProgressCard from "@/components/TransactionProgressCard";
 import SellerInformationCard from "./SellerInformationCard";
 import StatusCard from "@/components/StatusCard";
-import MeetingDetailsCard from "./MeetingDetailsCard";
+import HandoverCard from "./HandoverCard";
 import Button from "@/components/Button";
 import Colors from "@/theme/Colors";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
@@ -68,7 +68,7 @@ export default function ConfirmedContent({ transaction, role, status }) {
       )}
       <SellerInformationCard item={transaction} />
       <StatusCard status={status} role={role} transaction={transaction} />
-      {/* <MeetingDetailsCard /> */}
+      <HandoverCard transaction={transaction} role={role} />
       {role === "buyer" && (
         <Button
           onPress={handleConfirmed}
