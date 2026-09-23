@@ -1,43 +1,99 @@
 import React, { createContext, useEffect, useMemo, useReducer } from "react";
-import * as AuthSession from "expo-auth-session";
-import { useAuthRequest, useAutoDiscovery } from "expo-auth-session";
 import { router } from "expo-router";
 import axios from "axios";
 import { isTokenExpired } from "@/utils/jwt";
 import { setAccessTokenProvider } from "@/lib/authToken";
+import client from "@/lib/apolloClient";
+
+const KEYCLOAK_URL = process.env.EXPO_PUBLIC_KEYCLOAK_URL;
+const CLIENT_ID = process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID;
+const TOKEN_ENDPOINT = `${KEYCLOAK_URL}/protocol/openid-connect/token`;
 
 const initialState = {
   isSignedIn: false,
   accessToken: null,
   idToken: null,
+  refreshToken: null,
   userInfo: null,
 };
 
+/**
+ * Ce que les écrans de connexion ont besoin de distinguer pour écrire un
+ * message utile : `invalid_credentials`, `account_disabled` ou `unavailable`.
+ */
+export class AuthError extends Error {
+  constructor(code) {
+    super(code);
+    this.name = "AuthError";
+    this.code = code;
+  }
+}
+
+/**
+ * Keycloak répond `invalid_grant` aussi bien pour un mot de passe faux que pour
+ * un compte désactivé ou bloqué après trop d'essais : le détail n'est que dans
+ * la description.
+ */
+function authErrorCode(status, description) {
+  if (description && /disabled|not fully set up|temporarily/i.test(description)) {
+    return "account_disabled";
+  }
+  return status === 400 || status === 401 ? "invalid_credentials" : "unavailable";
+}
+
+async function postToken(params) {
+  let response;
+  try {
+    response = await fetch(TOKEN_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(params).toString(),
+    });
+  } catch {
+    throw new AuthError("unavailable");
+  }
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new AuthError(authErrorCode(response.status, payload?.error_description));
+  }
+  return response.json();
+}
+
+async function fetchUserInfo(accessToken) {
+  let response;
+  try {
+    response = await fetch(`${KEYCLOAK_URL}/protocol/openid-connect/userinfo`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch {
+    throw new AuthError("unavailable");
+  }
+  if (!response.ok) throw new AuthError("unavailable");
+  return response.json();
+}
+
 const AuthContext = createContext({
   state: initialState,
-  signIn: () => {},
+  signIn: async (email, password) => {},
   signOut: () => {},
   hasRole: (role) => false,
 });
 
+/**
+ * Session Keycloak ouverte depuis nos propres écrans (app/login.js), sans
+ * jamais afficher de page hébergée par Keycloak.
+ *
+ * On utilise le grant `password` (« direct access grant ») du client public
+ * `bagbuddy-mobile`, comme le front web le fait avec `bagbuddy-web`. Ce que ce
+ * choix coûte : le mot de passe transite par notre code au lieu de n'être connu
+ * que de Keycloak, et ce grant ne sait porter ni MFA ni connexion Google/Apple.
+ * Le jour où l'un des deux devient nécessaire, il faut revenir au flux
+ * redirection (le client garde ses redirectUris pour ça).
+ *
+ * L'inscription et le mot de passe oublié ne passent pas par ici mais par les
+ * mutations anonymes `register` / `requestPasswordReset` de userservice.
+ */
 const AuthProvider = ({ children }) => {
-  const discovery = useAutoDiscovery(process.env.EXPO_PUBLIC_KEYCLOAK_URL);
-
-  const redirectUri = AuthSession.makeRedirectUri({
-    native: "bagbuddy://redirect",
-    useProxy: false,
-  });
-
-  const [request, response, promptAsync] = useAuthRequest(
-    {
-      clientId: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
-      redirectUri,
-      scopes: ["openid", "profile"],
-      responseType: "code",
-    },
-    discovery
-  );
-
   const [authState, dispatch] = useReducer((prev, action) => {
     switch (action.type) {
       case "SIGN_IN":
@@ -45,8 +101,9 @@ const AuthProvider = ({ children }) => {
           ...prev,
           isSignedIn: true,
           accessToken: action.payload.access_token,
-          idToken: action.payload.id_token,
+          idToken: action.payload.id_token ?? prev.idToken,
           refreshToken: action.payload.refresh_token,
+          userInfo: action.userInfo ?? prev.userInfo,
         };
       case "USER_INFO":
         return { ...prev, userInfo: action.payload };
@@ -57,95 +114,51 @@ const AuthProvider = ({ children }) => {
     }
   }, initialState);
 
-  // Échange le code contre le token
-  useEffect(() => {
-    const getToken = async (code) => {
-      if (!request) return;
-
-      const formData = new URLSearchParams();
-      formData.append("grant_type", "authorization_code");
-      formData.append("client_id", process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID);
-      formData.append("code", code);
-      if (request.codeVerifier)
-        formData.append("code_verifier", request.codeVerifier);
-      formData.append("redirect_uri", redirectUri);
-
-      try {
-        const tokenResponse = await fetch(
-          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/token`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString(),
-          }
-        );
-
-        if (tokenResponse.ok) {
-          const payload = await tokenResponse.json();
-          dispatch({ type: "SIGN_IN", payload });
-        } else {
-          console.warn("Token request failed", await tokenResponse.text());
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    };
-
-    if (response?.type === "success") {
-      const { code } = response.params;
-      getToken(code);
-    } else if (response?.type === "error") {
-      console.warn("Authentication error:", response.error);
-    }
-  }, [response, request, redirectUri]);
-
-  // Récupère les informations utilisateur
-  useEffect(() => {
-    const getUserInfo = async () => {
-      if (!authState.accessToken) return;
-
-      try {
-        const res = await fetch(
-          `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/userinfo`,
-          {
-            headers: { Authorization: `Bearer ${authState.accessToken}` },
-          }
-        );
-        if (res.ok) {
-          const payload = await res.json();
-          dispatch({ type: "USER_INFO", payload });
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    };
-    if (authState.isSignedIn) getUserInfo();
-  }, [authState.accessToken, authState.isSignedIn]);
-
   const authContext = useMemo(
     () => ({
       state: authState,
-      signIn: async () => {
-        // Check if request is ready before prompting
-        if (!request) {
-          console.warn("Auth request not ready yet");
-          return;
-        }
-        try {
-          await promptAsync();
-        } catch (error) {
-          console.warn("Sign in error:", error);
-        }
+      /**
+       * Ouvre une session. Ne rend la main qu'une fois l'identité chargée :
+       * l'écran appelant peut naviguer vers l'accueil sans état intermédiaire.
+       * Lève une AuthError dont l'écran tire son message.
+       *
+       * Rend le jeton d'accès : le lien Apollo ne le verra qu'au rendu suivant,
+       * et l'inscription en a besoin tout de suite pour l'email de vérification.
+       */
+      signIn: async (email, password) => {
+        const tokens = await postToken({
+          grant_type: "password",
+          client_id: CLIENT_ID,
+          username: email.trim(),
+          password,
+          scope: "openid profile email",
+        });
+        const userInfo = await fetchUserInfo(tokens.access_token);
+        dispatch({ type: "SIGN_IN", payload: tokens, userInfo });
+        return tokens.access_token;
       },
+      /**
+       * Ferme la session localement d'abord, puis révoque le refresh token.
+       * Sans flux redirection il n'y a pas de cookie SSO à nettoyer : si la
+       * révocation échoue, le jeton expirera de lui-même.
+       */
       signOut: async () => {
+        const { refreshToken } = authState;
+        dispatch({ type: "SIGN_OUT" });
+        // Le cache contient le profil et les transactions du compte qui part :
+        // le compte suivant ne doit pas les voir, même un instant.
+        client.clearStore().catch(() => {});
+        router.replace("/start");
+        if (!refreshToken) return;
         try {
-          if (authState.idToken) {
-            await fetch(
-              `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/logout?id_token_hint=${authState.idToken}`
-            );
-          }
-          dispatch({ type: "SIGN_OUT" });
-          router.replace("/start");
+          await fetch(`${KEYCLOAK_URL}/protocol/openid-connect/logout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              client_id: CLIENT_ID,
+              refresh_token: refreshToken,
+            }).toString(),
+          });
         } catch (e) {
           console.warn(e);
         }
@@ -157,10 +170,10 @@ const AuthProvider = ({ children }) => {
           if (!authState.refreshToken) throw new Error("No refresh token");
           try {
             const tokenResponse = await axios.post(
-              `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/token`,
+              TOKEN_ENDPOINT,
               new URLSearchParams({
                 grant_type: "refresh_token",
-                client_id: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID,
+                client_id: CLIENT_ID,
                 refresh_token: authState.refreshToken,
               }),
               {
@@ -170,19 +183,9 @@ const AuthProvider = ({ children }) => {
               }
             );
 
-            const newAccessToken = tokenResponse.data.access_token;
-            const newRefreshToken = tokenResponse.data.refresh_token;
+            dispatch({ type: "SIGN_IN", payload: tokenResponse.data });
 
-            dispatch({
-              type: "SIGN_IN",
-              payload: {
-                access_token: newAccessToken,
-                id_token: authState.idToken,
-                refresh_token: newRefreshToken,
-              },
-            });
-
-            return newAccessToken;
+            return tokenResponse.data.access_token;
           } catch (err) {
             await authContext.signOut();
             throw err;
@@ -190,9 +193,8 @@ const AuthProvider = ({ children }) => {
         }
         return authState.accessToken;
       },
-      isReady: !!request, // Add this flag to check auth readiness
     }),
-    [authState, promptAsync, request]
+    [authState]
   );
 
   // Le lien Apollo vit hors de React : il ne peut pas lire ce contexte, mais il

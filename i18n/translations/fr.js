@@ -491,4 +491,65 @@ export default {
   profile_update_error: "Impossible de mettre à jour votre profil.",
   identity_managed_by_account:
     "Connecté en tant que {{name}} ({{email}}). Votre nom et votre email se modifient dans les paramètres de votre compte, via l'icône ci-dessus.",
+
+  // --- Connexion / inscription ---
+  auth_login_title: "Content de vous revoir",
+  auth_login_subtitle: "Connectez-vous pour retrouver vos trajets et vos envois.",
+  auth_login_button: "Se connecter",
+  auth_login_link: "Se connecter",
+  auth_register_title: "Créer un compte",
+  auth_register_subtitle: "Rejoignez BagBuddy en moins d'une minute.",
+  auth_register_button: "Créer mon compte",
+  auth_create_account: "Créer un compte",
+  auth_no_account: "Pas encore de compte ?",
+  auth_have_account: "Déjà un compte ?",
+  auth_first_name: "Prénom",
+  auth_first_name_placeholder: "Camille",
+  auth_last_name: "Nom",
+  auth_last_name_placeholder: "Martin",
+  auth_email: "Email",
+  auth_email_placeholder: "vous@exemple.com",
+  auth_password: "Mot de passe",
+  auth_confirm_password: "Confirmer le mot de passe",
+  auth_password_hint: "{{count}} caractères minimum.",
+  auth_show_password: "Afficher le mot de passe",
+  auth_hide_password: "Masquer le mot de passe",
+  auth_forgot_password: "Mot de passe oublié ?",
+  auth_forgot_title: "Mot de passe oublié",
+  auth_forgot_subtitle:
+    "Indiquez l'email de votre compte : nous vous enverrons un lien pour en choisir un nouveau.",
+  auth_forgot_button: "Envoyer le lien",
+  auth_remembered_password: "Vous vous en souvenez ?",
+  auth_reset_sent_title: "Vérifiez vos emails",
+  auth_reset_sent_subtitle: "Le lien vous attend dans votre boîte de réception.",
+  auth_reset_sent_message:
+    "Si un compte existe pour {{email}}, un lien de réinitialisation vient de lui être envoyé.",
+  auth_reset_not_received: "Rien reçu ?",
+  auth_reset_try_again: "Réessayer",
+  auth_back_to_login: "Retour à la connexion",
+  auth_notice_account_created:
+    "Votre compte est créé. Connectez-vous pour continuer.",
+  auth_error_email_required: "Saisissez votre email.",
+  auth_error_email_invalid: "Cet email n'est pas valide.",
+  auth_error_password_required: "Saisissez votre mot de passe.",
+  auth_error_password_too_short:
+    "Le mot de passe doit contenir au moins {{count}} caractères.",
+  auth_error_password_too_long: "Ce mot de passe est trop long.",
+  auth_error_confirm_password_required: "Confirmez votre mot de passe.",
+  auth_error_password_mismatch: "Les mots de passe ne correspondent pas.",
+  auth_error_first_name_required: "Saisissez votre prénom.",
+  auth_error_last_name_required: "Saisissez votre nom.",
+  auth_error_name_too_long: "60 caractères au maximum.",
+  auth_error_invalid_credentials: "Email ou mot de passe incorrect.",
+  auth_error_account_disabled:
+    "Ce compte est désactivé ou temporairement bloqué. Réessayez plus tard.",
+  auth_error_unavailable:
+    "Service indisponible pour le moment. Vérifiez votre connexion et réessayez.",
+  auth_error_email_already_used: "Un compte existe déjà avec cet email.",
+  auth_error_password_rejected:
+    "Ce mot de passe a été refusé. Choisissez-en un autre.",
+  auth_error_register_rejected:
+    "Certaines informations ont été refusées. Vérifiez le formulaire.",
+  auth_error_register_unavailable:
+    "Inscription impossible pour le moment. Vérifiez votre connexion et réessayez.",
 };

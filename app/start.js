@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, DollarSign, Shield, ArrowRight } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -14,7 +14,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 
 export default function StartScreen() {
-  const { state, signIn, isReady } = useContext(AuthContext);
+  const { state } = useContext(AuthContext);
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -24,24 +24,7 @@ export default function StartScreen() {
     }
   }, [state.isSignedIn, state.userInfo]);
 
-  const handleStart = async () => {
-    if (!isReady) {
-      console.warn("Authentication not ready yet");
-      return;
-    }
-    await signIn();
-  };
-
   if (!state) return null;
-
-  if (state.isSignedIn && !state.userInfo) {
-    return (
-      <View style={styles.container}>
-        <SafeActivityIndicator />
-        <Text style={styles.loadingText}>Chargement...</Text>
-      </View>
-    );
-  }
 
   if (state.isSignedIn && state.userInfo) {
     return (
@@ -171,9 +154,8 @@ export default function StartScreen() {
 
           {/* Start Button */}
           <Button
-            onPress={handleStart}
+            onPress={() => router.push("/register")}
             text={i18n.t("start_button")}
-            disabled={!isReady}
             rightIcon={
               <ArrowRight
                 width={24}
@@ -184,6 +166,19 @@ export default function StartScreen() {
               />
             }
           />
+
+          <View style={styles.loginRow}>
+            <Text style={theme.textStyles.bodyMedium}>
+              {i18n.t("auth_have_account")}
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/login")}
+              hitSlop={8}
+              testID="start-login"
+            >
+              <Text style={styles.loginLink}>{i18n.t("auth_login_link")}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </LinearGradient>
@@ -234,6 +229,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginTop: -10,
+  },
+  loginRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 4,
+  },
+  loginLink: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.primary_color,
   },
   loadingText: {
     marginTop: 10,

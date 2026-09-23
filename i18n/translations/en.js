@@ -484,4 +484,64 @@ export default {
   profile_update_error: "Could not update your profile.",
   identity_managed_by_account:
     "Signed in as {{name}} ({{email}}). Your name and email are managed in your account settings, from the icon above.",
+
+  // --- Sign in / sign up ---
+  auth_login_title: "Welcome back",
+  auth_login_subtitle: "Sign in to pick up your trips and deliveries.",
+  auth_login_button: "Sign in",
+  auth_login_link: "Sign in",
+  auth_register_title: "Create an account",
+  auth_register_subtitle: "Join BagBuddy in less than a minute.",
+  auth_register_button: "Create my account",
+  auth_create_account: "Create an account",
+  auth_no_account: "Don't have an account?",
+  auth_have_account: "Already have an account?",
+  auth_first_name: "First name",
+  auth_first_name_placeholder: "Camille",
+  auth_last_name: "Last name",
+  auth_last_name_placeholder: "Martin",
+  auth_email: "Email",
+  auth_email_placeholder: "you@example.com",
+  auth_password: "Password",
+  auth_confirm_password: "Confirm password",
+  auth_password_hint: "At least {{count}} characters.",
+  auth_show_password: "Show password",
+  auth_hide_password: "Hide password",
+  auth_forgot_password: "Forgot password?",
+  auth_forgot_title: "Forgot password",
+  auth_forgot_subtitle:
+    "Enter your account email and we'll send you a link to choose a new one.",
+  auth_forgot_button: "Send link",
+  auth_remembered_password: "Remembered it?",
+  auth_reset_sent_title: "Check your email",
+  auth_reset_sent_subtitle: "The link is waiting in your inbox.",
+  auth_reset_sent_message:
+    "If an account exists for {{email}}, a reset link has just been sent to it.",
+  auth_reset_not_received: "Nothing arrived?",
+  auth_reset_try_again: "Try again",
+  auth_back_to_login: "Back to sign in",
+  auth_notice_account_created: "Your account is ready. Sign in to continue.",
+  auth_error_email_required: "Enter your email.",
+  auth_error_email_invalid: "This email isn't valid.",
+  auth_error_password_required: "Enter your password.",
+  auth_error_password_too_short:
+    "Your password must be at least {{count}} characters.",
+  auth_error_password_too_long: "This password is too long.",
+  auth_error_confirm_password_required: "Confirm your password.",
+  auth_error_password_mismatch: "Passwords don't match.",
+  auth_error_first_name_required: "Enter your first name.",
+  auth_error_last_name_required: "Enter your last name.",
+  auth_error_name_too_long: "60 characters at most.",
+  auth_error_invalid_credentials: "Incorrect email or password.",
+  auth_error_account_disabled:
+    "This account is disabled or temporarily locked. Try again later.",
+  auth_error_unavailable:
+    "The service is unavailable right now. Check your connection and try again.",
+  auth_error_email_already_used: "An account already exists with this email.",
+  auth_error_password_rejected:
+    "This password was rejected. Please choose another one.",
+  auth_error_register_rejected:
+    "Some of your details were rejected. Please check the form.",
+  auth_error_register_unavailable:
+    "Sign-up is unavailable right now. Check your connection and try again.",
 };

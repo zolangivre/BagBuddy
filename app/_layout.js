@@ -26,6 +26,9 @@ export default function RootLayout() {
                 <Stack.Screen name="favorites" />
                 <Stack.Screen name="trip-alerts" />
                 <Stack.Screen name="start" />
+                <Stack.Screen name="login" />
+                <Stack.Screen name="register" />
+                <Stack.Screen name="forgot-password" />
               </Stack>
             </FavoritesProvider>
           </AuthProvider>
