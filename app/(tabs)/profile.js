@@ -1,5 +1,4 @@
 import { useState, useContext, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -37,17 +36,15 @@ import { globalStyles } from "@/theme/Styles";
 import { formatLocalizedDate } from "@/components/LocalizedDateTime";
 import ReviewCard from "@/components/ReviewCard";
 import { AuthContext } from "@/contexts/AuthContext";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import Currency from "@/components/Currency";
-import axios from "axios";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
 import { TRANSACTION_STATS } from "@/lib/graphql/transactions";
 import { REVIEWS_BY_REVIEWEE } from "@/lib/graphql/reviews";
 import { ME } from "@/lib/graphql/users";
 import { withEndpoint } from "@/lib/apolloClient";
-import * as WebBrowser from "expo-web-browser";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 import EmailVerificationNotice from "@/components/EmailVerificationNotice";
 import PayoutAccountCard from "@/components/PayoutAccountCard";
@@ -59,8 +56,7 @@ const ProfileScreen = () => {
   const isDark = colorScheme === "dark";
   const { language, changeLanguage, i18n } = useLanguage();
   const { currency, changeCurrency } = useCurrency();
-  const { state, signOut, updateUserInfo, getValidAccessToken } =
-    useContext(AuthContext);
+  const { state, signOut } = useContext(AuthContext);
   const userInfo = state.userInfo;
   const handleAllListing = () => {
     router.push("all-listing");
@@ -119,19 +115,6 @@ const ProfileScreen = () => {
   const totalEarned = statsData?.totalEarned ?? null;
   const totalSpent = statsData?.totalSpent ?? null;
 
-  const fetchUserInfoFromKeycloak = useCallback(async () => {
-    try {
-      const token = await getValidAccessToken();
-      const response = await axios.get(
-        `${process.env.EXPO_PUBLIC_KEYCLOAK_URL}/protocol/openid-connect/userinfo`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      updateUserInfo(response.data);
-    } catch (error) {
-      console.error("Error fetching user info:", error);
-    }
-  }, [getValidAccessToken, updateUserInfo]);
-
   useFocusEffect(
     useCallback(() => {
       if (skipUser) return;
@@ -142,18 +125,8 @@ const ProfileScreen = () => {
     }, [skipUser, refetchListings, refetchStats, refetchReviews, refetchProfile])
   );
 
-  const openProfilePage = async () => {
-    try {
-      await WebBrowser.openBrowserAsync(
-        `${process.env.EXPO_PUBLIC_KEYCLOAK_ACCOUNT_CONSOLE}`
-      );
-
-      setTimeout(async () => {
-        await fetchUserInfoFromKeycloak();
-      }, 1000);
-    } catch (error) {
-      console.error("Error opening profile page:", error);
-    }
+  const openProfilePage = () => {
+    router.push("edit-profile");
   };
 
   const Review = () => {

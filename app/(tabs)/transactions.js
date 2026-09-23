@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -8,7 +8,9 @@ import Colors from "@/theme/Colors";
 import TransactionCard from "@/components/TransactionCard";
 import ActionButton from "@/components/ActionButton";
 import StatCard from "@/components/StatCard";
-import ActionBar from "@/components/ActionBar";
+import SearchPill from "@/components/SearchPill";
+import ResultsToolbar from "@/components/ResultsToolbar";
+import FilterSheet from "@/components/FilterSheet";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Label from "@/components/Label";
 import i18n from "@/i18n";
@@ -19,6 +21,25 @@ import { AuthContext } from "@/contexts/AuthContext";
 import Currency from "@/components/Currency";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import {
+  countActiveFilters,
+  currencySymbol,
+  departsAround,
+  filterChips,
+  searchSummary,
+} from "@/utils/filters";
+
+/** Statuts proposés au filtre, vus du côté de l'appelant — mêmes que le web. */
+const STATUS_OPTIONS = [
+  TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER,
+  TRANSACTION_STATUS.REQUEST_REJECTED,
+  TRANSACTION_STATUS.PAYMENT_REQUIRED,
+  TRANSACTION_STATUS.RESERVATION_RECEIVED,
+  TRANSACTION_STATUS.AWAITING_PAYMENT,
+  TRANSACTION_STATUS.CONFIRMED,
+];
 
 export default function TransactionsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -26,9 +47,11 @@ export default function TransactionsScreen() {
   const { state } = useContext(AuthContext);
   const userInfo = state.userInfo;
   const [mode, setMode] = useState("active");
-  const [appliedFilters, setAppliedFilters] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState(null);
-  const [selectedSort, setSelectedSort] = useState(null);
+  const { language } = useLanguage();
+  const { currency } = useCurrency();
+  const [appliedFilters, setAppliedFilters] = useState({});
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [draft, setDraft] = useState(null);
 
   // myTransactions ne prend pas d'identifiant : le serveur se cadre sur le
   // jeton et rend achats et ventes confondus, comme /transactions/user/{sub}.
@@ -82,50 +105,43 @@ export default function TransactionsScreen() {
     )
     .reduce((sum, t) => sum + t.total, 0);
 
-  // La liste affichée est une pure fonction de `list`, du filtre et du mode :
-  // la tenir en état imposait un effet, donc un rendu de plus, et forçait à
-  // mémoïser `transactions` pour que cet effet ne boucle pas.
-  const filterTransactions = () => {
-    if (!appliedFilters) return list;
-
-    const { from, to, minPrice, maxPrice, minWeight, maxWeight, status } =
-      appliedFilters;
+  // La liste affichée est une pure fonction de `list`, du filtre et du mode.
+  // Trajet, date et prix sont ceux de l'annonce (`listingInfo`) ; le poids est
+  // celui que la transaction réserve.
+  const applyFilters = (filters) => {
+    const { from, to, minPrice, maxPrice, minWeight, maxWeight, date, flexDays, status } =
+      filters ?? {};
 
     return list.filter((item) => {
-      const matchFrom = from ? item.departureAirport === from : true;
-      const matchTo = to ? item.arrivalAirport === to : true;
-      const matchPrice =
-        (minPrice === undefined || item.pricePerKg >= minPrice) &&
-        (maxPrice === undefined || item.pricePerKg <= maxPrice);
-      const matchWeight =
-        (minWeight === undefined || item.remainingWeight >= minWeight) &&
-        (maxWeight === undefined || item.remainingWeight <= maxWeight);
-
+      const listing = item.listingInfo ?? {};
       const role = item.sellerId === userInfo.sub ? "seller" : "buyer";
-      const itemStatus =
-        role === "seller" ? item.sellerStatus : item.buyerStatus;
-
-      const matchStatus =
-        mode === "active" && status ? itemStatus === status : true;
-      return matchFrom && matchTo && matchPrice && matchWeight && matchStatus;
+      const itemStatus = role === "seller" ? item.sellerStatus : item.buyerStatus;
+      return (
+        (!from || listing.departureAirport === from) &&
+        (!to || listing.arrivalAirport === to) &&
+        (minPrice === undefined || listing.pricePerKg >= minPrice) &&
+        (maxPrice === undefined || listing.pricePerKg <= maxPrice) &&
+        (minWeight === undefined || item.weight >= minWeight) &&
+        (maxWeight === undefined || item.weight <= maxWeight) &&
+        departsAround(listing.departureDate, date, flexDays) &&
+        (mode !== "active" || !status || itemStatus === status)
+      );
     });
   };
 
-  const filteredTransactions = filterTransactions();
+  const filteredTransactions = applyFilters(appliedFilters);
+  const draftCount = draft ? applyFilters(draft).length : null;
 
-  const handleFilterApply = (filters) => {
-    setAppliedFilters(
-      filters && Object.keys(filters).length > 0 ? filters : null
-    );
-    setSelectedStatus(filters?.status ?? null);
-    setSelectedSort(filters?.sort ?? null);
-  };
+  const handleClearFilters = () => setAppliedFilters({});
 
-  const handleClearFilters = () => {
-    setAppliedFilters(null);
-    setSelectedStatus(null);
-    setSelectedSort(null);
-  };
+  const chips = filterChips(appliedFilters, {
+    i18n,
+    language,
+    currencySymbol: currencySymbol(currency),
+  });
+  const summary = searchSummary(chips, i18n);
+  const countLabel = (count) =>
+    i18n.t(count === 1 ? "transactions_count_one" : "transactions_count", { count });
 
   return (
     <View
@@ -172,17 +188,13 @@ export default function TransactionsScreen() {
             />
           </View>
 
-          {/* Action Bar */}
-          <View style={styles.searchContainer}>
-            <ActionBar
-              showStatusFilter={true}
-              onFilterApply={handleFilterApply}
-              onClear={handleClearFilters}
-              selectedStatus={selectedStatus}
-              selectedSort={selectedSort}
-              appliedFilters={appliedFilters}
-            />
-          </View>
+          <SearchPill
+            title={chips.some((chip) => chip.key === "route") ? summary.title : i18n.t("filter_search_transactions")}
+            subtitle={summary.subtitle}
+            activeCount={countActiveFilters(appliedFilters)}
+            onPress={() => setFiltersOpen(true)}
+            accessibilityLabel={i18n.t("filters")}
+          />
         </LinearGradient>
 
         {/* Tab Buttons */}
@@ -191,6 +203,12 @@ export default function TransactionsScreen() {
         {/* Transactions List */}
         <View style={styles.weightSection}>
           <View style={styles.transactionsContainer}>
+            <ResultsToolbar
+              countLabel={isLoading ? " " : countLabel(filteredTransactions.length)}
+              chips={chips}
+              onRemoveChip={(chip) => setAppliedFilters((current) => chip.remove(current))}
+              onClearAll={handleClearFilters}
+            />
             {isLoading ? (
               <View
                 style={{
@@ -232,6 +250,25 @@ export default function TransactionsScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <FilterSheet
+        visible={filtersOpen}
+        onClose={() => {
+          setFiltersOpen(false);
+          setDraft(null);
+        }}
+        value={appliedFilters}
+        onApply={setAppliedFilters}
+        onDraftChange={setDraft}
+        applyLabel={
+          draftCount === null
+            ? i18n.t("apply_filters")
+            : i18n.t("filter_show_count", { label: countLabel(draftCount) })
+        }
+        currencySymbol={currencySymbol(currency)}
+        weightLabel={i18n.t("filter_reserved_weight")}
+        statusOptions={mode === "active" ? STATUS_OPTIONS : null}
+      />
     </View>
   );
 }
@@ -256,9 +293,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
     marginBottom: 32,
-  },
-  searchContainer: {
-    paddingHorizontal: 8,
   },
   weightSection: {
     paddingHorizontal: 25,

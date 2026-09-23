@@ -12,8 +12,9 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
 import ButtonIcon from "@/components/ButtonIcon";
+import FormBanner from "@/components/FormBanner";
 import Colors from "@/theme/Colors";
 import { typography } from "@/theme/Fonts";
 import { globalStyles } from "@/theme/Styles";
@@ -95,7 +96,7 @@ export default function AuthScreen({
               { backgroundColor: theme.background_card },
             ]}
           >
-            {banner ? <Banner {...banner} /> : null}
+            {banner ? <FormBanner {...banner} /> : null}
             {children}
           </View>
 
@@ -114,33 +115,6 @@ export default function AuthScreen({
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
-  );
-}
-
-function Banner({ tone, text }) {
-  const isError = tone === "error";
-  const color = isError ? Colors.error_color : Colors.success_color;
-  const Icon = isError ? AlertCircle : CheckCircle2;
-  return (
-    <View
-      style={[
-        styles.banner,
-        {
-          backgroundColor: isError
-            ? Colors.red_translucent
-            : Colors.light_green_translucent,
-          borderColor: isError
-            ? Colors.red_translucent_2
-            : Colors.light_green_translucent_2,
-        },
-      ]}
-      accessibilityLiveRegion="polite"
-    >
-      <Icon size={18} color={color} />
-      <Text style={[typography.body2, styles.bannerText, { color }]}>
-        {text}
-      </Text>
-    </View>
   );
 }
 
@@ -195,17 +169,6 @@ const styles = StyleSheet.create({
   },
   card: {
     gap: 18,
-  },
-  banner: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  bannerText: {
-    flex: 1,
   },
   footer: {
     flexDirection: "row",

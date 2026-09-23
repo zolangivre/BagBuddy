@@ -1,5 +1,4 @@
 import { useCallback, useContext } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
@@ -9,7 +8,7 @@ import { PlusCircle } from "lucide-react-native";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import i18n from "@/i18n";
 import ListingCard from "@/components/ListingCard";
 import { AuthContext } from "@/contexts/AuthContext";

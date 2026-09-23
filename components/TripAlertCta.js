@@ -41,6 +41,8 @@ export default function TripAlertCta({ filters }) {
           input: {
             departureAirport: filters.from,
             arrivalAirport: filters.to,
+            date: filters.date,
+            flexDays: filters.date ? filters.flexDays : undefined,
             maxPricePerKg: filters.maxPrice,
             minWeight: filters.minWeight,
             // L'email part dans la langue de l'app, pas celle du serveur.

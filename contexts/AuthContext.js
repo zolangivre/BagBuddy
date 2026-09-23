@@ -163,6 +163,20 @@ const AuthProvider = ({ children }) => {
           console.warn(e);
         }
       },
+      /**
+       * Redemande un jeton et relit l'identité. À appeler après un changement
+       * de nom ou d'email : les claims du jeton courant datent d'avant.
+       */
+      refreshSession: async () => {
+        if (!authState.refreshToken) return;
+        const tokens = await postToken({
+          grant_type: "refresh_token",
+          client_id: CLIENT_ID,
+          refresh_token: authState.refreshToken,
+        });
+        const userInfo = await fetchUserInfo(tokens.access_token);
+        dispatch({ type: "SIGN_IN", payload: tokens, userInfo });
+      },
       updateUserInfo: (newUserInfo) =>
         dispatch({ type: "USER_INFO", payload: newUserInfo }),
       getValidAccessToken: async () => {

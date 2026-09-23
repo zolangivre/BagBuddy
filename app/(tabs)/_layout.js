@@ -116,24 +116,24 @@ export default function TabsLayout() {
 
   // iOS
   if (Platform.OS === "ios") {
-    const {
-      NativeTabs,
-      Label,
-      Icon,
-    } = require("expo-router/unstable-native-tabs");
+    const { NativeTabs } = require("expo-router/unstable-native-tabs");
     return (
       <NativeTabs key={language}>
         <NativeTabs.Trigger name="home">
-          <Label>{tabLabels.home}</Label>
-          <Icon sf="house.fill" />
+          <NativeTabs.Trigger.Label>{tabLabels.home}</NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Icon sf="house.fill" />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="transactions">
-          <Label>{tabLabels.transactions}</Label>
-          <Icon sf="creditcard" />
+          <NativeTabs.Trigger.Label>
+            {tabLabels.transactions}
+          </NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Icon sf="creditcard" />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
-          <Label>{tabLabels.profile}</Label>
-          <Icon sf="person" />
+          <NativeTabs.Trigger.Label>
+            {tabLabels.profile}
+          </NativeTabs.Trigger.Label>
+          <NativeTabs.Trigger.Icon sf="person" />
         </NativeTabs.Trigger>
       </NativeTabs>
     );

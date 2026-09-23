@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";

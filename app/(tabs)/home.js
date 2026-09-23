@@ -1,5 +1,5 @@
-import React, { useState, useContext, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import React, { useState, useContext, useCallback, useEffect } from "react";
+import { useFocusEffect } from "expo-router";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, Weight, TrendingUp } from "lucide-react-native";
@@ -9,16 +9,30 @@ import Avatar from "@/components/Avatar";
 import StatCard from "@/components/StatCard";
 import ActionButton from "@/components/ActionButton";
 import HomeSellView from "@/components/HomeSellView";
-import ActionBar from "@/components/ActionBar";
+import SearchPill from "@/components/SearchPill";
+import ResultsToolbar from "@/components/ResultsToolbar";
+import FilterSheet from "@/components/FilterSheet";
+import OptionSheet from "@/components/OptionSheet";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useQuery } from "@apollo/client/react";
 import {
   SEARCH_TRIPS,
+  SEARCH_TRIP_COUNT,
   TRIP_PAGE_SIZE,
   toTripSearchInput,
 } from "@/lib/graphql/trips";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import {
+  SORT_OPTIONS,
+  countActiveFilters,
+  currencySymbol,
+  filterChips,
+  searchSummary,
+} from "@/utils/filters";
+import { initialsOf } from "@/utils/authForm";
 import { withEndpoint } from "@/lib/apolloClient";
 import Currency from "@/components/Currency";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
@@ -31,8 +45,31 @@ export default function HomeScreen() {
   const { state } = useContext(AuthContext);
   const userInfo = state.userInfo;
   const [mode, setMode] = useState("buy");
-  const [appliedFilters, setAppliedFilters] = useState(null);
-  const [selectedSort, setSelectedSort] = useState(null);
+  const { language } = useLanguage();
+  const { currency } = useCurrency();
+  const [appliedFilters, setAppliedFilters] = useState({});
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [draft, setDraft] = useState(null);
+  const [countedDraft, setCountedDraft] = useState(null);
+
+  // Le bouton de la feuille annonce le nombre de résultats du brouillon. On
+  // attend que la saisie se pose avant de demander au serveur : sans ce délai,
+  // taper « 12 » dans un prix lancerait une requête par chiffre.
+  useEffect(() => {
+    const timer = setTimeout(() => setCountedDraft(draft), 300);
+    return () => clearTimeout(timer);
+  }, [draft]);
+
+  const { data: countData, previousData: previousCountData } = useQuery(
+    SEARCH_TRIP_COUNT,
+    {
+      context: withEndpoint("trips"),
+      variables: { filter: toTripSearchInput(countedDraft) },
+      skip: !filtersOpen || !countedDraft,
+    }
+  );
+  const draftCount = (countData ?? previousCountData)?.searchTrips?.totalCount;
 
   // Le filtrage, le tri et la pagination sont faits par le serveur. `overview`
   // porte les chiffres du bandeau (tout le catalogue) et `results` la page
@@ -85,17 +122,25 @@ export default function HomeScreen() {
     });
   };
 
-  // Les filtres ne sont plus appliqués ici : ils partent dans les variables de
-  // la requête, et le serveur rend la page déjà filtrée et triée.
-  const handleFilterApply = (filters) => {
-    setAppliedFilters(filters);
-    setSelectedSort(filters?.sort ?? null);
-  };
+  // Les filtres partent dans les variables de la requête : le serveur rend la
+  // page déjà filtrée et triée. Le tri vit à part des autres filtres, pour que
+  // changer l'un n'efface jamais l'autre.
+  const sort = appliedFilters.sort;
+  const handleFilterApply = (filters) => setAppliedFilters({ ...filters, sort });
+  const handleSortSelect = (value) =>
+    setAppliedFilters((current) => ({
+      ...current,
+      sort: value === "recent" ? undefined : value,
+    }));
+  const handleClearFilters = () => setAppliedFilters(sort ? { sort } : {});
 
-  const handleClearFilters = () => {
-    setAppliedFilters(null);
-    setSelectedSort(null);
-  };
+  const chips = filterChips(appliedFilters, {
+    i18n,
+    language,
+    currencySymbol: currencySymbol(currency),
+  });
+  const summary = searchSummary(chips, i18n);
+  const activeCount = countActiveFilters(appliedFilters);
 
   return (
     <View
@@ -120,7 +165,15 @@ export default function HomeScreen() {
                 {i18n.t("find_luggage_space")}
               </Text>
             </View>
-            <Avatar initials="JB" isHeader={true} size={48} />
+            <Avatar
+              initials={initialsOf({
+                givenName: userInfo?.given_name,
+                familyName: userInfo?.family_name,
+                name: userInfo?.name,
+              })}
+              isHeader={true}
+              size={48}
+            />
           </View>
 
           {/* Stats Cards */}
@@ -142,16 +195,13 @@ export default function HomeScreen() {
             />
           </View>
 
-          {/* Action Bar */}
-          <View style={styles.searchContainer}>
-            <ActionBar
-              showStatusFilter={false}
-              onFilterApply={handleFilterApply}
-              onClear={handleClearFilters}
-              appliedFilters={appliedFilters}
-              selectedSort={selectedSort}
-            />
-          </View>
+          <SearchPill
+            title={summary.title}
+            subtitle={summary.subtitle}
+            activeCount={activeCount}
+            onPress={() => setFiltersOpen(true)}
+            accessibilityLabel={i18n.t("filters")}
+          />
         </LinearGradient>
 
         {/* Action Buttons */}
@@ -163,6 +213,21 @@ export default function HomeScreen() {
           <View style={styles.listingsContainer}>
             {mode === "buy" ? (
               <>
+                <ResultsToolbar
+                  countLabel={
+                    data
+                      ? i18n.t(
+                          totalCount === 1 ? "listings_count_one" : "listings_count",
+                          { count: totalCount }
+                        )
+                      : " "
+                  }
+                  sortLabel={i18n.t(`sort_${sort ?? "recent"}`)}
+                  onSortPress={() => setSortOpen(true)}
+                  chips={chips}
+                  onRemoveChip={(chip) => setAppliedFilters((current) => chip.remove(current))}
+                  onClearAll={handleClearFilters}
+                />
                 {/* `isLoading` repasse à true pendant « charger plus » : sans
                     le test sur data, la liste disparaîtrait à chaque page. */}
                 {isLoading && !data ? (
@@ -218,6 +283,40 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <FilterSheet
+        visible={filtersOpen}
+        onClose={() => {
+          setFiltersOpen(false);
+          setDraft(null);
+        }}
+        value={appliedFilters}
+        onApply={handleFilterApply}
+        onDraftChange={setDraft}
+        applyLabel={
+          draftCount === undefined
+            ? i18n.t("apply_filters")
+            : draftCount === 0
+              ? i18n.t("filter_show_none")
+              : i18n.t(draftCount === 1 ? "filter_show_listing_one" : "filter_show_listings", {
+                  count: draftCount,
+                })
+        }
+        currencySymbol={currencySymbol(currency)}
+        weightLabel={i18n.t("filter_available_weight")}
+      />
+
+      <OptionSheet
+        visible={sortOpen}
+        title={i18n.t("sort")}
+        options={SORT_OPTIONS.map((value) => ({
+          value,
+          label: i18n.t(`sort_${value}`),
+        }))}
+        selected={sort ?? "recent"}
+        onSelect={handleSortSelect}
+        onClose={() => setSortOpen(false)}
+      />
     </View>
   );
 }
@@ -241,9 +340,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
     marginBottom: 32,
-  },
-  searchContainer: {
-    paddingHorizontal: 8,
   },
   weightSection: {
     paddingHorizontal: 25,

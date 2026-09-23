@@ -6,8 +6,9 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
- * Champ des écrans de connexion : icône dans le champ, bordure qui suit le
- * focus et l'erreur, bascule d'affichage pour les mots de passe.
+ * Champ des formulaires de compte (connexion, inscription, édition du profil) :
+ * icône dans le champ, bordure qui suit le focus et l'erreur, bascule
+ * d'affichage pour les mots de passe, zone de texte avec `multiline`.
  *
  * `Icon` est un composant lucide (Mail, Lock…), pas un élément : le champ lui
  * donne sa couleur selon l'état. `inputRef` permet de passer au champ suivant.
@@ -18,6 +19,7 @@ export default function AuthField({
   error = null,
   hint = null,
   password = false,
+  multiline = false,
   inputRef,
   style,
   ...inputProps
@@ -56,14 +58,24 @@ export default function AuthField({
             backgroundColor: isDark ? Colors.dark_4 : Colors.very_light_blue,
           },
           focused && !error && styles.fieldFocused,
+          multiline && styles.fieldMultiline,
         ]}
       >
-        {Icon ? <Icon size={20} color={iconColor} /> : null}
+        {Icon ? (
+          <View style={multiline && styles.iconMultiline}>
+            <Icon size={20} color={iconColor} />
+          </View>
+        ) : null}
         <TextInput
           autoCorrect={false}
           {...inputProps}
           ref={inputRef}
-          style={[styles.input, { color: theme.title }]}
+          multiline={multiline}
+          style={[
+            styles.input,
+            multiline && styles.inputMultiline,
+            { color: theme.title },
+          ]}
           placeholderTextColor={theme.text}
           secureTextEntry={password && !revealed}
           autoCapitalize={password ? "none" : inputProps.autoCapitalize}
@@ -126,11 +138,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 6,
   },
+  fieldMultiline: {
+    height: undefined,
+    minHeight: 120,
+    alignItems: "flex-start",
+    paddingVertical: 12,
+  },
+  iconMultiline: {
+    paddingTop: 2,
+  },
   input: {
     flex: 1,
     minWidth: 0,
     height: "100%",
     fontSize: 16,
+  },
+  inputMultiline: {
+    height: undefined,
+    minHeight: 96,
+    paddingTop: 0,
+    textAlignVertical: "top",
   },
   error: {
     color: Colors.error_color,

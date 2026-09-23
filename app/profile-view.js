@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import { ArrowLeft, Flag, Star } from "lucide-react-native";
+import { ArrowLeft, Flag, Star, ShieldCheck } from "lucide-react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import ButtonIcon from "@/components/ButtonIcon";
@@ -11,6 +11,8 @@ import { globalStyles } from "@/theme/Styles";
 import { useQuery } from "@apollo/client/react";
 import { REVIEW_SUMMARY } from "@/lib/graphql/reviews";
 import { TRANSACTION_COUNT } from "@/lib/graphql/transactions";
+import { PUBLIC_USER } from "@/lib/graphql/users";
+import { initialsOf } from "@/utils/authForm";
 import { withEndpoint } from "@/lib/apolloClient";
 import i18n from "@/i18n";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -21,18 +23,33 @@ const ProfileView = () => {
   const theme = Colors[colorScheme] || Colors.light;
   const router = useRouter();
   const { userInfo } = useLocalSearchParams();
-  const parsedUserInfo = JSON.parse(userInfo);
+  const snapshot = JSON.parse(userInfo);
   const [reportVisible, setReportVisible] = useState(false);
+
+  // L'annonce ne porte qu'un instantané du vendeur, pris à la publication : la
+  // bio ou la ville ont pu changer depuis, et la vérification de l'email n'y
+  // figure pas. Le profil public se lit donc à jour ; l'instantané sert à
+  // afficher quelque chose tout de suite, et de repli si userservice ne répond pas.
+  const { data: userData } = useQuery(PUBLIC_USER, {
+    context: withEndpoint("users"),
+    variables: { sub: snapshot.sub },
+  });
+  const live = userData?.user;
+  const parsedUserInfo = {
+    ...snapshot,
+    ...(live
+      ? Object.fromEntries(
+          Object.entries(live).filter(([, value]) => value != null && value !== "")
+        )
+      : {}),
+  };
 
   const handleGoBack = () => {
     router.back();
   };
   // L'objet est celui qu'une annonce porte (UserInfoView), sérialisé par
   // l'écran appelant : champs en camelCase, comme le schéma.
-  let initials = parsedUserInfo.givenName
-    ? parsedUserInfo.givenName.charAt(0).toUpperCase() +
-      (parsedUserInfo.familyName?.charAt(0).toUpperCase() ?? "")
-    : "NN";
+  const initials = initialsOf(parsedUserInfo) || "?";
 
   // Les avis reçus et la moyenne vivent dans le même schéma : une seule requête
   // là où le REST en demandait deux. Le compteur de transactions, lui, est servi
@@ -85,8 +102,19 @@ const ProfileView = () => {
               <Text style={styles.avatarText}>{initials}</Text>
             </View>
             <View style={{ flexDirection: "column", gap: 4 }}>
-              <Text style={styles.userName}>{parsedUserInfo.name}</Text>
-              <Text style={styles.userLocation}>{parsedUserInfo.location}</Text>
+              <View style={styles.nameRow}>
+                <Text style={styles.userName}>{parsedUserInfo.name}</Text>
+                {live?.emailVerified ? (
+                  <ShieldCheck
+                    size={18}
+                    color={Colors.white}
+                    accessibilityLabel={i18n.t("verified")}
+                  />
+                ) : null}
+              </View>
+              {parsedUserInfo.location ? (
+                <Text style={styles.userLocation}>{parsedUserInfo.location}</Text>
+              ) : null}
             </View>
           </View>
         </LinearGradient>
@@ -112,13 +140,15 @@ const ProfileView = () => {
                     {averageRating ? averageRating.toFixed(1) : "N/A"}
                   </Text>
                 </View>
-                <Text style={theme.textStyles.bodySmall}>Rating</Text>
+                <Text style={theme.textStyles.bodySmall}>{i18n.t("rating")}</Text>
               </View>
               <View style={styles.columnContainer}>
                 <Text style={theme.textStyles.titleMedium}>
                   {numberOfTransactions !== null ? numberOfTransactions : "N/A"}
                 </Text>
-                <Text style={theme.textStyles.bodySmall}>Transactions</Text>
+                <Text style={theme.textStyles.bodySmall}>
+                  {i18n.t("transactions")}
+                </Text>
               </View>
             </View>
           </View>
@@ -130,10 +160,10 @@ const ProfileView = () => {
           >
             <View style={{ alignItems: "center", marginBottom: 16, gap: 8 }}>
               <View style={styles.cardHeader}>
-                <Text style={theme.textStyles.cardTitle}>Bio</Text>
+                <Text style={theme.textStyles.cardTitle}>{i18n.t("bio")}</Text>
               </View>
               <Text style={theme.textStyles.bodyMedium}>
-                {parsedUserInfo.bio}
+                {parsedUserInfo.bio || i18n.t("account_no_bio")}
               </Text>
             </View>
           </View>
@@ -192,6 +222,11 @@ const styles = StyleSheet.create({
     paddingTop: 70,
     paddingHorizontal: 25,
     paddingBottom: 32,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   headerTop: {
     flexDirection: "row",
