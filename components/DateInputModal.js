@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,9 @@ import i18n from "@/i18n";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatLocalizedDateTime } from "@/components/LocalizedDateTime";
 
+const clampToMinimum = (date, minTime) =>
+  minTime !== null && date.getTime() < minTime ? new Date(minTime) : date;
+
 const DateInputModal = ({
   label,
   value,
@@ -30,24 +33,28 @@ const DateInputModal = ({
   const theme = Colors[colorScheme] ?? Colors.light;
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [tempDate, setTempDate] = useState(
-    value ? new Date(value) : new Date()
+  // null plutôt que NaN pour une date invalide : NaN !== NaN relancerait la
+  // resynchronisation ci-dessous à chaque rendu.
+  const parsedMin = minimumDate ? new Date(minimumDate).getTime() : NaN;
+  const minTime = Number.isNaN(parsedMin) ? null : parsedMin;
+  const [tempDate, setTempDate] = useState(() =>
+    value ? new Date(value) : clampToMinimum(new Date(), minTime)
   );
   const today = new Date();
   const { language } = useLanguage();
 
-  useEffect(() => {
-    if (minimumDate) {
-      const minDate = new Date(minimumDate);
-      setTempDate((currentDate) =>
-        currentDate < minDate ? minDate : currentDate
-      );
-    }
-  }, [minimumDate]);
-
-  useEffect(() => {
-    if (value) setTempDate(new Date(value));
-  }, [value]);
+  // Resynchronise la date du sélecteur quand la valeur ou la date minimale
+  // changent ; la valeur reçue l'emporte sur le plancher.
+  const [prevValue, setPrevValue] = useState(value);
+  const [prevMinTime, setPrevMinTime] = useState(minTime);
+  if (value !== prevValue || minTime !== prevMinTime) {
+    setPrevValue(value);
+    setPrevMinTime(minTime);
+    let nextDate =
+      minTime !== prevMinTime ? clampToMinimum(tempDate, minTime) : tempDate;
+    if (value && value !== prevValue) nextDate = new Date(value);
+    setTempDate(nextDate);
+  }
 
   const handleConfirm = (selectedDate) => {
     const date = selectedDate || tempDate;

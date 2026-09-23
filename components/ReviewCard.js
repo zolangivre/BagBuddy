@@ -14,6 +14,21 @@ import i18n from "@/i18n";
 import { router } from "expo-router";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+const StarsReview = ({ theme, rating }) => {
+  const stars = [];
+  for (let i = 0; i < 5; i++) {
+    stars.push(
+      <Star
+        key={i}
+        size={16}
+        color={i < rating ? Colors.light_yellow : theme.title}
+        fill={i < rating ? Colors.light_yellow : "none"}
+      />
+    );
+  }
+  return <View style={{ flexDirection: "row" }}>{stars}</View>;
+};
+
 const ReviewCard = ({ review, editMode }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] || Colors.light;
@@ -23,20 +38,6 @@ const ReviewCard = ({ review, editMode }) => {
   });
   const { language } = useLanguage();
 
-  const StarsReview = ({ rating }) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <Star
-          key={i}
-          size={16}
-          color={i < rating ? Colors.light_yellow : theme.title}
-          fill={i < rating ? Colors.light_yellow : "none"}
-        />
-      );
-    }
-    return <View style={{ flexDirection: "row" }}>{stars}</View>;
-  };
   const handleOnSubmit = async ({ rating, comment }) => {
     try {
       // Seul le contenu est modifiable : qui est noté n'est jamais réécrit.
@@ -76,7 +77,7 @@ const ReviewCard = ({ review, editMode }) => {
             </Text>
           </View>
         </View>
-        <StarsReview rating={review.rating} />
+        <StarsReview theme={theme} rating={review.rating} />
         <Text style={theme.textStyles.bodyMedium}>{review.comment}</Text>
       </View>
       <View style={{ marginLeft: "auto" }}>

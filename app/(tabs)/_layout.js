@@ -63,22 +63,14 @@ export default function TabsLayout() {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState("home");
-  const [tabLabels, setTabLabels] = useState({
+  const tabLabels = {
     home: i18n.t("home"),
     transactions: i18n.t("transactions"),
     profile: i18n.t("profile"),
-  });
+  };
   const handleTabPress = (key) => {
     setActiveTab(key);
   };
-
-  useEffect(() => {
-    setTabLabels({
-      home: i18n.t("home"),
-      transactions: i18n.t("transactions"),
-      profile: i18n.t("profile"),
-    });
-  }, [language, i18n]);
 
   useEffect(() => {
     if (!state.isSignedIn) {

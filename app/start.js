@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Plane, DollarSign, Shield, ArrowRight } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -12,6 +12,20 @@ import { globalStyles } from "@/theme/Styles";
 import { router } from "expo-router";
 import { AuthContext } from "@/contexts/AuthContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+
+function FeatureIconWrap({ theme, title, subtitle, icon, backgroundColor }) {
+  return (
+    <View style={styles.featureItem}>
+      <RoundIconText icon={icon} backgroundColor={backgroundColor} size={48} />
+      <Text style={[theme.textStyles.cardTitle, { textAlign: "center" }]}>
+        {title}
+      </Text>
+      <Text style={[theme.textStyles.cardSubtitle, { textAlign: "center" }]}>
+        {subtitle}
+      </Text>
+    </View>
+  );
+}
 
 export default function StartScreen() {
   const { state } = useContext(AuthContext);
@@ -34,18 +48,6 @@ export default function StartScreen() {
       </View>
     );
   }
-
-  const FeatureIconWrap = ({ title, subtitle, icon, backgroundColor }) => (
-    <View style={styles.featureItem}>
-      <RoundIconText icon={icon} backgroundColor={backgroundColor} size={48} />
-      <Text style={[theme.textStyles.cardTitle, { textAlign: "center" }]}>
-        {title}
-      </Text>
-      <Text style={[theme.textStyles.cardSubtitle, { textAlign: "center" }]}>
-        {subtitle}
-      </Text>
-    </View>
-  );
 
   return (
     <LinearGradient
@@ -91,18 +93,21 @@ export default function StartScreen() {
           >
             <View style={styles.rowBetween}>
               <FeatureIconWrap
+                theme={theme}
                 title={i18n.t("feature_one_title")}
                 subtitle={i18n.t("feature_one_description")}
                 icon={<Plane size={24} color={Colors.dark_cyan} />}
                 backgroundColor={Colors.dark_cyan_translucent}
               />
               <FeatureIconWrap
+                theme={theme}
                 title={i18n.t("feature_two_title")}
                 subtitle={i18n.t("feature_two_description")}
                 icon={<DollarSign size={24} color={Colors.light_green} />}
                 backgroundColor={Colors.light_green_translucent}
               />
               <FeatureIconWrap
+                theme={theme}
                 title={i18n.t("feature_three_title")}
                 subtitle={i18n.t("feature_three_description")}
                 icon={<Shield size={24} color={Colors.light_yellow} />}
@@ -221,17 +226,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginTop: -10,
-  },
-  loginRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 4,
-  },
-  loginLink: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: Colors.primary_color,
   },
   loadingText: {
     marginTop: 10,

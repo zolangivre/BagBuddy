@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import * as Localization from "expo-localization";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 
 const CurrencyContext = createContext();
 
@@ -10,7 +9,9 @@ export const CurrencyProvider = ({ children }) => {
 
   const [currency, setCurrency] = useState("EUR"); // devise affichée
   const [locale, setLocale] = useState(defaultLocale);
-  const [rates, setRates] = useState({
+  // Taux figés tant que la récupération ci-dessous reste commentée (elle
+  // demandera de réimporter axios et de reprendre setRates).
+  const [rates] = useState({
     privacy: "https://currencylayer.com/privacy",
     quotes: { USDEUR: 0.86434 },
     source: "USD",

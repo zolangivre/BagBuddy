@@ -129,7 +129,7 @@ const ProfileScreen = () => {
     router.push("edit-profile");
   };
 
-  const Review = () => {
+  const renderReviews = () => {
     return (
       <View
         style={[globalStyles.card, { backgroundColor: theme.background_card }]}
@@ -189,7 +189,7 @@ const ProfileScreen = () => {
     );
   };
 
-  const Listings = () => {
+  const renderListings = () => {
     return (
       <View
         style={[globalStyles.card, { backgroundColor: theme.background_card }]}
@@ -273,7 +273,7 @@ const ProfileScreen = () => {
     );
   };
 
-  const Settings = () => {
+  const renderSettings = () => {
     const handleLogout = () => {
       Alert.alert(
         i18n.t("log_out"),
@@ -428,16 +428,16 @@ const ProfileScreen = () => {
     );
   };
 
-  const Content = () => {
+  const renderContent = () => {
     switch (mode) {
       case "reviews":
-        return <Review />;
+        return renderReviews();
       case "listings":
-        return <Listings />;
+        return renderListings();
       case "settings":
-        return <Settings />;
+        return renderSettings();
       default:
-        return <Listings />;
+        return renderListings();
     }
   };
 
@@ -602,7 +602,7 @@ const ProfileScreen = () => {
           <ActionButton onSelectionChange={setMode} type="profile" />
 
           {/* Reviews */}
-          <Content />
+          {renderContent()}
         </View>
       </ScrollView>
     </View>

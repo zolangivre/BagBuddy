@@ -7,52 +7,52 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { globalStyles } from "@/theme/Styles";
 
+const Step = ({ theme, number, title, description, isActive, isSuccess }) => (
+  <View style={styles.progressStep}>
+    <View
+      style={
+        isSuccess
+          ? [styles.stepNumber, { backgroundColor: Colors.success_color }]
+          : isActive
+          ? [styles.stepNumber, { backgroundColor: Colors.primary_color }]
+          : [styles.stepNumber, { backgroundColor: theme.flightCard }]
+      }
+    >
+      {isSuccess ? (
+        <Check size={20} color={Colors.white} />
+      ) : (
+        <Text
+          style={
+            isActive
+              ? [styles.stepNumberText, { color: theme.title_inverse }]
+              : [styles.stepNumberText, { color: theme.title }]
+          }
+        >
+          {number}
+        </Text>
+      )}
+    </View>
+    <View style={styles.stepContent}>
+      <Text
+        style={
+          isSuccess
+            ? [styles.stepTitle, { color: theme.title }]
+            : isActive
+            ? [styles.stepTitle, { color: Colors.primary_color }]
+            : [styles.stepTitle, { color: theme.text }]
+        }
+      >
+        {title}
+      </Text>
+      <Text style={theme.textStyles.bodyMedium}>{description}</Text>
+    </View>
+    {isActive && <Dot size={20} color={Colors.primary_color} />}
+  </View>
+);
+
 const TransactionProgressCard = ({ step, role }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
-
-  const Step = ({ number, title, description, isActive, isSuccess }) => (
-    <View style={styles.progressStep}>
-      <View
-        style={
-          isSuccess
-            ? [styles.stepNumber, { backgroundColor: Colors.success_color }]
-            : isActive
-            ? [styles.stepNumber, { backgroundColor: Colors.primary_color }]
-            : [styles.stepNumber, { backgroundColor: theme.flightCard }]
-        }
-      >
-        {isSuccess ? (
-          <Check size={20} color={Colors.white} />
-        ) : (
-          <Text
-            style={
-              isActive
-                ? [styles.stepNumberText, { color: theme.title_inverse }]
-                : [styles.stepNumberText, { color: theme.title }]
-            }
-          >
-            {number}
-          </Text>
-        )}
-      </View>
-      <View style={styles.stepContent}>
-        <Text
-          style={
-            isSuccess
-              ? [styles.stepTitle, { color: theme.title }]
-              : isActive
-              ? [styles.stepTitle, { color: Colors.primary_color }]
-              : [styles.stepTitle, { color: theme.text }]
-          }
-        >
-          {title}
-        </Text>
-        <Text style={theme.textStyles.bodyMedium}>{description}</Text>
-      </View>
-      {isActive && <Dot size={20} color={Colors.primary_color} />}
-    </View>
-  );
 
   const totalSteps = role === "buyer" ? 4 : 3;
   return (
@@ -76,6 +76,7 @@ const TransactionProgressCard = ({ step, role }) => {
         {role === "buyer" ? (
           <>
             <Step
+              theme={theme}
               number={1}
               title={i18n.t("step_one_title_buyer")}
               description={i18n.t("step_one_description_buyer")}
@@ -83,6 +84,7 @@ const TransactionProgressCard = ({ step, role }) => {
               isSuccess={step > 0}
             />
             <Step
+              theme={theme}
               number={2}
               title={i18n.t("step_two_title_buyer")}
               description={i18n.t("step_two_description_buyer")}
@@ -90,6 +92,7 @@ const TransactionProgressCard = ({ step, role }) => {
               isSuccess={step > 1}
             />
             <Step
+              theme={theme}
               number={3}
               title={i18n.t("step_three_title_buyer")}
               description={i18n.t("step_three_description_buyer")}
@@ -97,6 +100,7 @@ const TransactionProgressCard = ({ step, role }) => {
               isSuccess={step > 2}
             />
             <Step
+              theme={theme}
               number={4}
               title={i18n.t("step_four_title_buyer")}
               description={i18n.t("step_four_description_buyer")}
@@ -107,6 +111,7 @@ const TransactionProgressCard = ({ step, role }) => {
         ) : (
           <>
             <Step
+              theme={theme}
               number={1}
               title={i18n.t("step_one_title_seller")}
               description={i18n.t("step_one_description_seller")}
@@ -114,6 +119,7 @@ const TransactionProgressCard = ({ step, role }) => {
               isSuccess={step > 0}
             />
             <Step
+              theme={theme}
               number={2}
               title={i18n.t("step_two_title_seller")}
               description={i18n.t("step_two_description_seller")}
@@ -121,6 +127,7 @@ const TransactionProgressCard = ({ step, role }) => {
               isSuccess={step > 1}
             />
             <Step
+              theme={theme}
               number={3}
               title={i18n.t("step_three_title_seller")}
               description={i18n.t("step_three_description_seller")}

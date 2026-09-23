@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -85,8 +85,9 @@ export default function EditListingScreen() {
   // Le formulaire reste piloté par ses propres états : la réponse ne fait que
   // les préremplir, une fois, à l'ouverture d'une annonce existante.
   const listing = tripData?.trip;
-  useEffect(() => {
-    if (!listing) return;
+  const [prefilledFrom, setPrefilledFrom] = useState(null);
+  if (listing && listing !== prefilledFrom) {
+    setPrefilledFrom(listing);
     setDeparture(listing.departureAirport);
     setArrival(listing.arrivalAirport);
     setFlightDateDeparture(listing.departureDate);
@@ -94,30 +95,21 @@ export default function EditListingScreen() {
     setAvailableKilos(listing.remainingWeight.toString());
     setPricePerKg(listing.pricePerKg.toString());
     setSpecialConditions(listing.conditions);
-  }, [listing]);
+  }
 
-  useEffect(() => {
-    if (
-      flightDateDeparture &&
-      flightDateDeparture.trim() !== "" &&
-      flightDateArrival &&
-      flightDateArrival.trim() !== ""
-    ) {
-      const departureDate = new Date(flightDateDeparture);
-      const arrivalDate = new Date(flightDateArrival);
-      if (arrivalDate < departureDate) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          flightDateArrival: i18n.t("error_arrival_before_departure"),
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          flightDateArrival: null,
-        }));
+  // Efface l'erreur du champ modifié et revérifie l'ordre des deux dates.
+  const updateDateErrors = (field, departureDate, arrivalDate) => {
+    setErrors((prevErrors) => {
+      const next = { ...prevErrors, [field]: null };
+      if (departureDate?.trim() && arrivalDate?.trim()) {
+        next.flightDateArrival =
+          new Date(arrivalDate) < new Date(departureDate)
+            ? i18n.t("error_arrival_before_departure")
+            : null;
       }
-    }
-  }, [flightDateDeparture, flightDateArrival]);
+      return next;
+    });
+  };
 
   const calculateTotal = () => {
     const kilos = parseFloat(availableKilos) || 0;
@@ -392,7 +384,7 @@ const handleUpdateListing = async () => {
                 value={flightDateDeparture}
                 onChangeText={(text) => {
                   setFlightDateDeparture(text);
-                  clearError("flightDateDeparture");
+                  updateDateErrors("flightDateDeparture", text, flightDateArrival);
                 }}
                 placeholder={i18n.t("flight_date_placeholder_departure")}
                 error={errors.flightDateDeparture}
@@ -402,7 +394,7 @@ const handleUpdateListing = async () => {
                 value={flightDateArrival}
                 onChangeText={(text) => {
                   setFlightDateArrival(text);
-                  clearError("flightDateArrival");
+                  updateDateErrors("flightDateArrival", flightDateDeparture, text);
                 }}
                 placeholder={i18n.t("flight_date_placeholder_arrival")}
                 error={errors.flightDateArrival}

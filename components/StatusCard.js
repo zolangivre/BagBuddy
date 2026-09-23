@@ -19,7 +19,7 @@ const StatusCard = ({ status, role, transaction }) => {
   const theme = Colors[colorScheme] ?? Colors.light;
   let name = transaction?.listingInfo?.sellerUserInfo?.name;
 
-  const BottomContentConfirmedCompleted = ({ role, status }) => (
+  const renderBottomContentConfirmedCompleted = ({ role, status }) => (
     <View
       style={[
         styles.bottomContainer,
@@ -57,7 +57,7 @@ const StatusCard = ({ status, role, transaction }) => {
     </View>
   );
 
-  const BottomContentPaymentReservation = ({ status }) => (
+  const renderBottomContentPaymentReservation = ({ status }) => (
     <View
       style={[styles.bottomContainer, { backgroundColor: theme.title_inverse }]}
     >
@@ -92,7 +92,7 @@ const StatusCard = ({ status, role, transaction }) => {
     </View>
   );
 
-  const BrowseListingStatus = () => {
+  const renderBrowseListingStatus = () => {
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -113,7 +113,7 @@ const StatusCard = ({ status, role, transaction }) => {
     );
   };
 
-  const WaitingForResponseStatus = () => {
+  const renderWaitingForResponseStatus = () => {
     if (status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER) {
       return (
         <>
@@ -193,7 +193,7 @@ const StatusCard = ({ status, role, transaction }) => {
     }
   };
 
-  const RequestRejectedStatus = () => {
+  const renderRequestRejectedStatus = () => {
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -236,7 +236,7 @@ const StatusCard = ({ status, role, transaction }) => {
     );
   };
 
-  const PaymentRequiredStatus = () => {
+  const renderPaymentRequiredStatus = () => {
     // const [showPaymentModal, setShowPaymentModal] = useState(false);
     return (
       <>
@@ -257,9 +257,9 @@ const StatusCard = ({ status, role, transaction }) => {
             weight: transaction.weight + "kg",
           })}
         </Text>
-        <BottomContentPaymentReservation
-          status={TRANSACTION_STATUS.PAYMENT_REQUIRED}
-        />
+        {renderBottomContentPaymentReservation({
+          status: TRANSACTION_STATUS.PAYMENT_REQUIRED,
+        })}
         {/* <StripePaymentModal
           visible={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
@@ -268,7 +268,7 @@ const StatusCard = ({ status, role, transaction }) => {
     );
   };
 
-  const ConfirmedStatus = ({ role }) => {
+  const renderConfirmedStatus = ({ role }) => {
     return (
       <>
         {role === "buyer" ? (
@@ -287,10 +287,10 @@ const StatusCard = ({ status, role, transaction }) => {
             <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
               {i18n.t("confirmed_description_buyer")}
             </Text>
-            <BottomContentConfirmedCompleted
-              role={role}
-              status={TRANSACTION_STATUS.CONFIRMED}
-            />
+            {renderBottomContentConfirmedCompleted({
+              role,
+              status: TRANSACTION_STATUS.CONFIRMED,
+            })}
           </>
         ) : (
           <>
@@ -308,17 +308,17 @@ const StatusCard = ({ status, role, transaction }) => {
             <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
               {i18n.t("confirmed_description_seller")}
             </Text>
-            <BottomContentConfirmedCompleted
-              role={role}
-              status={TRANSACTION_STATUS.CONFIRMED}
-            />
+            {renderBottomContentConfirmedCompleted({
+              role,
+              status: TRANSACTION_STATUS.CONFIRMED,
+            })}
           </>
         )}
       </>
     );
   };
 
-  const CompletedStatus = () => {
+  const renderCompletedStatus = () => {
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -335,14 +335,14 @@ const StatusCard = ({ status, role, transaction }) => {
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("completed_description")}
         </Text>
-        <BottomContentConfirmedCompleted
-          status={TRANSACTION_STATUS.COMPLETED}
-        />
+        {renderBottomContentConfirmedCompleted({
+          status: TRANSACTION_STATUS.COMPLETED,
+        })}
       </>
     );
   };
 
-  const CancelledStatus = () => {
+  const renderCancelledStatus = () => {
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -363,7 +363,7 @@ const StatusCard = ({ status, role, transaction }) => {
     );
   };
 
-  const ReservationReceivedStatus = () => {
+  const renderReservationReceivedStatus = () => {
     let buyerName = transaction?.buyerInfo?.name;
     return (
       <>
@@ -384,14 +384,14 @@ const StatusCard = ({ status, role, transaction }) => {
             weight: transaction.weight + "kg",
           })}
         </Text>
-        <BottomContentPaymentReservation
-          status={TRANSACTION_STATUS.RESERVATION_RECEIVED}
-        />
+        {renderBottomContentPaymentReservation({
+          status: TRANSACTION_STATUS.RESERVATION_RECEIVED,
+        })}
       </>
     );
   };
 
-  const AwaitingPaymentStatus = () => {
+  const renderAwaitingPaymentStatus = () => {
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -408,9 +408,9 @@ const StatusCard = ({ status, role, transaction }) => {
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("awaiting_payment_description", { buyer: "Vin Diesel" })}
         </Text>
-        <BottomContentPaymentReservation
-          status={TRANSACTION_STATUS.AWAITING_PAYMENT}
-        />
+        {renderBottomContentPaymentReservation({
+          status: TRANSACTION_STATUS.AWAITING_PAYMENT,
+        })}
       </>
     );
   };
@@ -462,29 +462,31 @@ const StatusCard = ({ status, role, transaction }) => {
           : styles.reserveCard
       }
     >
-      {status === TRANSACTION_STATUS.BROWSE_LISTING && <BrowseListingStatus />}
+      {status === TRANSACTION_STATUS.BROWSE_LISTING && (
+        renderBrowseListingStatus()
+      )}
       {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER && (
-        <WaitingForResponseStatus />
+        renderWaitingForResponseStatus()
       )}
       {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER && (
-        <WaitingForResponseStatus />
+        renderWaitingForResponseStatus()
       )}
       {status === TRANSACTION_STATUS.REQUEST_REJECTED && (
-        <RequestRejectedStatus />
+        renderRequestRejectedStatus()
       )}
       {status === TRANSACTION_STATUS.PAYMENT_REQUIRED && (
-        <PaymentRequiredStatus />
+        renderPaymentRequiredStatus()
       )}
       {status === TRANSACTION_STATUS.CONFIRMED && (
-        <ConfirmedStatus role={role} />
+        renderConfirmedStatus({ role })
       )}
-      {status === TRANSACTION_STATUS.COMPLETED && <CompletedStatus />}
-      {status === TRANSACTION_STATUS.CANCELLED && <CancelledStatus />}
+      {status === TRANSACTION_STATUS.COMPLETED && renderCompletedStatus()}
+      {status === TRANSACTION_STATUS.CANCELLED && renderCancelledStatus()}
       {status === TRANSACTION_STATUS.RESERVATION_RECEIVED && (
-        <ReservationReceivedStatus />
+        renderReservationReceivedStatus()
       )}
       {status === TRANSACTION_STATUS.AWAITING_PAYMENT && (
-        <AwaitingPaymentStatus />
+        renderAwaitingPaymentStatus()
       )}
     </View>
   );

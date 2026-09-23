@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   TouchableOpacity,
@@ -30,7 +30,7 @@ const StripeBottomSheet = ({
   onPaymentSuccess,
 }) => {
   const [internalVisible, setInternalVisible] = useState(visible);
-  const translateY = useRef(new Animated.Value(400)).current;
+  const [translateY] = useState(() => new Animated.Value(400));
   const { confirmPayment, loading: stripeLoading } = useConfirmPayment();
   const [loading, setLoading] = useState(false);
   const { currency, format, rates } = useCurrency();
@@ -65,9 +65,12 @@ const StripeBottomSheet = ({
   // serveur, à partir de la transaction.
   const displayAmount = getAmountInCurrency();
 
+  // Monte le Modal dès que `visible` passe à true ; le démontage attend la
+  // fin de l'animation de fermeture, dans l'effet ci-dessous.
+  if (visible && !internalVisible) setInternalVisible(true);
+
   useEffect(() => {
     if (visible) {
-      setInternalVisible(true);
       Animated.timing(translateY, {
         toValue: 0,
         duration: 300,

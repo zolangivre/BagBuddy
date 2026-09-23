@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   TextInput,
@@ -18,21 +18,19 @@ import Colors from "@/theme/Colors";
 
 const StripeBottomSheet = ({ visible, onClose, defaultAmount = "10" }) => {
   const [internalVisible, setInternalVisible] = useState(visible);
-  const translateY = useRef(new Animated.Value(400)).current; // initial offscreen
+  const [translateY] = useState(() => new Animated.Value(400));
   const [amount, setAmount] = useState(defaultAmount);
   const { confirmPayment, loading } = useConfirmPayment();
-  const [publishableKey, setPublishableKey] = useState("");
+  // Clé de test Stripe
+  const publishableKey =
+    "pk_test_51SMV8VCwao2kdcbBHPoqltFqIve7fYZY5bbsTZJb1VDMzsz2QfLj7619tsn210THIXyg4yQqRJaTdRx33rGHfsLb00gySEUieq";
 
-  useEffect(() => {
-    // Clé de test Stripe
-    setPublishableKey(
-      "pk_test_51SMV8VCwao2kdcbBHPoqltFqIve7fYZY5bbsTZJb1VDMzsz2QfLj7619tsn210THIXyg4yQqRJaTdRx33rGHfsLb00gySEUieq"
-    );
-  }, []);
+  // Monte le Modal dès que `visible` passe à true ; le démontage attend la
+  // fin de l'animation de fermeture, dans l'effet ci-dessous.
+  if (visible && !internalVisible) setInternalVisible(true);
 
   useEffect(() => {
     if (visible) {
-      setInternalVisible(true);
       Animated.timing(translateY, {
         toValue: 0,
         duration: 300,

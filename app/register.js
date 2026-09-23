@@ -43,12 +43,10 @@ export default function RegisterScreen() {
   const [errors, setErrors] = useState({});
   const [failure, setFailure] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const refs = {
-    lastName: useRef(null),
-    email: useRef(null),
-    password: useRef(null),
-    confirmPassword: useRef(null),
-  };
+  const lastNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
 
   useEffect(() => {
     if (state.isSignedIn && state.userInfo) enterApp();
@@ -107,7 +105,13 @@ export default function RegisterScreen() {
       const field = FIELD_ERRORS[code];
       if (field) {
         setErrors((prev) => ({ ...prev, [field]: i18n.t(`auth_error_${code}`) }));
-        refs[field]?.current?.focus();
+        const fieldRefs = {
+          lastName: lastNameRef,
+          email: emailRef,
+          password: passwordRef,
+          confirmPassword: confirmPasswordRef,
+        };
+        fieldRefs[field]?.current?.focus();
       } else if (CombinedGraphQLErrors.is(error)) {
         // Sans code, un refus vient de la validation du schéma : une valeur a
         // passé nos règles mais pas celles du serveur.
@@ -170,14 +174,14 @@ export default function RegisterScreen() {
           textContentType="givenName"
           returnKeyType="next"
           submitBehavior="submit"
-          onSubmitEditing={() => refs.lastName.current?.focus()}
+          onSubmitEditing={() => lastNameRef.current?.focus()}
           maxLength={NAME_MAX_LENGTH}
           testID="register-first-name"
         />
         <AuthField
           style={styles.half}
           label={i18n.t("auth_last_name")}
-          inputRef={refs.lastName}
+          inputRef={lastNameRef}
           value={form.lastName}
           onChangeText={update("lastName")}
           placeholder={i18n.t("auth_last_name_placeholder")}
@@ -187,7 +191,7 @@ export default function RegisterScreen() {
           textContentType="familyName"
           returnKeyType="next"
           submitBehavior="submit"
-          onSubmitEditing={() => refs.email.current?.focus()}
+          onSubmitEditing={() => emailRef.current?.focus()}
           maxLength={NAME_MAX_LENGTH}
           testID="register-last-name"
         />
@@ -196,7 +200,7 @@ export default function RegisterScreen() {
       <AuthField
         label={i18n.t("auth_email")}
         icon={Mail}
-        inputRef={refs.email}
+        inputRef={emailRef}
         value={form.email}
         onChangeText={update("email")}
         placeholder={i18n.t("auth_email_placeholder")}
@@ -207,7 +211,7 @@ export default function RegisterScreen() {
         textContentType="username"
         returnKeyType="next"
         submitBehavior="submit"
-        onSubmitEditing={() => refs.password.current?.focus()}
+        onSubmitEditing={() => passwordRef.current?.focus()}
         testID="register-email"
       />
 
@@ -215,7 +219,7 @@ export default function RegisterScreen() {
         label={i18n.t("auth_password")}
         icon={Lock}
         password
-        inputRef={refs.password}
+        inputRef={passwordRef}
         value={form.password}
         onChangeText={update("password")}
         placeholder="••••••••"
@@ -225,7 +229,7 @@ export default function RegisterScreen() {
         textContentType="newPassword"
         returnKeyType="next"
         submitBehavior="submit"
-        onSubmitEditing={() => refs.confirmPassword.current?.focus()}
+        onSubmitEditing={() => confirmPasswordRef.current?.focus()}
         maxLength={PASSWORD_MAX_LENGTH}
         testID="register-password"
       />
@@ -234,7 +238,7 @@ export default function RegisterScreen() {
         label={i18n.t("auth_confirm_password")}
         icon={ShieldCheck}
         password
-        inputRef={refs.confirmPassword}
+        inputRef={confirmPasswordRef}
         value={form.confirmPassword}
         onChangeText={update("confirmPassword")}
         placeholder="••••••••"

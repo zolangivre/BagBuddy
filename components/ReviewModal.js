@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -20,13 +20,18 @@ const ReviewModal = ({ visible, onClose, onSubmit, review }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
-  useEffect(() => {
+  // Repart de l'avis existant (ou d'un formulaire vide) à chaque ouverture.
+  const [prevVisible, setPrevVisible] = useState(false);
+  const [prevReview, setPrevReview] = useState(review);
+  if (visible !== prevVisible || review !== prevReview) {
+    setPrevVisible(visible);
+    setPrevReview(review);
     if (visible) {
       setRating(review ? review.rating : 0);
       setComment(review ? review.comment : "");
       setError(""); // reset errors on open
     }
-  }, [visible, review]);
+  }
 
   const handleSubmit = () => {
     if (rating === 0) {
