@@ -4,7 +4,7 @@
     "slug": "BagBuddy",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./images/logo.png",
+    "icon": "./images/icon.png",
     "scheme": "bagbuddy",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -19,7 +19,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE"
+        "foregroundImage": "./images/adaptive-icon.png",
+        "backgroundColor": "#D1E7FF"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.BagBuddy",

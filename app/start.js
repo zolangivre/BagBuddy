@@ -62,9 +62,9 @@ export default function StartScreen() {
             {/* Logo */}
             <View style={[styles.logoWrapper, styles.logoShadow]}>
               <Image
-                source={require("../images/logo.png")}
-                style={{ width: 115, height: 115, borderRadius: 24 }}
-                resizeMode="contain"
+                source={require("../images/icon.png")}
+                style={styles.logoImage}
+                resizeMode="cover"
               />
             </View>
 
@@ -166,19 +166,6 @@ export default function StartScreen() {
               />
             }
           />
-
-          <View style={styles.loginRow}>
-            <Text style={theme.textStyles.bodyMedium}>
-              {i18n.t("auth_have_account")}
-            </Text>
-            <TouchableOpacity
-              onPress={() => router.push("/login")}
-              hitSlop={8}
-              testID="start-login"
-            >
-              <Text style={styles.loginLink}>{i18n.t("auth_login_link")}</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </LinearGradient>
@@ -206,6 +193,11 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
+  },
+  logoImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 24,
   },
   logoShadow: {
     shadowColor: "#000",
