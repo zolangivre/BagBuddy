@@ -1,7 +1,5 @@
-import React, { useState, useCallback, useContext } from "react";
-import { useFocusEffect } from "expo-router";
-
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import React, { useState, useContext } from "react";
+import { View, Text, FlatList, RefreshControl, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TrendingUp, Activity } from "lucide-react-native";
 import Colors from "@/theme/Colors";
@@ -22,7 +20,11 @@ import Currency from "@/components/Currency";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCurrency } from "@/contexts/CurrencyContext";
+// Les filtres de prix partent tels quels au serveur, qui compare en EUR : on
+// les saisit donc en EUR quelle que soit la devise d'affichage.
+import { BASE_CURRENCY } from "@/lib/exchangeRates";
+import ErrorState from "@/components/ErrorState";
+import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
 import {
   countActiveFilters,
   currencySymbol,
@@ -48,26 +50,30 @@ export default function TransactionsScreen() {
   const userInfo = state.userInfo;
   const [mode, setMode] = useState("active");
   const { language } = useLanguage();
-  const { currency } = useCurrency();
   const [appliedFilters, setAppliedFilters] = useState({});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [draft, setDraft] = useState(null);
 
   // myTransactions ne prend pas d'identifiant : le serveur se cadre sur le
   // jeton et rend achats et ventes confondus, comme /transactions/user/{sub}.
-  const { data, loading: isLoading, refetch } = useQuery(MY_TRANSACTIONS, {
+  const {
+    data,
+    error,
+    loading,
+    networkStatus,
+    refetch,
+  } = useQuery(MY_TRANSACTIONS, {
     context: withEndpoint("transactions"),
-    onError: (error) => console.error("Error fetching transactions:", error),
   });
+  // Seul le premier chargement remplace la liste par un spinner : un refetch
+  // (retour sur l'onglet, tirer pour rafraîchir) garde l'ancienne à l'écran.
+  const isLoading = loading && !data;
+  const isRefreshing = networkStatus === 4;
 
   const transactions = data?.myTransactions ?? [];
   const numberOfTransactions = transactions.length;
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch])
-  );
+  useRefetchOnFocus(refetch);
   let list =
     mode === "active"
       ? transactions.filter((t) => {
@@ -92,7 +98,7 @@ export default function TransactionsScreen() {
   let totalEarned = transactions
     .filter(
       (t) =>
-        t.sellerId === userInfo.sub &&
+        t.sellerId === userInfo?.sub &&
         t.sellerStatus === TRANSACTION_STATUS.COMPLETED
     )
     .reduce((sum, t) => sum + t.total, 0);
@@ -100,7 +106,7 @@ export default function TransactionsScreen() {
   let totalSpent = transactions
     .filter(
       (t) =>
-        t.buyerId === userInfo.sub &&
+        t.buyerId === userInfo?.sub &&
         t.buyerStatus === TRANSACTION_STATUS.COMPLETED
     )
     .reduce((sum, t) => sum + t.total, 0);
@@ -114,7 +120,7 @@ export default function TransactionsScreen() {
 
     return list.filter((item) => {
       const listing = item.listingInfo ?? {};
-      const role = item.sellerId === userInfo.sub ? "seller" : "buyer";
+      const role = item.sellerId === userInfo?.sub ? "seller" : "buyer";
       const itemStatus = role === "seller" ? item.sellerStatus : item.buyerStatus;
       return (
         (!from || listing.departureAirport === from) &&
@@ -137,119 +143,112 @@ export default function TransactionsScreen() {
   const chips = filterChips(appliedFilters, {
     i18n,
     language,
-    currencySymbol: currencySymbol(currency),
+    currencySymbol: currencySymbol(BASE_CURRENCY),
   });
   const summary = searchSummary(chips, i18n);
   const countLabel = (count) =>
     i18n.t(count === 1 ? "transactions_count_one" : "transactions_count", { count });
 
+  const header = (
+    <>
+      {/* Header Section */}
+      <LinearGradient
+        colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
+        style={styles.header}
+      >
+        <View style={styles.headerContent}>
+          <View style={styles.headerText}>
+            <Text style={theme.textStyles.titleLarge}>
+              {i18n.t("transactions_title")}
+            </Text>
+            <Text style={theme.textStyles.muted}>
+              {i18n.t("transactions_subtitle")}
+            </Text>
+          </View>
+          <Label
+            text={`${numberOfTransactions} ${i18n.t("total")}`}
+            backgroundColor={"rgba(255, 255, 255, 0.10)"}
+            borderColor="transparent"
+            colorText={Colors.white}
+          />
+        </View>
+
+        {/* Stats Cards */}
+        <View style={styles.statsContainer}>
+          <StatCard
+            icon={<TrendingUp size={20} color={Colors.white} />}
+            value={<Currency amount={totalEarned ?? 0} />}
+            label={i18n.t("total_earned")}
+          />
+          <StatCard
+            icon={<Activity size={20} color={Colors.white} />}
+            value={<Currency amount={totalSpent ?? 0} />}
+            label={i18n.t("total_spent")}
+          />
+        </View>
+
+        <SearchPill
+          title={chips.some((chip) => chip.key === "route") ? summary.title : i18n.t("filter_search_transactions")}
+          subtitle={summary.subtitle}
+          activeCount={countActiveFilters(appliedFilters)}
+          onPress={() => setFiltersOpen(true)}
+          accessibilityLabel={i18n.t("filters")}
+        />
+      </LinearGradient>
+
+      {/* Tab Buttons */}
+      <ActionButton onSelectionChange={setMode} type="transactions" />
+
+      <View style={styles.section}>
+        <ResultsToolbar
+          countLabel={isLoading ? " " : countLabel(filteredTransactions.length)}
+          chips={chips}
+          onRemoveChip={(chip) => setAppliedFilters((current) => chip.remove(current))}
+          onClearAll={handleClearFilters}
+        />
+      </View>
+    </>
+  );
+
+  const emptyList = isLoading ? (
+    <View style={styles.placeholder}>
+      <SafeActivityIndicator />
+    </View>
+  ) : error && !data ? (
+    <ErrorState onRetry={refetch} />
+  ) : (
+    <View style={styles.placeholder}>
+      <Text
+        style={[
+          theme.textStyles.bodyLarge,
+          { fontStyle: "italic", textAlign: "center" },
+        ]}
+      >
+        {mode === "active"
+          ? i18n.t("no_active_transactions")
+          : i18n.t("no_completed_transactions")}
+      </Text>
+    </View>
+  );
+
   return (
-    <View
-      style={{ backgroundColor: theme.background }}
-      showsVerticalScrollIndicator={false}
-    >
-      <ScrollView
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <FlatList
+        data={isLoading ? [] : filteredTransactions}
+        keyExtractor={(transaction) => transaction.id}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <TransactionCard transaction={item} />
+          </View>
+        )}
+        ListHeaderComponent={header}
+        ListEmptyComponent={emptyList}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
+        }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 130 }}
-      >
-        {/* Header Section */}
-        <LinearGradient
-          colors={["#0EA5E9", "#0EA5E9", "rgba(14, 165, 233, 0.90)"]}
-          style={styles.header}
-        >
-          <View style={styles.headerContent}>
-            <View style={styles.headerText}>
-              <Text style={theme.textStyles.titleLarge}>
-                {i18n.t("transactions_title")}
-              </Text>
-              <Text style={theme.textStyles.muted}>
-                {i18n.t("transactions_subtitle")}
-              </Text>
-            </View>
-            <Label
-              text={`${numberOfTransactions} ${i18n.t("total")}`}
-              backgroundColor={"rgba(255, 255, 255, 0.10)"}
-              borderColor="transparent"
-              colorText={Colors.white}
-            />
-          </View>
-
-          {/* Stats Cards */}
-          <View style={styles.statsContainer}>
-            <StatCard
-              icon={<TrendingUp size={20} color={Colors.white} />}
-              value={<Currency amount={totalEarned ?? 0} />}
-              label={i18n.t("total_earned")}
-            />
-            <StatCard
-              icon={<Activity size={20} color={Colors.white} />}
-              value={<Currency amount={totalSpent ?? 0} />}
-              label={i18n.t("total_spent")}
-            />
-          </View>
-
-          <SearchPill
-            title={chips.some((chip) => chip.key === "route") ? summary.title : i18n.t("filter_search_transactions")}
-            subtitle={summary.subtitle}
-            activeCount={countActiveFilters(appliedFilters)}
-            onPress={() => setFiltersOpen(true)}
-            accessibilityLabel={i18n.t("filters")}
-          />
-        </LinearGradient>
-
-        {/* Tab Buttons */}
-        <ActionButton onSelectionChange={setMode} type="transactions" />
-
-        {/* Transactions List */}
-        <View style={styles.weightSection}>
-          <View style={styles.transactionsContainer}>
-            <ResultsToolbar
-              countLabel={isLoading ? " " : countLabel(filteredTransactions.length)}
-              chips={chips}
-              onRemoveChip={(chip) => setAppliedFilters((current) => chip.remove(current))}
-              onClearAll={handleClearFilters}
-            />
-            {isLoading ? (
-              <View
-                style={{
-                  minHeight: 350,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <SafeActivityIndicator />
-              </View>
-            ) : filteredTransactions.length > 0 ? (
-              filteredTransactions.map((transaction) => (
-                <TransactionCard
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))
-            ) : (
-              <View
-                style={{
-                  flex: 1,
-                  minHeight: 350,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text
-                  style={[
-                    theme.textStyles.bodyLarge,
-                    { fontStyle: "italic", textAlign: "center" },
-                  ]}
-                >
-                  {mode === "active"
-                    ? i18n.t("no_active_transactions")
-                    : i18n.t("no_completed_transactions")}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </ScrollView>
+      />
 
       <FilterSheet
         visible={filtersOpen}
@@ -265,7 +264,7 @@ export default function TransactionsScreen() {
             ? i18n.t("apply_filters")
             : i18n.t("filter_show_count", { label: countLabel(draftCount) })
         }
-        currencySymbol={currencySymbol(currency)}
+        currencySymbol={currencySymbol(BASE_CURRENCY)}
         weightLabel={i18n.t("filter_reserved_weight")}
         statusOptions={mode === "active" ? STATUS_OPTIONS : null}
       />
@@ -294,11 +293,19 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 32,
   },
-  weightSection: {
+  section: {
     paddingHorizontal: 25,
     paddingTop: 15,
+    paddingBottom: 15,
   },
-  transactionsContainer: {
-    gap: 15,
+  item: {
+    paddingHorizontal: 25,
+    paddingBottom: 15,
+  },
+  placeholder: {
+    flex: 1,
+    minHeight: 350,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

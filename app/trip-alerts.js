@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-import { useFocusEffect } from "expo-router";
 import { View, Text, ScrollView, StyleSheet, Alert } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,15 +13,16 @@ import i18n from "@/i18n";
 import Currency from "@/components/Currency";
 import { formatLocalizedDate } from "@/components/LocalizedDateTime";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import ErrorState from "@/components/ErrorState";
+import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
 
 export default function TripAlertsScreen() {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const { language } = useLanguage();
 
-  const { data, loading, refetch } = useQuery(MY_TRIP_ALERTS, {
+  const { data, error, loading, refetch } = useQuery(MY_TRIP_ALERTS, {
     context: withEndpoint("trips"),
-    onError: (error) => console.error("Error fetching trip alerts:", error),
   });
 
   const [deleteTripAlert] = useMutation(DELETE_TRIP_ALERT, {
@@ -32,11 +31,7 @@ export default function TripAlertsScreen() {
 
   const alerts = data?.myTripAlerts ?? [];
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch])
-  );
+  useRefetchOnFocus(refetch);
 
   const handleDelete = (alert) => {
     Alert.alert(
@@ -69,6 +64,8 @@ export default function TripAlertsScreen() {
         <View style={globalStyles.centered}>
           <SafeActivityIndicator />
         </View>
+      ) : error && !data ? (
+        <ErrorState onRetry={refetch} />
       ) : (
         <ScrollView
           style={styles.scrollView}
@@ -129,6 +126,7 @@ export default function TripAlertsScreen() {
                   <ButtonIcon
                     onPress={() => handleDelete(alert)}
                     icon={<Trash2 size={20} color={Colors.error_color} />}
+                    accessibilityLabel={i18n.t("a11y_delete_alert")}
                   />
                 </View>
               ))

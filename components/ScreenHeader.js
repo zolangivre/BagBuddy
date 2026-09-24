@@ -5,6 +5,7 @@ import ButtonIcon from "@/components/ButtonIcon";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import i18n from "@/i18n";
 
 /**
  * En-tête des écrans empilés : retour, titre, et une action facultative à
@@ -29,6 +30,7 @@ export default function ScreenHeader({ title, onBack, right = null }) {
         <ButtonIcon
           onPress={onBack ?? (() => router.back())}
           icon={<ArrowLeft size={20} color={theme.title} />}
+          accessibilityLabel={i18n.t("a11y_back")}
         />
         <View style={styles.title}>
           <Text style={theme.textStyles.sectionTitle}>{title}</Text>

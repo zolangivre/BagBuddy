@@ -29,7 +29,6 @@ export const FavoritesProvider = ({ children }) => {
   const { data, loading, refetch } = useQuery(FAVORITE_LISTING_IDS, {
     context: withEndpoint("users"),
     skip: !signedIn,
-    onError: (error) => console.error("Error fetching favorites:", error),
   });
 
   const [addFavorite] = useMutation(ADD_FAVORITE_LISTING, {

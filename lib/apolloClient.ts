@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { HttpLink } from "@apollo/client/link/http";
 import { SetContextLink } from "@apollo/client/link/context";
+import { ErrorLink } from "@apollo/client/link/error";
 import { getAccessToken } from "@/lib/authToken";
 
 /**
@@ -15,7 +16,9 @@ import { getAccessToken } from "@/lib/authToken";
  * `withEndpoint()` construit cet objet, pour que le nom du service reste une
  * valeur vérifiable et non une chaîne recopiée à la main dans chaque écran.
  */
-const ENDPOINTS = ["trips", "transactions", "reviews", "users", "stripe"];
+const ENDPOINTS = ["trips", "transactions", "reviews", "users", "stripe"] as const;
+
+export type Endpoint = (typeof ENDPOINTS)[number];
 
 // Un objet figé par endpoint : les écrans appellent withEndpoint() à chaque
 // rendu, et une nouvelle référence à chaque fois ferait travailler les hooks
@@ -26,8 +29,8 @@ const CONTEXTS = Object.freeze(
   )
 );
 
-export function withEndpoint(endpoint) {
-  const context = CONTEXTS[endpoint];
+export function withEndpoint(endpoint: Endpoint): { endpoint: Endpoint } {
+  const context = (CONTEXTS as Record<string, { endpoint: Endpoint }>)[endpoint];
   if (!context) {
     throw new Error(`Endpoint GraphQL inconnu : ${endpoint}`);
   }
@@ -65,8 +68,18 @@ const authLink = new SetContextLink(async (prevContext) => {
   };
 });
 
+/**
+ * Un seul endroit où tracer les échecs. Apollo 4 n'accepte plus `onError` sur
+ * `useQuery` : c'est aux écrans d'afficher `error`, et ici qu'on le journalise.
+ */
+const errorLink = new ErrorLink(({ error, operation }) => {
+  if (__DEV__) {
+    console.warn(`[GraphQL] ${operation.operationName} a échoué :`, error);
+  }
+});
+
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: errorLink.concat(authLink).concat(httpLink),
   cache: new InMemoryCache({
     typePolicies: {
       // Ces types n'ont pas d'id : sans cette précision, Apollo les

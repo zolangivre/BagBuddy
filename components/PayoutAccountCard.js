@@ -28,7 +28,6 @@ export default function PayoutAccountCard() {
 
   const { data, error, refetch } = useQuery(PAYOUT_ACCOUNT, {
     context: withEndpoint("stripe"),
-    onError: (cause) => console.warn("Payouts unavailable:", cause),
   });
 
   const [startOnboarding] = useMutation(START_PAYOUT_ONBOARDING, {

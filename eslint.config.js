@@ -9,6 +9,13 @@ module.exports = defineConfig([
     ignores: ['dist/*'],
   },
   {
+    // Tests unitaires : globals de Jest.
+    files: ['**/__tests__/**/*.js'],
+    languageOptions: {
+      globals: globals.jest,
+    },
+  },
+  {
     // Tests Detox : globals de Jest et de Detox.
     files: ['e2e/**/*.js'],
     languageOptions: {

@@ -41,6 +41,8 @@ import {
 import { withEndpoint } from "@/lib/apolloClient";
 import { AuthContext } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
+import ErrorState from "@/components/ErrorState";
+import ScreenHeader from "@/components/ScreenHeader";
 
 export default function EditListingScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -71,11 +73,15 @@ export default function EditListingScreen() {
     setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: null }));
   };
 
-  const { data: tripData, loading: tripLoading } = useQuery(TRIP_BY_ID, {
+  const {
+    data: tripData,
+    error: tripError,
+    loading: tripLoading,
+    refetch: refetchTrip,
+  } = useQuery(TRIP_BY_ID, {
     context: withEndpoint("trips"),
     variables: { id },
     skip: !id,
-    onError: (error) => console.error("Error fetching listing:", error),
   });
 
   const [createTrip] = useMutation(CREATE_TRIP, { context: withEndpoint("trips") });
@@ -302,6 +308,16 @@ const handleUpdateListing = async () => {
   if (tripLoading) {
     return <LoadingScreen />;
   }
+  // Annonce existante illisible : un formulaire vide enregistré par-dessus
+  // écraserait l'annonce, mieux vaut ne rien proposer d'autre que réessayer.
+  if (id && tripError && !tripData) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenHeader title="" />
+        <ErrorState onRetry={refetchTrip} />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -319,6 +335,7 @@ const handleUpdateListing = async () => {
           <ButtonIcon
             onPress={handleGoBack}
             icon={<ArrowLeft size={20} color={theme.title} />}
+            accessibilityLabel={i18n.t("a11y_back")}
           />
           <View style={styles.titleContainer}>
             <Text style={theme.textStyles.sectionTitle}>
@@ -330,6 +347,7 @@ const handleUpdateListing = async () => {
           <ButtonIcon
             onPress={handleDelete}
             icon={<Trash2 size={24} color={Colors.error_color} />}
+            accessibilityLabel={i18n.t("delete_listing_action")}
           />
         )}
       </View>

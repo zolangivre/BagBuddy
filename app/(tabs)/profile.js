@@ -1,13 +1,5 @@
 import { useState, useContext, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Alert,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   Edit3,
@@ -15,11 +7,6 @@ import {
   Activity,
   Shield,
   Pencil,
-  Moon,
-  Sun,
-  LogOut,
-  Languages,
-  CurrencyIcon,
   Heart,
   Bell,
   ChevronRight,
@@ -36,8 +23,8 @@ import { globalStyles } from "@/theme/Styles";
 import { formatLocalizedDate } from "@/components/LocalizedDateTime";
 import ReviewCard from "@/components/ReviewCard";
 import { AuthContext } from "@/contexts/AuthContext";
-import { router, useFocusEffect } from "expo-router";
-import { useCurrency } from "@/contexts/CurrencyContext";
+import { router } from "expo-router";
+import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
 import Currency from "@/components/Currency";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
@@ -45,18 +32,18 @@ import { TRANSACTION_STATS } from "@/lib/graphql/transactions";
 import { REVIEWS_BY_REVIEWEE } from "@/lib/graphql/reviews";
 import { ME } from "@/lib/graphql/users";
 import { withEndpoint } from "@/lib/apolloClient";
-import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import ProfileSectionCard, { ProfileSectionRow } from "@/components/Profile/ProfileSectionCard";
+import ProfileSettingsCard from "@/components/Profile/ProfileSettingsCard";
+import { initialsOf } from "@/utils/authForm";
 import EmailVerificationNotice from "@/components/EmailVerificationNotice";
 import PayoutAccountCard from "@/components/PayoutAccountCard";
 
 const ProfileScreen = () => {
-  const { theme: colorScheme, toggleTheme } = useThemeContext();
+  const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] || Colors.light;
   const [mode, setMode] = useState("listings");
-  const isDark = colorScheme === "dark";
-  const { language, changeLanguage, i18n } = useLanguage();
-  const { currency, changeCurrency } = useCurrency();
-  const { state, signOut } = useContext(AuthContext);
+  const { language, i18n } = useLanguage();
+  const { state } = useContext(AuthContext);
   const userInfo = state.userInfo;
   const handleAllListing = () => {
     router.push("all-listing");
@@ -77,7 +64,6 @@ const ProfileScreen = () => {
     // Le profil n'en montre que cinq, « voir tout » ouvre l'écran dédié.
     variables: { userId: userInfo?.sub, limit: 5 },
     skip: skipUser,
-    onError: (error) => console.error("Error fetching listings:", error),
   });
 
   // Les trois chiffres du bandeau en un aller-retour, là où le REST demandait
@@ -86,7 +72,6 @@ const ProfileScreen = () => {
     context: withEndpoint("transactions"),
     variables: { sub: userInfo?.sub },
     skip: skipUser,
-    onError: (error) => console.error("Error fetching stats:", error),
   });
 
   const {
@@ -97,7 +82,6 @@ const ProfileScreen = () => {
     context: withEndpoint("reviews"),
     variables: { revieweeId: userInfo?.sub, limit: 5 },
     skip: skipUser,
-    onError: (error) => console.error("Error fetching reviews:", error),
   });
 
   // Le profil applicatif complète le /userinfo de Keycloak : bio, localisation,
@@ -105,7 +89,6 @@ const ProfileScreen = () => {
   // côté serveur à la première lecture.
   const { data: profileData, refetch: refetchProfile } = useQuery(ME, {
     context: withEndpoint("users"),
-    onError: (error) => console.error("Error fetching profile:", error),
   });
 
   const profile = profileData?.me;
@@ -115,125 +98,59 @@ const ProfileScreen = () => {
   const totalEarned = statsData?.totalEarned ?? null;
   const totalSpent = statsData?.totalSpent ?? null;
 
-  useFocusEffect(
-    useCallback(() => {
-      if (skipUser) return;
-      refetchListings();
-      refetchStats();
-      refetchReviews();
-      refetchProfile();
-    }, [skipUser, refetchListings, refetchStats, refetchReviews, refetchProfile])
-  );
+  const refetchAll = useCallback(() => {
+    refetchListings();
+    refetchStats();
+    refetchReviews();
+    refetchProfile();
+  }, [refetchListings, refetchStats, refetchReviews, refetchProfile]);
+  useRefetchOnFocus(refetchAll, !skipUser);
 
   const openProfilePage = () => {
     router.push("edit-profile");
   };
 
-  const renderReviews = () => {
-    return (
-      <View
-        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
-      >
-        <View style={styles.transactionsHeader}>
-          <Text style={theme.textStyles.cardTitle}>{i18n.t("reviews")}</Text>
-
-          <TouchableOpacity onPress={handleAllReviews}>
-            <Text style={theme.textStyles.highlight}>{i18n.t("view_all")}</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.transactionsList}>
-          {isLoadingReviews ? (
-            <View
-              style={{
-                minHeight: 100,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <SafeActivityIndicator size="medium"/>
-            </View>
-          ) : reviews.length > 0 ? (
-            reviews.slice(0, 5).map((review) => (
-              <View
-                style={[
-                  styles.transactionItem,
-                  { backgroundColor: theme.flightCard },
-                ]}
-                key={review.id}
-              >
+  const renderContent = () => {
+    switch (mode) {
+      case "reviews":
+        return (
+          <ProfileSectionCard
+            title={i18n.t("reviews")}
+            onViewAll={handleAllReviews}
+            loading={isLoadingReviews}
+            isEmpty={reviews.length === 0}
+            emptyText={i18n.t("no_reviews_yet")}
+          >
+            {reviews.slice(0, 5).map((review) => (
+              <ProfileSectionRow key={review.id}>
                 <ReviewCard review={review} />
-              </View>
-            ))
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 20,
-                minHeight: 100,
-              }}
-            >
-              <Text
-                style={[
-                  theme.textStyles.bodyLarge,
-                  { fontStyle: "italic", textAlign: "center" },
-                ]}
-              >
-                {i18n.t("no_reviews_yet")}
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
-
-  const renderListings = () => {
-    return (
-      <View
-        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
-      >
-        <View style={styles.transactionsHeader}>
-          <Text style={theme.textStyles.cardTitle}>
-            {i18n.t("active_listings")}
-          </Text>
-          <TouchableOpacity onPress={handleAllListing}>
-            <Text style={theme.textStyles.highlight}>{i18n.t("view_all")}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.transactionsList}>
-          {isLoadingListings ? (
-            <View
-              style={{
-                minHeight: 100,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <SafeActivityIndicator size="medium"/>
-            </View>
-          ) : listings.length > 0 ? (
-            listings.slice(0, 5).map((listing) => (
-              <View
-                key={listing.id}
-                style={[
-                  styles.transactionItem,
-                  { backgroundColor: theme.flightCard },
-                ]}
-              >
-                <View style={styles.transactionContent}>
+              </ProfileSectionRow>
+            ))}
+          </ProfileSectionCard>
+        );
+      case "settings":
+        return <ProfileSettingsCard />;
+      case "listings":
+      default:
+        return (
+          <ProfileSectionCard
+            title={i18n.t("active_listings")}
+            onViewAll={handleAllListing}
+            loading={isLoadingListings}
+            isEmpty={listings.length === 0}
+            emptyText={i18n.t("no_active_listings")}
+          >
+            {listings.slice(0, 5).map((listing) => (
+              <ProfileSectionRow key={listing.id}>
+                <View style={styles.listingContent}>
                   <Text style={theme.textStyles.sectionTitle}>
                     {listing.departureAirport} → {listing.arrivalAirport}
                   </Text>
-
                   <Text style={theme.textStyles.bodyMedium}>
                     {listing.remainingWeight} kg •{" "}
                     <Currency amount={listing.pricePerKg} />
                     /kg
                   </Text>
-
                   <Text style={theme.textStyles.bodyMedium}>
                     {formatLocalizedDate(listing.departureDate, language)} →{" "}
                     {formatLocalizedDate(listing.arrivalDate, language)}
@@ -245,199 +162,12 @@ const ProfileScreen = () => {
                     params: { id: listing.id },
                   }}
                   icon={<Pencil size={20} color={Colors.primary_color} />}
+                  accessibilityLabel={i18n.t("a11y_edit_listing")}
                 />
-              </View>
-            ))
-          ) : (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 20,
-                minHeight: 100,
-              }}
-            >
-              <Text
-                style={[
-                  theme.textStyles.bodyLarge,
-                  { fontStyle: "italic", textAlign: "center" },
-                ]}
-              >
-                {i18n.t("no_active_listings")}
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
-
-  const renderSettings = () => {
-    const handleLogout = () => {
-      Alert.alert(
-        i18n.t("log_out"),
-        i18n.t("are_you_sure_you_want_to_log_out"),
-        [
-          {
-            text: i18n.t("cancel"),
-            style: "cancel",
-          },
-          {
-            text: i18n.t("log_out"),
-            onPress: async () => {
-              await signOut();
-              router.replace("/start");
-            },
-            style: "destructive",
-          },
-        ]
-      );
-    };
-    return (
-      <View
-        style={[globalStyles.card, { backgroundColor: theme.background_card }]}
-      >
-        <View style={styles.transactionsHeader}>
-          <Text style={theme.textStyles.cardTitle}>{i18n.t("settings")}</Text>
-        </View>
-        <View style={{ gap: 20 }}>
-          <View style={styles.settingsContainer}>
-            {theme === Colors.dark ? (
-              <Moon size={24} color={Colors.primary_color} />
-            ) : (
-              <Sun size={24} color={Colors.primary_color} />
-            )}
-            <View
-              style={{
-                flexDirection: "column",
-                flex: 1,
-              }}
-            >
-              <Text style={theme.textStyles.sectionTitle}>
-                {i18n.t("dark_mode")}
-              </Text>
-              <Text style={theme.textStyles.bodyMedium}>
-                {i18n.t("toggle_dark_mode")}
-              </Text>
-            </View>
-            <Switch
-              trackColor={{ false: "#767577", true: "#81b0ff" }}
-              thumbColor={isDark ? "#f5dd4b" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleTheme}
-              value={isDark}
-            />
-          </View>
-          <View style={styles.settingsContainer}>
-            <Languages size={24} color={Colors.primary_color} />
-            <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
-              {i18n.t("change_language")}
-            </Text>
-
-            <View style={styles.options}>
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  language === "en" && styles.selectedButton,
-                ]}
-                onPress={() => changeLanguage("en")}
-              >
-                <Text
-                  style={[
-                    theme.textStyles.bodyMedium,
-                    language === "en" && styles.selectedText,
-                  ]}
-                >
-                  EN
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  language === "fr" && styles.selectedButton,
-                ]}
-                onPress={() => changeLanguage("fr")}
-              >
-                <Text
-                  style={[
-                    theme.textStyles.bodyMedium,
-                    language === "fr" && styles.selectedText,
-                  ]}
-                >
-                  FR
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.settingsContainer}>
-            <CurrencyIcon size={24} color={Colors.primary_color} />
-            <Text style={[theme.textStyles.sectionTitle, { flex: 1 }]}>
-              {i18n.t("change_currency")}
-            </Text>
-            <View style={styles.options}>
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  currency === "USD" && styles.selectedButton,
-                ]}
-                onPress={() => changeCurrency("USD")}
-              >
-                <Text
-                  style={[
-                    theme.textStyles.bodyMedium,
-                    currency === "USD" && styles.selectedText,
-                  ]}
-                >
-                  $
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  currency === "EUR" && styles.selectedButton,
-                ]}
-                onPress={() => changeCurrency("EUR")}
-              >
-                <Text
-                  style={[
-                    theme.textStyles.bodyMedium,
-                    currency === "EUR" && styles.selectedText,
-                  ]}
-                >
-                  €
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <TouchableOpacity
-            onPress={handleLogout}
-            style={[styles.settingsContainer, { justifyContent: "flex-start" }]}
-          >
-            <LogOut size={24} color={Colors.red} />
-            <Text
-              style={[theme.textStyles.sectionTitle, { color: Colors.red }]}
-            >
-              {i18n.t("log_out")}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
-  const renderContent = () => {
-    switch (mode) {
-      case "reviews":
-        return renderReviews();
-      case "listings":
-        return renderListings();
-      case "settings":
-        return renderSettings();
-      default:
-        return renderListings();
+              </ProfileSectionRow>
+            ))}
+          </ProfileSectionCard>
+        );
     }
   };
 
@@ -467,6 +197,7 @@ const ProfileScreen = () => {
             <ButtonIcon
               onPress={openProfilePage}
               icon={<Edit3 size={24} color={Colors.white} />}
+              accessibilityLabel={i18n.t("edit_profile")}
             />
           </View>
         </LinearGradient>
@@ -484,12 +215,11 @@ const ProfileScreen = () => {
               <View style={{ flexDirection: "column", alignItems: "center", gap: 8 }}>
                 <Avatar
                   initials={
-                    userInfo?.name
-                      ? userInfo.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                      : "?"
+                    initialsOf({
+                      givenName: userInfo?.given_name,
+                      familyName: userInfo?.family_name,
+                      name: userInfo?.name,
+                    }) || "?"
                   }
                   size={80}
                 />
@@ -658,44 +388,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 16,
   },
-  transactionsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  transactionsList: {
-    gap: 12,
-  },
-  transactionItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 16,
-  },
-  transactionContent: {
+  listingContent: {
     gap: 4,
   },
-  settingsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    justifyContent: "space-between",
-  },
-  options: { flexDirection: "row", gap: 10 },
-  button: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: Colors.tertiary_color,
-    borderRadius: 12,
-  },
-  selectedButton: {
-    backgroundColor: Colors.primary_color,
-    borderColor: Colors.primary_color,
-  },
-  selectedText: { color: Colors.white },
 });
 
 export default ProfileScreen;

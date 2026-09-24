@@ -118,7 +118,7 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
       <StripeBottomSheet
         visible={showStripeModal}
         onClose={() => setShowStripeModal(false)}
-        amountUSD={transaction.total}
+        amount={transaction.total}
         transactionId={transaction.id}
         onPaymentSuccess={handlePaymentSuccess}
       />

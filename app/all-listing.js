@@ -1,5 +1,5 @@
-import { useCallback, useContext } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { useContext } from "react";
+import { View, Text, FlatList, RefreshControl, StyleSheet } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import ButtonIcon from "@/components/ButtonIcon";
@@ -8,11 +8,13 @@ import { PlusCircle } from "lucide-react-native";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import i18n from "@/i18n";
 import ListingCard from "@/components/ListingCard";
 import { AuthContext } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
+import ErrorState from "@/components/ErrorState";
+import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
 
 export default function AllListingsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -24,28 +26,23 @@ export default function AllListingsScreen() {
     router.push("edit-listing");
   };
 
-  const { data, loading, refetch } = useQuery(TRIPS_BY_USER, {
+  const { data, error, loading, networkStatus, refetch } = useQuery(TRIPS_BY_USER, {
     context: withEndpoint("trips"),
     variables: { userId: userInfo?.sub },
     skip: !userInfo?.sub,
-    onError: (error) => console.error("Error fetching listings:", error),
   });
 
   const listings = data?.tripsByUser ?? [];
   // La requête est mise en attente tant que le profil Keycloak n'est pas lu :
   // sans ce garde l'écran afficherait « aucune annonce » pendant ce temps.
-  const isLoading = loading || !userInfo?.sub;
+  // Un refetch garde les annonces déjà affichées au lieu du spinner plein écran.
+  const isLoading = (loading && !data) || !userInfo?.sub;
 
-  useFocusEffect(
-    useCallback(() => {
-      if (userInfo?.sub) refetch();
-    }, [refetch, userInfo?.sub])
-  );
+  useRefetchOnFocus(refetch, Boolean(userInfo?.sub));
 
   if (isLoading) {
     return <LoadingScreen />;
   }
-
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -56,24 +53,21 @@ export default function AllListingsScreen() {
           <ButtonIcon
             onPress={handleNewListing}
             icon={<PlusCircle size={24} color={Colors.primary_color} />}
+            accessibilityLabel={i18n.t("new_listing")}
           />
         }
       />
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.content}>
-          {listings.length === 0 ? (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 20,
-                minHeight: 100,
-              }}
-            >
+      <FlatList
+        style={styles.list}
+        contentContainerStyle={styles.content}
+        data={listings}
+        keyExtractor={(listing) => listing.id}
+        renderItem={({ item }) => <ListingCard item={item} />}
+        ListEmptyComponent={
+          error && !data ? (
+            <ErrorState onRetry={refetch} />
+          ) : (
+            <View style={styles.empty}>
               <Text
                 style={[
                   theme.textStyles.bodyLarge,
@@ -83,13 +77,16 @@ export default function AllListingsScreen() {
                 {i18n.t("no_active_listings")}
               </Text>
             </View>
-          ) : (
-            listings.map((listing) => (
-              <ListingCard key={listing.id} item={listing} />
-            ))
-          )}
-        </View>
-      </ScrollView>
+          )
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={networkStatus === 4}
+            onRefresh={refetch}
+          />
+        }
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }
@@ -98,22 +95,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-  },
-  backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerInfo: {
+  list: {
     flex: 1,
   },
   content: {
     padding: 16,
     gap: 15,
-    marginBottom: 30,
+    paddingBottom: 46,
+  },
+  empty: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    minHeight: 100,
   },
 });

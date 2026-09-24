@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 BagBuddy is an Expo Router (React Native) mobile app that connects travelers with spare luggage space to people who want to send/bring back items from abroad — a peer-to-peer marketplace similar to BlaBlaCar/Leboncoin/Vinted, but for luggage space. Each user can act as a seller (offering kilos) or a buyer (reserving kilos). The app talks to a GraphQL backend and a Keycloak instance for auth, both of which live in a separate repo: [bagbuddy-back](https://github.com/zolangivre/bagbuddy-back). This repo contains the mobile app only.
 
-The codebase is JavaScript (not TypeScript) despite `strict: true` in tsconfig — type checking in CI only checks the handful of files explicitly listed in `tsconfig.json`'s `include` array, not the whole `app/` and `components/` tree.
+Screens and components (`app/`, `components/`, most of `contexts/`) are still JavaScript and are not type-checked. The non-UI core is TypeScript under `strict: true`: `lib/`, `utils/`, `hooks/` and `contexts/AuthContext.tsx`. `tsc --noEmit` checks every `.ts`/`.tsx` file; new modules outside the screen tree should be written in TypeScript.
 
 ## Commands
 
@@ -17,12 +17,15 @@ npm run ios              # expo run:ios
 npm run android          # expo run:android
 npm run web               # expo start --web
 npm run lint              # expo lint (eslint-config-expo flat config)
-npx tsc --noEmit          # type check (only files listed in tsconfig.json "include")
+npm test                  # Jest (jest-expo preset), unit tests in **/__tests__/*.test.js
+npx tsc --noEmit          # type check (all .ts/.tsx files)
 npx expo export --platform ios      # production export, used in CI
 npx expo export --platform android  # production export, used in CI
 ```
 
-CI (`.github/workflows/ci.yaml`) runs on push/PR to `main`: install → `tsc --noEmit` → `npm run lint` → `expo export` for iOS and Android. Match this locally before pushing.
+CI (`.github/workflows/ci.yaml`) runs on push/PR to `main` with Node 22: `npm ci` → `tsc --noEmit` → `npm run lint` → `npm test` → `expo export` for iOS and Android.
+
+Unit tests cover pure functions only (`utils/`, `lib/graphql` input builders, `lib/graphqlError`, `authErrorCode`). The Jest config in `package.json` adds `node_modules/expo/node_modules` to `modulePaths` because npm does not hoist `expo-modules-core`, which `jest-expo` requires. Match this locally before pushing.
 
 ### E2E tests (Detox, iOS simulator only)
 
@@ -52,14 +55,14 @@ The app reads `EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_KEYCLOAK_URL`, and `EXPO_PUBLI
 
 When changing tab navigation, both branches must be updated in sync — they're independent implementations, not a shared abstraction.
 
-### Auth (`contexts/AuthContext.js`)
+### Auth (`contexts/AuthContext.tsx`)
 
-OAuth2/OIDC PKCE flow against Keycloak via `expo-auth-session`, not Firebase/Auth0/Supabase:
-- `useAuthRequest` + `useAutoDiscovery` against `EXPO_PUBLIC_KEYCLOAK_URL`.
-- On successful redirect, exchanges the auth code for tokens manually via `fetch` to `/protocol/openid-connect/token`.
-- `getValidAccessToken()` is the accessor other code should call before hitting the API — it checks `isTokenExpired` (`utils/jwt.js`, via `jwt-decode`) and transparently refreshes using the stored `refreshToken` if needed, signing the user out on refresh failure.
+Keycloak session opened from the app's own screens (`app/login.js`, `app/register.js`) with the OAuth2 **password grant** against the public `bagbuddy-mobile` client — no hosted Keycloak page, no `expo-auth-session`. Tokens are exchanged with plain `fetch` to `/protocol/openid-connect/token`.
+- `signIn` requests the `offline_access` scope, so the refresh token is an offline token (30 days idle in the realm) rather than one tied to the 30-minute SSO session. That refresh token is persisted with `expo-secure-store`; on launch `AuthProvider` keeps the splash screen up (`isRestoring`), trades the stored token for a new session, and only then renders its children.
+- Tokens live in a ref (`tokensRef`) as well as in reducer state, because the Apollo link can ask for a token between a refresh and the next render. Refreshes are single-flight (`refreshPromiseRef`): concurrent requests share one refresh call.
+- `getValidAccessToken()` is the accessor other code should call before hitting the API — it checks `isTokenExpired` (`utils/jwt.ts`, 30 s leeway) and refreshes if needed. It signs the user out only when Keycloak rejects the refresh token (`invalid_credentials`); a network failure just fails that request.
 - User profile info is fetched separately from the Keycloak `/userinfo` endpoint into `authState.userInfo` (has `.sub` as the user id, used throughout the app to scope queries). Note its fields are Keycloak's snake_case (`given_name`, `email_verified`), unlike the GraphQL schema's camelCase — do not mix the two up.
-- `AuthProvider` registers `getValidAccessToken` with `lib/authToken.js`, which is how the Apollo link — living outside React — gets a fresh bearer on every request.
+- `AuthProvider` registers `getValidAccessToken` with `lib/authToken.ts`, which is how the Apollo link — living outside React — gets a fresh bearer on every request.
 
 ### Theming (`theme/`, `contexts/ThemeContext.js`)
 
@@ -73,9 +76,11 @@ OAuth2/OIDC PKCE flow against Keycloak via `expo-auth-session`, not Firebase/Aut
 - `LanguageProvider` blocks rendering (`return null`) until `initI18n()` resolves, so consumers can assume `i18n` is ready.
 - Access translations via `useLanguage()` → `{ i18n }` → `i18n.t("key")`, not a global import, so components re-render on language change.
 
-### Currency (`contexts/CurrencyContext.js`)
+### Currency (`contexts/CurrencyContext.js`, `lib/exchangeRates.ts`)
 
-Formats amounts via `Intl.NumberFormat`. Exchange-rate fetching from `exchangerate.host` is present but currently commented out in favor of a hardcoded `rates` fallback — check whether this has been re-enabled before assuming live rates are used.
+The server prices and charges everything in **EUR** (`BASE_CURRENCY`); every amount coming from the API is EUR. The user's display currency (EUR or USD, persisted under `userCurrency`) is cosmetic: `format(amount)` converts an EUR amount for display, `formatBase(amount)` shows it unconverted. Anything that states what will be charged (the Stripe sheet) uses `formatBase`, with the converted value shown as an approximation. Price filters are entered in EUR because the server compares them against EUR prices.
+
+Rates come from [Frankfurter](https://frankfurter.dev) (free, no API key, no monthly quota, daily central-bank rates), cached in AsyncStorage for 12 h, with `FALLBACK_RATES` used before the first successful fetch. Never add a keyed third-party API to the app bundle; anything needing a secret goes through the backend.
 
 ### Transaction status state machine
 
@@ -89,13 +94,15 @@ Screens use Apollo hooks (`useQuery` / `useMutation` from `@apollo/client/react`
 const { data } = useQuery(ACTIVE_TRIPS, { context: withEndpoint("trips") });
 ```
 
-`withEndpoint` (`lib/apolloClient.js`) accepts `trips`, `transactions`, `reviews`, `users` and `stripe`; an operation sent without one throws rather than hitting an invalid URL. The bearer token is attached by the link, so screens never handle it.
+`withEndpoint` (`lib/apolloClient.ts`) accepts `trips`, `transactions`, `reviews`, `users` and `stripe`; an operation sent without one throws rather than hitting an invalid URL. The bearer token is attached by the link, so screens never handle it.
 
-Two things follow from GraphQL that REST did not impose, and are the usual cause of a field coming back `undefined` after a change: a field that is not in the selection is simply absent (see the shared selections in `lib/graphql/fragments.js`), and an input field the schema does not declare is a `ValidationError`, not a silently ignored extra — which is why mutations build their input explicitly (`toTripInput`, `toTransactionUpdateInput`) instead of spreading the whole object.
+Apollo Client 4 removed `onError` / `onCompleted` from `useQuery` (they are silently ignored; `useMutation` still has them). Failures are logged once by the `ErrorLink` in `lib/apolloClient.ts`; screens read `error` from the hook and render `components/ErrorState.js` (with a retry) when there is no data to show. Use `loading && !data` for full-screen spinners — `notifyOnNetworkStatusChange` is on by default in v4, so `loading` also flips during refetches. `hooks/useRefetchOnFocus.ts` refetches when a screen regains focus, skipping the initial focus to avoid a duplicate request on mount.
+
+Two things follow from GraphQL that REST did not impose, and are the usual cause of a field coming back `undefined` after a change: a field that is not in the selection is simply absent (see the shared selections in `lib/graphql/fragments.ts`), and an input field the schema does not declare is a `ValidationError`, not a silently ignored extra — which is why mutations build their input explicitly (`toTripInput`, `toTripSearchInput`) instead of spreading the whole object.
 
 Server-owned state is never written by the client: prices and totals are computed from the listing, `remainingWeight` follows the listing's total (and is released or reserved by transaction transitions), and `paidAt` / `stripeAmount` are written only by the signed Stripe webhook.
 
-`axios` remains only for calls that do not go to the backend: Keycloak's `/userinfo` and token refresh, and the external flight lookup in `components/FlightInputModal.js`.
+Calls that do not go to the backend (Keycloak's token, `/userinfo` and logout endpoints) use plain `fetch`; there is no HTTP client dependency.
 
 ### Two sources of user data
 

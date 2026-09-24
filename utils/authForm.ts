@@ -11,13 +11,17 @@ export const LOCATION_MAX_LENGTH = 120;
 const PHONE_PATTERN = /^[+0-9 ().-]{6,32}$/;
 
 /** Même règle que le serveur : vide, ou 6 à 32 chiffres, espaces et + ( ) . - */
-export function isValidPhone(value) {
+export function isValidPhone(value: string): boolean {
   const phone = value.trim();
   return phone === "" || PHONE_PATTERN.test(phone);
 }
 
 /** Deux initiales tirées du prénom et du nom, ou du nom complet à défaut. */
-export function initialsOf({ givenName, familyName, name } = {}) {
+export function initialsOf({
+  givenName,
+  familyName,
+  name,
+}: { givenName?: string | null; familyName?: string | null; name?: string | null } = {}): string {
   const first = givenName?.trim()?.[0];
   const last = familyName?.trim()?.[0];
   if (first || last) return `${first ?? ""}${last ?? ""}`.toUpperCase();
@@ -33,7 +37,7 @@ export function initialsOf({ givenName, familyName, name } = {}) {
 // les fautes de frappe évidentes avant un aller-retour réseau.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function isValidEmail(value) {
+export function isValidEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim());
 }
 

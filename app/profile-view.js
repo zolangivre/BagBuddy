@@ -57,13 +57,11 @@ const ProfileView = () => {
   const { data: reviewData, loading: reviewsLoading } = useQuery(REVIEW_SUMMARY, {
     context: withEndpoint("reviews"),
     variables: { revieweeId: parsedUserInfo.sub },
-    onError: (error) => console.error("Error fetching reviews:", error),
   });
 
   const { data: countData, loading: countLoading } = useQuery(TRANSACTION_COUNT, {
     context: withEndpoint("transactions"),
     variables: { userId: parsedUserInfo.sub },
-    onError: (error) => console.error("Error fetching transaction count:", error),
   });
 
   const reviews = reviewData?.reviewsByReviewee ?? [];
@@ -90,6 +88,7 @@ const ProfileView = () => {
             <ButtonIcon
               onPress={handleGoBack}
               icon={<ArrowLeft size={24} color={Colors.white} />}
+              accessibilityLabel={i18n.t("a11y_back")}
             />
             <ButtonIcon
               onPress={() => setReportVisible(true)}

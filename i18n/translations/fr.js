@@ -628,4 +628,13 @@ export default {
   sort_price_high: "Prix décroissant",
   sort_weight_high: "Plus de kilos",
   sort_weight_low: "Moins de kilos",
+  load_error_title: "Impossible de charger les données",
+  load_error_message: "Vérifiez votre connexion puis réessayez.",
+  retry: "Réessayer",
+  a11y_back: "Retour",
+  a11y_delete_alert: "Supprimer l'alerte",
+  a11y_edit_listing: "Modifier l'annonce",
+  a11y_edit_review: "Modifier l'avis",
+  a11y_send_message: "Envoyer le message",
+  approx_amount: "≈ {{amount}} au taux du jour, débité en euros",
 };

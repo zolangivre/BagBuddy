@@ -622,4 +622,13 @@ export default {
   flight_date_placeholder: "Select the flight date",
   weight_reserved: "{{weight}} reserved",
   arrive_by: "Arrive by {{time}}",
+  load_error_title: "Couldn't load this page",
+  load_error_message: "Check your connection and try again.",
+  retry: "Try again",
+  a11y_back: "Back",
+  a11y_delete_alert: "Delete alert",
+  a11y_edit_listing: "Edit listing",
+  a11y_edit_review: "Edit review",
+  a11y_send_message: "Send message",
+  approx_amount: "≈ {{amount}} at today's rate, charged in euros",
 };

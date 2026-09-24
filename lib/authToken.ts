@@ -5,14 +5,16 @@
  * AuthProvider y enregistre son `getValidAccessToken` : le lien obtient ainsi un
  * jeton rafraîchi si besoin, au lieu d'une copie figée au montage du client.
  */
-let tokenProvider = null;
+type TokenProvider = () => Promise<string>;
 
-export function setAccessTokenProvider(provider) {
+let tokenProvider: TokenProvider | null = null;
+
+export function setAccessTokenProvider(provider: TokenProvider | null): void {
   tokenProvider = provider;
 }
 
 /** Jeton courant, ou null hors session. Ne jette jamais : un appel anonyme vaut mieux qu'un écran cassé. */
-export async function getAccessToken() {
+export async function getAccessToken(): Promise<string | null> {
   if (!tokenProvider) return null;
   try {
     return await tokenProvider();

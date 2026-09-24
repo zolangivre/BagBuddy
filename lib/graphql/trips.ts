@@ -1,5 +1,6 @@
 import { gql } from "@apollo/client";
 import { TRIP_FIELDS } from "@/lib/graphql/fragments";
+import type { Filters, SortOption } from "@/utils/filters";
 
 /** Remplace GET /trips/user/{sub}. */
 export const TRIPS_BY_USER = gql`
@@ -60,7 +61,23 @@ export const DELETE_TRIP = gql`
  * Le filtrage est explicite : le schéma rejette tout champ qu'il ne connaît pas,
  * et les écrans travaillent sur des annonces complètes (id, userId, active...).
  */
-export function toTripInput(listing) {
+interface ListingForInput {
+  departureAirport: string;
+  arrivalAirport: string;
+  departureDate: string;
+  arrivalDate: string;
+  totalWeightAvailable: number;
+  pricePerKg: number;
+  conditions?: string | null;
+  stripeAccountId?: string | null;
+  userInfo?: {
+    bio?: string | null;
+    location?: string | null;
+    phone?: string | null;
+  } | null;
+}
+
+export function toTripInput(listing: ListingForInput) {
   const profile = listing.userInfo;
   return {
     departureAirport: listing.departureAirport,
@@ -179,7 +196,7 @@ export const DELETE_TRIP_ALERT = gql`
 `;
 
 /** Les tris acceptés par searchTrips, dans le vocabulaire des filtres du front. */
-export const TRIP_SORTS = {
+export const TRIP_SORTS: Record<SortOption, string> = {
   recent: "RECENT",
   earliest_departure: "EARLIEST_DEPARTURE",
   price_low: "PRICE_LOW",
@@ -193,7 +210,7 @@ export const TRIP_SORTS = {
  * filtre pas, ici comme côté serveur ; sans tri choisi, le serveur rend les
  * plus récentes d'abord, comme le faisait activeTrips.
  */
-export function toTripSearchInput(filters) {
+export function toTripSearchInput(filters: Filters | null | undefined) {
   if (!filters) return {};
   return {
     departureAirport: filters.from,

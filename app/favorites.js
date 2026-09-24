@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet } from "react-native";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
@@ -12,6 +12,7 @@ import i18n from "@/i18n";
 import HomeCard from "@/components/HomeCard";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import ErrorState from "@/components/ErrorState";
 
 export default function FavoritesScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -25,11 +26,10 @@ export default function FavoritesScreen() {
   // Le serveur ne stocke que des identifiants : les annonces se relisent dans
   // tripservice, qui les rend dans l'ordre demandé et ignore celles qui ont été
   // supprimées depuis.
-  const { data, loading: tripsLoading } = useQuery(TRIPS_BY_IDS, {
+  const { data, error, loading: tripsLoading, refetch } = useQuery(TRIPS_BY_IDS, {
     context: withEndpoint("trips"),
     variables: { ids: favoriteIds },
     skip: favoriteIds.length === 0,
-    onError: (error) => console.error("Error fetching favorites:", error),
   });
 
   const listings = favoriteIds.length === 0 ? [] : (data?.tripsByIds ?? []);
@@ -43,7 +43,6 @@ export default function FavoritesScreen() {
     }, [refreshFavorites])
   );
 
-
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScreenHeader title={i18n.t("favorites")} />
@@ -53,12 +52,16 @@ export default function FavoritesScreen() {
           <SafeActivityIndicator />
         </View>
       ) : (
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.content}>
-            {listings.length === 0 ? (
+        <FlatList
+          style={styles.list}
+          contentContainerStyle={styles.content}
+          data={listings}
+          keyExtractor={(listing) => listing.id}
+          renderItem={({ item }) => <HomeCard item={item} />}
+          ListEmptyComponent={
+            error && !data ? (
+              <ErrorState onRetry={refetch} />
+            ) : (
               <View style={[globalStyles.centered, { minHeight: 100, padding: 20 }]}>
                 <Text
                   style={[
@@ -69,13 +72,10 @@ export default function FavoritesScreen() {
                   {i18n.t("no_favorites")}
                 </Text>
               </View>
-            ) : (
-              listings.map((listing) => (
-                <HomeCard key={listing.id} item={listing} />
-              ))
-            )}
-          </View>
-        </ScrollView>
+            )
+          }
+          showsVerticalScrollIndicator={false}
+        />
       )}
     </View>
   );
@@ -85,12 +85,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
+  list: {
     flex: 1,
   },
   content: {
     padding: 16,
     gap: 15,
-    marginBottom: 30,
+    paddingBottom: 46,
   },
 });

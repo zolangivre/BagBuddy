@@ -84,6 +84,7 @@ const ReviewCard = ({ review, editMode }) => {
         {editMode && (
           <ButtonIcon
             icon={<Pencil size={20} color={Colors.primary_color} />}
+            accessibilityLabel={i18n.t("a11y_edit_review")}
             onPress={() => setReviewModalVisible(true)}
           />
         )}

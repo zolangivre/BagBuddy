@@ -25,7 +25,7 @@ import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 const StripeBottomSheet = ({
   visible,
   onClose,
-  amountUSD,
+  amount,
   transactionId,
   onPaymentSuccess,
 }) => {
@@ -33,7 +33,7 @@ const StripeBottomSheet = ({
   const [translateY] = useState(() => new Animated.Value(400));
   const { confirmPayment, loading: stripeLoading } = useConfirmPayment();
   const [loading, setLoading] = useState(false);
-  const { currency, format, rates } = useCurrency();
+  const { format, formatBase, isConverted } = useCurrency();
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const [cardDetails, setCardDetails] = useState(null);
@@ -46,7 +46,6 @@ const StripeBottomSheet = ({
     // valeur par défaut cache-and-network la relirait à chaque montage.
     skip: !visible,
     fetchPolicy: "cache-first",
-    onError: (error) => console.error("Stripe unavailable:", error),
   });
   const [createPaymentIntent] = useMutation(CREATE_PAYMENT_INTENT, {
     context: withEndpoint("stripe"),
@@ -54,16 +53,10 @@ const StripeBottomSheet = ({
 
   const publishableKey = stripeConfigData?.stripeConfig?.publishableKey;
 
-  const getAmountInCurrency = () => {
-    if (currency === "EUR" && rates.quotes?.USDEUR) {
-      return amountUSD * rates.quotes.USDEUR;
-    }
-    return amountUSD;
-  };
-
-  // Affichage seulement : la devise du paiement est désormais décidée par le
-  // serveur, à partir de la transaction.
-  const displayAmount = getAmountInCurrency();
+  // Affichage seulement : le montant et la devise du paiement sont décidés par
+  // le serveur, à partir de la transaction. On montre donc ce qui sera débité
+  // (en EUR), et l'équivalent dans la devise choisie à titre indicatif.
+  const chargedAmount = formatBase(amount);
 
   // Monte le Modal dès que `visible` passe à true ; le démontage attend la
   // fin de l'animation de fermeture, dans l'effet ci-dessous.
@@ -90,11 +83,7 @@ const StripeBottomSheet = ({
   }, [visible, translateY]);
 
   const handlePayPress = async () => {
-    if (
-      !displayAmount ||
-      isNaN(displayAmount) ||
-      parseFloat(displayAmount) <= 0
-    ) {
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       Alert.alert(i18n.t("error"), i18n.t("invalid_amount"));
       return;
     }
@@ -185,7 +174,12 @@ const StripeBottomSheet = ({
           <Text style={[styles.label, { color: theme.text }]}>
             {i18n.t("amount_to_pay")}
           </Text>
-          <Text style={styles.amount}>{format(displayAmount)}</Text>
+          <Text style={styles.amount}>{chargedAmount}</Text>
+          {isConverted ? (
+            <Text style={[styles.label, { color: theme.text }]}>
+              {i18n.t("approx_amount", { amount: format(amount) })}
+            </Text>
+          ) : null}
 
           <Text style={[styles.label, { color: theme.text }]}>
             {i18n.t("card_details")}
@@ -213,7 +207,7 @@ const StripeBottomSheet = ({
               <SafeActivityIndicator size="small" />
             ) : (
               <Text style={[styles.payButtonText, { color: Colors.white }]}>
-                {i18n.t("pay")} {format(displayAmount)}
+                {i18n.t("pay")} {chargedAmount}
               </Text>
             )}
           </TouchableOpacity>

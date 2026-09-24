@@ -21,6 +21,8 @@ import ReportMemberModal from "@/components/ReportMemberModal";
 import ButtonIcon from "@/components/ButtonIcon";
 import i18n from "@/i18n";
 import LoadingScreen from "@/components/LoadingScreen";
+import ErrorState from "@/components/ErrorState";
+import ScreenHeader from "@/components/ScreenHeader";
 
 export default function TransactionDetailScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -34,20 +36,28 @@ export default function TransactionDetailScreen() {
   // L'écran sert deux cas : une annonce qu'on consulte avant de réserver
   // (listingId), ou une réservation existante (transactionId). Chacun lit son
   // service, l'autre requête reste en attente.
-  const { data: tripData, loading: tripLoading } = useQuery(TRIP_BY_ID, {
+  const {
+    data: tripData,
+    error: tripError,
+    loading: tripLoading,
+    refetch: refetchTrip,
+  } = useQuery(TRIP_BY_ID, {
     context: withEndpoint("trips"),
     variables: { id: listingId },
     skip: !listingId,
-    onError: (error) => console.error("Error fetching listing:", error),
   });
 
-  const { data: transactionData, loading: transactionLoading } = useQuery(
+  const {
+    data: transactionData,
+    error: transactionError,
+    loading: transactionLoading,
+    refetch: refetchTransaction,
+  } = useQuery(
     TRANSACTION_BY_ID,
     {
       context: withEndpoint("transactions"),
       variables: { id: transactionId },
       skip: !transactionId,
-      onError: (error) => console.error("Error fetching transaction:", error),
     }
   );
 
@@ -61,7 +71,6 @@ export default function TransactionDetailScreen() {
     context: withEndpoint("reviews"),
     variables: { transactionId },
     skip: !hasReview,
-    onError: (error) => console.error("Error fetching reviews:", error),
   });
 
   const reviews = reviewsData?.reviewsByTransaction ?? [];
@@ -82,7 +91,9 @@ export default function TransactionDetailScreen() {
       ? transaction.buyerStatus
       : transaction.sellerStatus;
 
-  const isLoading = tripLoading || transactionLoading;
+  // Une relecture après mutation ne doit pas remplacer l'écran par un spinner.
+  const isLoading =
+    (tripLoading && !tripData) || (transactionLoading && !transactionData);
 
   const [reportVisible, setReportVisible] = useState(false);
   // On signale l'autre partie, jamais soi-même : le serveur refuserait
@@ -95,6 +106,16 @@ export default function TransactionDetailScreen() {
 
   if (isLoading) {
     return <LoadingScreen />;
+  }
+  if (!listing && (tripError || transactionError)) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <ScreenHeader title="" />
+        <ErrorState
+          onRetry={() => (transactionId ? refetchTransaction() : refetchTrip())}
+        />
+      </View>
+    );
   }
   const handleGoBack = () => {
     router.back();
@@ -116,6 +137,7 @@ export default function TransactionDetailScreen() {
           <ButtonIcon
             onPress={handleGoBack}
             icon={<ArrowLeft size={20} color={theme.title} />}
+            accessibilityLabel={i18n.t("a11y_back")}
             testID="detail-back"
           />
 

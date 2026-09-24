@@ -9,7 +9,6 @@ import {
   AlertCircle,
 } from "lucide-react-native";
 import { TRANSACTION_STATUS } from "@/constants/transaction-status";
-// import StripePaymentModal from "./StripePaymentModal";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import Currency from "@/components/Currency";
@@ -244,7 +243,6 @@ const StatusCard = ({ status, role, transaction }) => {
   };
 
   const renderPaymentRequiredStatus = () => {
-    // const [showPaymentModal, setShowPaymentModal] = useState(false);
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -267,10 +265,6 @@ const StatusCard = ({ status, role, transaction }) => {
         {renderBottomContentPaymentReservation({
           status: TRANSACTION_STATUS.PAYMENT_REQUIRED,
         })}
-        {/* <StripePaymentModal
-          visible={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-        /> */}
       </>
     );
   };
@@ -421,81 +415,41 @@ const StatusCard = ({ status, role, transaction }) => {
     );
   };
 
+  const renderers = {
+    [TRANSACTION_STATUS.BROWSE_LISTING]: renderBrowseListingStatus,
+    [TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER]: renderWaitingForResponseStatus,
+    [TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER]: renderWaitingForResponseStatus,
+    [TRANSACTION_STATUS.REQUEST_REJECTED]: renderRequestRejectedStatus,
+    [TRANSACTION_STATUS.PAYMENT_REQUIRED]: renderPaymentRequiredStatus,
+    [TRANSACTION_STATUS.CONFIRMED]: () => renderConfirmedStatus({ role }),
+    [TRANSACTION_STATUS.COMPLETED]: renderCompletedStatus,
+    [TRANSACTION_STATUS.CANCELLED]: renderCancelledStatus,
+    [TRANSACTION_STATUS.RESERVATION_RECEIVED]: renderReservationReceivedStatus,
+    [TRANSACTION_STATUS.AWAITING_PAYMENT]: renderAwaitingPaymentStatus,
+  };
+  const backgroundColor = STATUS_BACKGROUNDS[status];
+
   return (
     <View
-      style={
-        status === TRANSACTION_STATUS.BROWSE_LISTING
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.dark_cyan_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.dark_cyan_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.REQUEST_REJECTED
-          ? [styles.reserveCard, { backgroundColor: Colors.red_translucent_3 }]
-          : status === TRANSACTION_STATUS.PAYMENT_REQUIRED
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.light_green_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.CONFIRMED
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.light_green_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.COMPLETED
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.light_green_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.CANCELLED
-          ? [styles.reserveCard, { backgroundColor: Colors.red_translucent_3 }]
-          : status === TRANSACTION_STATUS.RESERVATION_RECEIVED
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.light_yellow_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.AWAITING_PAYMENT
-          ? [
-              styles.reserveCard,
-              { backgroundColor: Colors.dark_cyan_translucent_3 },
-            ]
-          : status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER
-          ? [styles.reserveCard, { backgroundColor: Colors.red_translucent_3 }]
-          : styles.reserveCard
-      }
+      style={[styles.reserveCard, backgroundColor ? { backgroundColor } : null]}
     >
-      {status === TRANSACTION_STATUS.BROWSE_LISTING && (
-        renderBrowseListingStatus()
-      )}
-      {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER && (
-        renderWaitingForResponseStatus()
-      )}
-      {status === TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER && (
-        renderWaitingForResponseStatus()
-      )}
-      {status === TRANSACTION_STATUS.REQUEST_REJECTED && (
-        renderRequestRejectedStatus()
-      )}
-      {status === TRANSACTION_STATUS.PAYMENT_REQUIRED && (
-        renderPaymentRequiredStatus()
-      )}
-      {status === TRANSACTION_STATUS.CONFIRMED && (
-        renderConfirmedStatus({ role })
-      )}
-      {status === TRANSACTION_STATUS.COMPLETED && renderCompletedStatus()}
-      {status === TRANSACTION_STATUS.CANCELLED && renderCancelledStatus()}
-      {status === TRANSACTION_STATUS.RESERVATION_RECEIVED && (
-        renderReservationReceivedStatus()
-      )}
-      {status === TRANSACTION_STATUS.AWAITING_PAYMENT && (
-        renderAwaitingPaymentStatus()
-      )}
+      {renderers[status]?.()}
     </View>
   );
+};
+
+/** Fond de la carte selon le statut : bleu en attente, vert payé, rouge refusé. */
+const STATUS_BACKGROUNDS = {
+  [TRANSACTION_STATUS.BROWSE_LISTING]: Colors.dark_cyan_translucent_3,
+  [TRANSACTION_STATUS.WAITING_FOR_RESPONSE_BUYER]: Colors.dark_cyan_translucent_3,
+  [TRANSACTION_STATUS.WAITING_FOR_RESPONSE_SELLER]: Colors.red_translucent_3,
+  [TRANSACTION_STATUS.REQUEST_REJECTED]: Colors.red_translucent_3,
+  [TRANSACTION_STATUS.PAYMENT_REQUIRED]: Colors.light_green_translucent_3,
+  [TRANSACTION_STATUS.CONFIRMED]: Colors.light_green_translucent_3,
+  [TRANSACTION_STATUS.COMPLETED]: Colors.light_green_translucent_3,
+  [TRANSACTION_STATUS.CANCELLED]: Colors.red_translucent_3,
+  [TRANSACTION_STATUS.RESERVATION_RECEIVED]: Colors.light_yellow_translucent_3,
+  [TRANSACTION_STATUS.AWAITING_PAYMENT]: Colors.dark_cyan_translucent_3,
 };
 
 const styles = StyleSheet.create({

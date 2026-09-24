@@ -23,22 +23,7 @@
         "backgroundColor": "#D1E7FF"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.BagBuddy",
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "data": [
-            {
-              "scheme": "bagbuddy",
-              "host": "redirect"
-            }
-          ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
-        }
-      ]
+      "package": "com.anonymous.BagBuddy"
     },
     "plugins": [
       "expo-router",
@@ -78,10 +63,10 @@
       ],
       "@react-native-community/datetimepicker",
       "expo-font",
-      "expo-image",
       "expo-status-bar",
       "expo-web-browser",
-      "./plugins/withSceneDelegate"
+      "./plugins/withSceneDelegate",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

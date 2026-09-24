@@ -85,8 +85,6 @@ const SellerInformationCard = ({ item }) => {
     context: withEndpoint("reviews"),
     variables: { revieweeId },
     skip: !revieweeId,
-    onError: (error) =>
-      console.error("Error fetching average rating:", error),
   });
 
   const averageRating = ratingData?.averageRating ?? null;

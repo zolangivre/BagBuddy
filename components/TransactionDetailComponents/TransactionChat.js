@@ -235,6 +235,7 @@ export default function TransactionChat({ transaction }) {
             onPress={handleSend}
             disabled={sending || !draft.trim()}
             testID="chat-send"
+            accessibilityLabel={i18n.t("a11y_send_message")}
             icon={
               <Send
                 size={20}

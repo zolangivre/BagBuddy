@@ -11,9 +11,10 @@ import i18n from "@/i18n";
  * s'appelle `errors`. C'est la seule fonction du front qui connaisse cette
  * forme, pour n'avoir qu'un endroit à corriger à la prochaine version.
  */
-export function graphqlErrorCode(error) {
+export function graphqlErrorCode(error: unknown): string | undefined {
   if (!CombinedGraphQLErrors.is(error)) return undefined;
-  return error.errors[0]?.extensions?.code;
+  const code = error.errors[0]?.extensions?.code;
+  return typeof code === "string" ? code : undefined;
 }
 
 /**
@@ -25,12 +26,16 @@ export function graphqlErrorCode(error) {
  * nommer autrement (le fil de discussion préfixe les siens par `chat_`).
  * Tout autre échec retombe sur `fallbackKey`.
  */
-export function graphqlErrorMessage(error, handled, fallbackKey) {
+export function graphqlErrorMessage(
+  error: unknown,
+  handled: string[] | Record<string, string> | null | undefined,
+  fallbackKey: string
+): string {
   const code = graphqlErrorCode(error);
   const key = Array.isArray(handled)
-    ? handled.includes(code)
+    ? code !== undefined && handled.includes(code)
       ? code
       : null
-    : (handled?.[code] ?? null);
+    : ((code && handled?.[code]) ?? null);
   return i18n.t(key ?? fallbackKey);
 }

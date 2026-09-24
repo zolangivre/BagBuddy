@@ -11,7 +11,6 @@ import i18n from "@/i18n";
 import { router } from "expo-router";
 import { globalStyles } from "@/theme/Styles";
 import Currency from "@/components/Currency";
-import { useCurrency } from "@/contexts/CurrencyContext";
 import { AuthContext } from "@/contexts/AuthContext";
 import { formatLocalizedDate } from "@/components/LocalizedDateTime";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,7 +20,6 @@ const HomeCard = ({ item }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const { language } = useLanguage();
-  const { currency } = useCurrency();
   const handleUserPress = () => {
     router.push({
       pathname: "profile-view",
@@ -103,7 +101,6 @@ const HomeCard = ({ item }) => {
           <Currency
             amount={item.pricePerKg}
             style={theme.textStyles.number}
-            currency={currency}
           />
         </View>
       </View>

@@ -19,6 +19,7 @@ import Colors from "@/theme/Colors";
 import { typography } from "@/theme/Fonts";
 import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
+import i18n from "@/i18n";
 
 /**
  * Cadre commun des écrans de connexion, d'inscription et de mot de passe
@@ -68,7 +69,7 @@ export default function AuthScreen({
                 color={theme.background_card}
                 style={styles.backButton}
                 icon={<ArrowLeft size={20} color={theme.title} />}
-                accessibilityRole="button"
+                accessibilityLabel={i18n.t("a11y_back")}
               />
             ) : null}
           </View>

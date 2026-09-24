@@ -17,6 +17,10 @@ const ButtonIcon = ({ href, icon, onPress, style, color, ...props }) => {
     <TouchableOpacity
       style={[styles.buttonIcon, { backgroundColor: color }, style]}
       onPress={handlePress}
+      // Une icône seule n'a rien à lire pour VoiceOver/TalkBack : chaque appel
+      // doit passer un accessibilityLabel.
+      accessibilityRole="button"
+      hitSlop={4}
       {...props}
     >
       {icon}
