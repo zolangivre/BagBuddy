@@ -57,6 +57,10 @@ export default function AuthField({
             borderColor,
             backgroundColor: isDark ? Colors.dark_4 : Colors.very_light_blue,
           },
+          // L'ombre est déclarée en permanence et seule son opacité suit le
+          // focus : l'ajouter au focus fait perdre le focus natif au champ
+          // (iOS 27, RN 0.86), qui ne reçoit alors plus la saisie.
+          styles.fieldShadow,
           focused && !error && styles.fieldFocused,
           multiline && styles.fieldMultiline,
         ]}
@@ -132,11 +136,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1.5,
   },
-  fieldFocused: {
+  fieldShadow: {
     shadowColor: Colors.primary_color,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0,
     shadowRadius: 6,
+  },
+  fieldFocused: {
+    shadowOpacity: 0.25,
   },
   fieldMultiline: {
     height: undefined,

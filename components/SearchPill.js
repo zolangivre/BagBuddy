@@ -8,7 +8,14 @@ import Colors from "@/theme/Colors";
  * les autres critères en dessous, et le nombre de filtres actifs sur le bouton.
  * Tout le bloc ouvre la feuille de filtres.
  */
-export default function SearchPill({ title, subtitle, activeCount, onPress, accessibilityLabel }) {
+export default function SearchPill({
+  title,
+  subtitle,
+  activeCount,
+  onPress,
+  accessibilityLabel,
+  testID,
+}) {
   return (
     <TouchableOpacity
       style={styles.pill}
@@ -16,6 +23,7 @@ export default function SearchPill({ title, subtitle, activeCount, onPress, acce
       activeOpacity={0.85}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      testID={testID}
     >
       <Search size={20} color={Colors.primary_color} />
       <View style={styles.text}>

@@ -55,7 +55,11 @@ const HomeCard = ({ item }) => {
     >
       {/* User Header */}
       <View style={styles.listingUserHeader}>
-        <TouchableOpacity onPress={handleUserPress} style={{ flex: 1 }}>
+        <TouchableOpacity
+          onPress={handleUserPress}
+          style={{ flex: 1 }}
+          testID={`listing-seller-${item.id}`}
+        >
           <View style={styles.listingUserInfo}>
             <Avatar initials={initials} />
             <View style={{ flex: 1 }}>
@@ -120,6 +124,7 @@ const HomeCard = ({ item }) => {
             params: { listingId: item.id },
           }}
           text={i18n.t("reserve_weight")}
+          testID={`reserve-${item.id}`}
           rightIcon={<ArrowRight size={24} color={Colors.white} />}
         />
       )}

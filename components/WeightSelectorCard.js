@@ -49,6 +49,7 @@ const WeightSelectorCard = ({ item, onWeightChange }) => {
         <TouchableOpacity
           style={[styles.weightButton, { backgroundColor: theme.flightCard }]}
           onPress={() => handleWeightChange(selectedWeight - 1)}
+          testID="weight-minus"
         >
           <Minus size={24} color={Colors.primary_color} />
         </TouchableOpacity>
@@ -61,6 +62,7 @@ const WeightSelectorCard = ({ item, onWeightChange }) => {
         <TouchableOpacity
           style={[styles.weightButton, { backgroundColor: theme.flightCard }]}
           onPress={() => handleWeightChange(selectedWeight + 1)}
+          testID="weight-plus"
         >
           <Plus size={24} color={Colors.primary_color} />
         </TouchableOpacity>

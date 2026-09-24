@@ -49,6 +49,7 @@ const TransactionCard = ({ transaction }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.8}
+      testID={`transaction-${transaction.id}`}
       onPress={() =>
         router.push({
           pathname: "transaction-detail",

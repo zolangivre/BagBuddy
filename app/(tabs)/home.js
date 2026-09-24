@@ -201,6 +201,7 @@ export default function HomeScreen() {
             activeCount={activeCount}
             onPress={() => setFiltersOpen(true)}
             accessibilityLabel={i18n.t("filters")}
+            testID="home-filters"
           />
         </LinearGradient>
 

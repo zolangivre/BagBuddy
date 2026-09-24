@@ -18,6 +18,7 @@ const NumberInput = ({
   max = 200,
   icon,
   error = null,
+  testID,
 }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -73,6 +74,7 @@ const NumberInput = ({
           keyboardType="numeric"
           placeholder={placeholder}
           placeholderTextColor={theme.text}
+          testID={testID}
         />
 
         <TouchableOpacity style={styles.arrow} onPress={increment}>

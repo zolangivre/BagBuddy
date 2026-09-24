@@ -103,6 +103,9 @@ const ActionButton = ({ type = "home", onSelectionChange }) => {
             return (
               <Pressable
                 key={btn.key}
+                testID={`segment-${btn.key}`}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isSelected }}
                 onPress={() => handleSelect(btn.key)}
                 style={[
                   styles.baseButton,
@@ -144,6 +147,9 @@ const ActionButton = ({ type = "home", onSelectionChange }) => {
                 ]}
               >
                 <Pressable
+                  testID={`segment-${btn.key}`}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: isSelected }}
                   onPress={() => handleSelect(btn.key)}
                   style={({ pressed }) => [
                     styles.baseButton,

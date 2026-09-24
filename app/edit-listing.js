@@ -364,6 +364,7 @@ const handleUpdateListing = async () => {
                     clearError("departure");
                   }}
                   placeholder="JFK"
+                  testID="listing-departure"
                   error={errors.departure}
                 />
                 <AirportInputModal
@@ -374,6 +375,7 @@ const handleUpdateListing = async () => {
                     clearError("arrival");
                   }}
                   placeholder="CDG"
+                  testID="listing-arrival"
                   error={errors.arrival}
                 />
               </View>
@@ -387,6 +389,7 @@ const handleUpdateListing = async () => {
                   updateDateErrors("flightDateDeparture", text, flightDateArrival);
                 }}
                 placeholder={i18n.t("flight_date_placeholder_departure")}
+                testID="listing-date-departure"
                 error={errors.flightDateDeparture}
               />
               <DateInputModal
@@ -397,6 +400,7 @@ const handleUpdateListing = async () => {
                   updateDateErrors("flightDateArrival", flightDateDeparture, text);
                 }}
                 placeholder={i18n.t("flight_date_placeholder_arrival")}
+                testID="listing-date-arrival"
                 error={errors.flightDateArrival}
                 minimumDate={
                   flightDateDeparture
@@ -426,6 +430,7 @@ const handleUpdateListing = async () => {
               <View style={styles.rowInputGroup}>
                 <NumberInput
                   label={i18n.t("available_kilos")}
+                  testID="listing-kilos"
                   value={availableKilos}
                   onChangeText={(text) => {
                     setAvailableKilos(text);
@@ -437,6 +442,7 @@ const handleUpdateListing = async () => {
                 />
                 <NumberInput
                   label={i18n.t("price_per_kg")}
+                  testID="listing-price"
                   value={pricePerKg}
                   onChangeText={(text) => {
                     setPricePerKg(text);
@@ -493,6 +499,7 @@ const handleUpdateListing = async () => {
             <View style={styles.cardContent}>
               <Input
                 label={i18n.t("special_conditions_optional")}
+                testID="listing-conditions"
                 value={specialConditions}
                 onChangeText={setSpecialConditions}
                 placeholder={i18n.t("special_conditions_optional_placeholder")}
@@ -551,6 +558,7 @@ const handleUpdateListing = async () => {
           {/* Update Create Button */}
           <Button
             text={id ? i18n.t("update_listing") : i18n.t("create_listing")}
+            testID="listing-submit"
             onPress={id ? handleUpdateListing : handleCreateTrip}
           />
         </View>

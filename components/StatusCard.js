@@ -18,6 +18,13 @@ const StatusCard = ({ status, role, transaction }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   let name = transaction?.listingInfo?.sellerUserInfo?.name;
+  // Lus une fois ici plutôt que dans les fonctions render* : le React Compiler
+  // perd le premier `?.` dans les dépendances qu'il mémoïse pour ces closures
+  // (`transaction.listingInfo`), ce qui plante tant que la transaction n'existe pas.
+  const total = transaction?.total;
+  const weight = transaction?.weight;
+  const pricePerKg = transaction?.listingInfo?.pricePerKg;
+  const buyerName = transaction?.buyerInfo?.name;
 
   const renderBottomContentConfirmedCompleted = ({ role, status }) => (
     <View
@@ -43,14 +50,14 @@ const StatusCard = ({ status, role, transaction }) => {
       </View>
       <View style={styles.bottomInfo}>
         <Currency
-          amount={transaction?.total}
+          amount={total}
           style={[theme.textStyles.number, { color: Colors.success_color }]}
         />
       </View>
       <View style={styles.bottomInfo}>
         <Text style={[theme.textStyles.bodyLarge]}>
-          {transaction?.weight}kg -{" "}
-          <Currency amount={transaction?.listingInfo?.pricePerKg} />
+          {weight}kg -{" "}
+          <Currency amount={pricePerKg} />
           /kg
         </Text>
       </View>
@@ -68,7 +75,7 @@ const StatusCard = ({ status, role, transaction }) => {
             : i18n.t("approved_weight")}
         </Text>
         <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
-          {transaction?.weight}kg
+          {weight}kg
         </Text>
       </View>
       <View style={styles.bottomInfo}>
@@ -76,7 +83,7 @@ const StatusCard = ({ status, role, transaction }) => {
           {i18n.t("price_per_kg")}:
         </Text>
         <Currency
-          amount={transaction?.listingInfo?.pricePerKg}
+          amount={pricePerKg}
           style={[theme.textStyles.bodyLarge, { color: theme.title }]}
         />
       </View>
@@ -87,7 +94,7 @@ const StatusCard = ({ status, role, transaction }) => {
             ? i18n.t("expected_payment")
             : i18n.t("total_amount")}
         </Text>
-        <Currency amount={transaction?.total} style={theme.textStyles.number} />
+        <Currency amount={total} style={theme.textStyles.number} />
       </View>
     </View>
   );
@@ -146,7 +153,7 @@ const StatusCard = ({ status, role, transaction }) => {
             <Text style={[theme.textStyles.bodyLarge, { color: theme.title }]}>
               {i18n.t("requested_weight")}:
             </Text>
-            <Text style={theme.textStyles.number}>{transaction?.weight}kg</Text>
+            <Text style={theme.textStyles.number}>{weight}kg</Text>
           </View>
         </>
       );
@@ -185,7 +192,7 @@ const StatusCard = ({ status, role, transaction }) => {
             <Text
               style={[theme.textStyles.number, { color: Colors.error_color }]}
             >
-              {transaction?.weight}kg
+              {weight}kg
             </Text>
           </View>
         </>
@@ -210,7 +217,7 @@ const StatusCard = ({ status, role, transaction }) => {
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("request_rejected_description", {
             seller: name,
-            weight: transaction.weight + "kg",
+            weight: weight + "kg",
           })}
         </Text>
         <View
@@ -229,7 +236,7 @@ const StatusCard = ({ status, role, transaction }) => {
           <Text
             style={[theme.textStyles.number, { color: Colors.error_color }]}
           >
-            {transaction?.weight}kg
+            {weight}kg
           </Text>
         </View>
       </>
@@ -254,7 +261,7 @@ const StatusCard = ({ status, role, transaction }) => {
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("payment_required_description", {
             seller: name,
-            weight: transaction.weight + "kg",
+            weight: weight + "kg",
           })}
         </Text>
         {renderBottomContentPaymentReservation({
@@ -364,7 +371,6 @@ const StatusCard = ({ status, role, transaction }) => {
   };
 
   const renderReservationReceivedStatus = () => {
-    let buyerName = transaction?.buyerInfo?.name;
     return (
       <>
         <View style={styles.reserveIcon}>
@@ -381,7 +387,7 @@ const StatusCard = ({ status, role, transaction }) => {
         <Text style={[theme.textStyles.bodyLarge, { textAlign: "center" }]}>
           {i18n.t("reservation_received_description", {
             buyer: buyerName,
-            weight: transaction.weight + "kg",
+            weight: weight + "kg",
           })}
         </Text>
         {renderBottomContentPaymentReservation({

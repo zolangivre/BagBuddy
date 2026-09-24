@@ -229,10 +229,12 @@ export default function TransactionChat({ transaction }) {
             placeholderTextColor={theme.textStyles.muted.color}
             maxLength={MAX_MESSAGE_LENGTH}
             multiline
+            testID="chat-input"
           />
           <ButtonIcon
             onPress={handleSend}
             disabled={sending || !draft.trim()}
+            testID="chat-send"
             icon={
               <Send
                 size={20}

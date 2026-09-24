@@ -76,9 +76,9 @@ export default function AuthScreen({
           <View style={styles.header}>
             <View style={styles.logo}>
               <Image
-                source={require("../images/logo.png")}
+                source={require("../images/icon.png")}
                 style={styles.logoImage}
-                resizeMode="contain"
+                resizeMode="cover"
               />
             </View>
             <Text style={[styles.title, { color: theme.title }]}>{title}</Text>
@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   logoImage: {
-    width: 90,
-    height: 90,
+    width: "100%",
+    height: "100%",
     borderRadius: 20,
   },
   title: {

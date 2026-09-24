@@ -37,6 +37,7 @@ export default function FavoriteButton({ listingId, size = 24 }) {
       disabled={pending}
       hitSlop={8}
       accessibilityRole="button"
+      testID={`favorite-${listingId}`}
       accessibilityState={{ selected: active, disabled: pending }}
       accessibilityLabel={
         active ? i18n.t("remove_from_favorites") : i18n.t("add_to_favorites")

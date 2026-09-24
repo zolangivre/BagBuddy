@@ -117,11 +117,13 @@ export default function BrowseListingContent({ listing, role, status }) {
               multiline
               numberOfLines={3}
               maxLength={500}
+              testID="reservation-description"
             />
             <Pressable
               style={styles.checkboxRow}
               onPress={() => setProhibitedItemsAccepted((value) => !value)}
               accessibilityRole="checkbox"
+              testID="reservation-prohibited"
               accessibilityState={{ checked: prohibitedItemsAccepted }}
             >
               <View
@@ -147,6 +149,7 @@ export default function BrowseListingContent({ listing, role, status }) {
           <Button
             onPress={handleCreateTransaction}
             text={i18n.t("send_reservation_request")}
+            testID="reservation-submit"
             rightIcon={<Send size={24} color={Colors.white} />}
           />
         </>

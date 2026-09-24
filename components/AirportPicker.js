@@ -71,6 +71,7 @@ export default function AirportPicker({ kind, value, onChange }) {
         activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel={i18n.t(kind === "from" ? "filter_from" : "filter_to")}
+        testID={`airport-${kind}`}
       >
         <Icon size={18} color={value ? Colors.primary_color : theme.text} />
         <View style={styles.fieldText}>
@@ -127,6 +128,7 @@ export default function AirportPicker({ kind, value, onChange }) {
               onChangeText={setQuery}
               autoFocus
               autoCorrect={false}
+              testID="airport-search"
               returnKeyType="search"
             />
             {query ? (
@@ -165,6 +167,7 @@ export default function AirportPicker({ kind, value, onChange }) {
                     onChange(item.value);
                     close();
                   }}
+                  testID={`airport-option-${item.value}`}
                 >
                   <View style={styles.codeBadge}>
                     <Text style={styles.codeBadgeText}>{item.value}</Text>

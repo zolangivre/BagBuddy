@@ -20,6 +20,7 @@ const AirportInputModal = ({
   onChangeText,
   placeholder,
   error = null,
+  testID,
 }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -54,7 +55,7 @@ const AirportInputModal = ({
         )}
         {label && <Text style={theme.textStyles.bodyMedium}>{label}</Text>}
       </View>
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
+      <TouchableOpacity onPress={() => setModalVisible(true)} testID={testID}>
         <View pointerEvents="none">
           <TextInput
             style={[
@@ -88,6 +89,7 @@ const AirportInputModal = ({
               value={search}
               onChangeText={setSearch}
               autoFocus
+              testID={testID && `${testID}-search`}
             />
 
             <FlatList
@@ -98,6 +100,7 @@ const AirportInputModal = ({
                 <TouchableOpacity
                   style={styles.item}
                   onPress={() => handleSelect(item)}
+                  testID={testID && `${testID}-option-${item.value}`}
                 >
                   <Text style={{ color: theme.title }}>
                     {item.value} - {item.city} ({item.name}) - {item.country}

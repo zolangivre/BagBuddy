@@ -116,6 +116,7 @@ export default function TransactionDetailScreen() {
           <ButtonIcon
             onPress={handleGoBack}
             icon={<ArrowLeft size={20} color={theme.title} />}
+            testID="detail-back"
           />
 
           <View style={styles.headerInfo}>

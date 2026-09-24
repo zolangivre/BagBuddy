@@ -28,6 +28,7 @@ const DateInputModal = ({
   placeholder,
   error = null,
   minimumDate = null,
+  testID,
 }) => {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
@@ -114,7 +115,7 @@ const DateInputModal = ({
       </View>
 
       {/* Input */}
-      <TouchableOpacity onPress={handlePressInput}>
+      <TouchableOpacity onPress={handlePressInput} testID={testID}>
         <View pointerEvents="none">
           <TextInput
             style={[
@@ -158,6 +159,7 @@ const DateInputModal = ({
               <TouchableOpacity
                 style={styles.confirmButton}
                 onPress={() => handleConfirm(tempDate)}
+                testID={testID && `${testID}-confirm`}
               >
                 <Text style={[theme.textStyles.buttonText, { fontSize: 14 }]}>
                   {i18n.t("confirm")}
