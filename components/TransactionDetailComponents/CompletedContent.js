@@ -61,6 +61,7 @@ export default function CompletedContent({
     } catch (error) {
       console.error("Error submitting review:", error);
       Alert.alert(i18n.t("error"), i18n.t("review_submitted_error_message"));
+      return false;
     }
   };
   return (

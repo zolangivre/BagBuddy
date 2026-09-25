@@ -278,7 +278,7 @@ export default function HomeScreen() {
                   total: totalCount,
                 })}
                 onPress={handleLoadMore}
-                loading={isLoading}
+                loading={networkStatus === NetworkStatus.fetchMore}
               />
             </View>
           ) : null

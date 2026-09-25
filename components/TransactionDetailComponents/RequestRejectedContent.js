@@ -17,7 +17,7 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 
 export default function RequestRejectedContent({ transaction, role, status }) {
   const [selectedWeight, setSelectedWeight] = useState(1);
-  const [updateTransaction] = useMutation(UPDATE_TRANSACTION, {
+  const [updateTransaction, { loading: updating }] = useMutation(UPDATE_TRANSACTION, {
     context: withEndpoint("transactions"),
   });
   const { theme: colorScheme } = useThemeContext();
@@ -89,6 +89,7 @@ export default function RequestRejectedContent({ transaction, role, status }) {
       />
       <Button
         onPress={handleNewRequest}
+        loading={updating}
         text={i18n.t("send_new_request")}
         rightIcon={<Send size={24} color={Colors.white} />}
       />

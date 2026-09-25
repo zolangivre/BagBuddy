@@ -17,6 +17,7 @@ const ReviewModal = ({ visible, onClose, onSubmit, review }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
 
@@ -33,7 +34,11 @@ const ReviewModal = ({ visible, onClose, onSubmit, review }) => {
     }
   }
 
-  const handleSubmit = () => {
+  /**
+   * `onSubmit` rend `false` quand l'envoi a échoué (il a déjà prévenu
+   * l'utilisateur) : la fenêtre reste alors ouverte, avec la saisie.
+   */
+  const handleSubmit = async () => {
     if (rating === 0) {
       setError(i18n.t("error_no_rating"));
       return;
@@ -44,8 +49,13 @@ const ReviewModal = ({ visible, onClose, onSubmit, review }) => {
     }
 
     setError("");
-    onSubmit({ rating, comment });
-    onClose();
+    setSubmitting(true);
+    try {
+      const ok = await onSubmit({ rating, comment });
+      if (ok !== false) onClose();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -64,7 +74,11 @@ const ReviewModal = ({ visible, onClose, onSubmit, review }) => {
           {/* Stars */}
           <View style={styles.starsContainer}>
             {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity key={star} onPress={() => setRating(star)}>
+              <TouchableOpacity
+                key={star}
+                onPress={() => setRating(star)}
+                disabled={submitting}
+              >
                 <Star
                   size={32}
                   color={star <= rating ? Colors.light_yellow : theme.title}
@@ -95,11 +109,13 @@ const ReviewModal = ({ visible, onClose, onSubmit, review }) => {
               text={i18n.t("submit")}
               color={Colors.light_yellow}
               onPress={handleSubmit}
+              loading={submitting}
             />
             <Button
               text={i18n.t("cancel")}
               color={Colors.gray}
               onPress={onClose}
+              disabled={submitting}
             />
           </View>
         </View>

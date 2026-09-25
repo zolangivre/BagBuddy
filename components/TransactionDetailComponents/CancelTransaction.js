@@ -10,7 +10,7 @@ import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import i18n from "@/i18n";
 
 export default function CancelTransaction({ transaction }) {
-  const [updateTransaction] = useMutation(UPDATE_TRANSACTION, {
+  const [updateTransaction, { loading: updating }] = useMutation(UPDATE_TRANSACTION, {
     context: withEndpoint("transactions"),
   });
 
@@ -65,6 +65,7 @@ export default function CancelTransaction({ transaction }) {
         rightIcon={<X size={24} color={Colors.white} />}
         color={Colors.error_color}
         onPress={handleCancelTransaction}
+        loading={updating}
       />
     </>
   );

@@ -26,7 +26,7 @@ export const FavoritesProvider = ({ children }) => {
   const { state } = useContext(AuthContext);
   const signedIn = state.isSignedIn;
 
-  const { data, loading, refetch } = useQuery(FAVORITE_LISTING_IDS, {
+  const { data, error, loading, refetch } = useQuery(FAVORITE_LISTING_IDS, {
     context: withEndpoint("users"),
     skip: !signedIn,
   });
@@ -82,9 +82,13 @@ export const FavoritesProvider = ({ children }) => {
       isFavorite,
       toggleFavorite,
       refreshFavorites: refetch,
-      loading,
+      // Premier chargement seulement : une relecture garde la liste affichée.
+      loading: loading && !data,
+      // Seulement quand il n'y a rien à montrer : sinon la liste en cache vaut
+      // mieux qu'une erreur.
+      error: error && !data ? error : null,
     }),
-    [favoriteIds, isFavorite, toggleFavorite, refetch, loading]
+    [favoriteIds, isFavorite, toggleFavorite, refetch, loading, error, data]
   );
 
   return (

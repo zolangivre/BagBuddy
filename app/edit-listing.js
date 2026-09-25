@@ -84,9 +84,16 @@ export default function EditListingScreen() {
     skip: !id,
   });
 
-  const [createTrip] = useMutation(CREATE_TRIP, { context: withEndpoint("trips") });
-  const [updateTrip] = useMutation(UPDATE_TRIP, { context: withEndpoint("trips") });
-  const [deleteTrip] = useMutation(DELETE_TRIP, { context: withEndpoint("trips") });
+  const [createTrip, { loading: creating }] = useMutation(CREATE_TRIP, {
+    context: withEndpoint("trips"),
+  });
+  const [updateTrip, { loading: updating }] = useMutation(UPDATE_TRIP, {
+    context: withEndpoint("trips"),
+  });
+  const [deleteTrip, { loading: deleting }] = useMutation(DELETE_TRIP, {
+    context: withEndpoint("trips"),
+  });
+  const saving = creating || updating || deleting;
 
   // Le formulaire reste piloté par ses propres états : la réponse ne fait que
   // les préremplir, une fois, à l'ouverture d'une annonce existante.
@@ -305,7 +312,7 @@ const handleUpdateListing = async () => {
     }
   };
 
-  if (tripLoading) {
+  if (tripLoading && !tripData) {
     return <LoadingScreen />;
   }
   // Annonce existante illisible : un formulaire vide enregistré par-dessus
@@ -346,6 +353,7 @@ const handleUpdateListing = async () => {
         {id && (
           <ButtonIcon
             onPress={handleDelete}
+            disabled={saving}
             icon={<Trash2 size={24} color={Colors.error_color} />}
             accessibilityLabel={i18n.t("delete_listing_action")}
           />
@@ -578,6 +586,8 @@ const handleUpdateListing = async () => {
             text={id ? i18n.t("update_listing") : i18n.t("create_listing")}
             testID="listing-submit"
             onPress={id ? handleUpdateListing : handleCreateTrip}
+            loading={creating || updating}
+            disabled={deleting}
           />
         </View>
       </ScrollView>

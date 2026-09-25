@@ -31,6 +31,7 @@ import { withEndpoint } from "@/lib/apolloClient";
 import { graphqlErrorCode } from "@/lib/graphqlError";
 import LoadingScreen from "@/components/LoadingScreen";
 import ScreenHeader from "@/components/ScreenHeader";
+import ErrorState from "@/components/ErrorState";
 import AuthField from "@/components/AuthField";
 import FormBanner from "@/components/FormBanner";
 import Avatar from "@/components/Avatar";
@@ -71,7 +72,7 @@ export default function EditProfileScreen() {
   const theme = Colors[colorScheme] ?? Colors.light;
   const { i18n } = useLanguage();
 
-  const { data, loading } = useQuery(ME, { context: USERS });
+  const { data, loading, refetch } = useQuery(ME, { context: USERS });
   const profile = data?.me;
 
   // Les champs du profil public alimentent aussi l'aperçu : ils vivent ici.
@@ -110,9 +111,7 @@ export default function EditProfileScreen() {
     ) : (
       <View style={[styles.container, { backgroundColor: theme.background }]}>
         <ScreenHeader title={i18n.t("edit_profile")} />
-        <View style={styles.content}>
-          <FormBanner tone="error" text={i18n.t("account_error_load")} />
-        </View>
+        <ErrorState onRetry={refetch} />
       </View>
     );
   }

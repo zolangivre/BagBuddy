@@ -479,6 +479,7 @@ export default {
   loading: "Loading...",
   payment_failed: "Payment failed",
   invalid_payment_request: "This payment request is not valid.",
+  payment_unavailable: "Payment is unavailable right now. Please try again shortly.",
 
   profile_updated_successfully: "Your profile has been updated.",
   profile_update_error: "Could not update your profile.",
@@ -574,7 +575,6 @@ export default {
   account_error_phone_invalid:
     "Invalid number: 6 to 32 characters, digits, spaces and + ( ) . - only.",
   account_error_save: "Couldn't save right now. Please try again.",
-  account_error_load: "Couldn't load your profile. Check your connection.",
 
   // --- Search and filters ---
   filter_where_to: "Where are you sending?",

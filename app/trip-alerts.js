@@ -25,7 +25,7 @@ export default function TripAlertsScreen() {
     context: withEndpoint("trips"),
   });
 
-  const [deleteTripAlert] = useMutation(DELETE_TRIP_ALERT, {
+  const [deleteTripAlert, { loading: deleting }] = useMutation(DELETE_TRIP_ALERT, {
     context: withEndpoint("trips"),
   });
 
@@ -125,6 +125,7 @@ export default function TripAlertsScreen() {
                   </View>
                   <ButtonIcon
                     onPress={() => handleDelete(alert)}
+                    disabled={deleting}
                     icon={<Trash2 size={20} color={Colors.error_color} />}
                     accessibilityLabel={i18n.t("a11y_delete_alert")}
                   />

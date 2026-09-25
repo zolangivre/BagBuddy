@@ -6,6 +6,7 @@ import { useQuery, useMutation } from "@apollo/client/react";
 import { PAYOUT_ACCOUNT, START_PAYOUT_ONBOARDING } from "@/lib/graphql/stripe";
 import { withEndpoint } from "@/lib/apolloClient";
 import Button from "@/components/Button";
+import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
@@ -26,7 +27,7 @@ export default function PayoutAccountCard() {
   const theme = Colors[colorScheme] ?? Colors.light;
   const [pending, setPending] = useState(false);
 
-  const { data, error, refetch } = useQuery(PAYOUT_ACCOUNT, {
+  const { data, error, loading, refetch } = useQuery(PAYOUT_ACCOUNT, {
     context: withEndpoint("stripe"),
   });
 
@@ -84,9 +85,15 @@ export default function PayoutAccountCard() {
         )}
       </View>
 
-      <Text style={theme.textStyles.bodyMedium}>{statusLabel()}</Text>
+      {loading && !data ? (
+        // Sans ce garde, la carte annoncerait « aucun compte » et proposerait
+        // de le créer le temps que la réponse arrive.
+        <SafeActivityIndicator />
+      ) : (
+        <Text style={theme.textStyles.bodyMedium}>{statusLabel()}</Text>
+      )}
 
-      {ready ? null : (
+      {ready || (loading && !data) ? null : (
         <Button
           text={
             account?.connected

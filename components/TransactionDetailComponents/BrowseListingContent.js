@@ -29,7 +29,7 @@ export default function BrowseListingContent({ listing, role, status }) {
   // Deux déclarations désormais exigées par le serveur à la réservation.
   const [contentDescription, setContentDescription] = useState("");
   const [prohibitedItemsAccepted, setProhibitedItemsAccepted] = useState(false);
-  const [createTransactionMutation] = useMutation(CREATE_TRANSACTION, {
+  const [createTransactionMutation, { loading: creating }] = useMutation(CREATE_TRANSACTION, {
     context: withEndpoint("transactions"),
   });
 
@@ -148,6 +148,7 @@ export default function BrowseListingContent({ listing, role, status }) {
           </View>
           <Button
             onPress={handleCreateTransaction}
+            loading={creating}
             text={i18n.t("send_reservation_request")}
             testID="reservation-submit"
             rightIcon={<Send size={24} color={Colors.white} />}

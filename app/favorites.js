@@ -13,6 +13,7 @@ import HomeCard from "@/components/HomeCard";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
 import ErrorState from "@/components/ErrorState";
+import { quietly } from "@/utils/quietly";
 
 export default function FavoritesScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -20,6 +21,7 @@ export default function FavoritesScreen() {
   const {
     favoriteIds,
     loading: favoritesLoading,
+    error: favoritesError,
     refreshFavorites,
   } = useFavorites();
 
@@ -39,7 +41,7 @@ export default function FavoritesScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      refreshFavorites();
+      quietly(refreshFavorites);
     }, [refreshFavorites])
   );
 
@@ -59,7 +61,10 @@ export default function FavoritesScreen() {
           keyExtractor={(listing) => listing.id}
           renderItem={({ item }) => <HomeCard item={item} />}
           ListEmptyComponent={
-            error && !data ? (
+            favoritesError ? (
+              // Sans la liste d'identifiants, « aucun favori » serait faux.
+              <ErrorState onRetry={refreshFavorites} />
+            ) : error && !data ? (
               <ErrorState onRetry={refetch} />
             ) : (
               <View style={[globalStyles.centered, { minHeight: 100, padding: 20 }]}>

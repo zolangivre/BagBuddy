@@ -28,8 +28,11 @@ const PAID_AT_POLL_ATTEMPTS = 7;
 
 export default function PaymentRequiredContent({ transaction, role, status }) {
   const [showStripeModal, setShowStripeModal] = useState(false);
+  // Entre la fin du paiement chez Stripe et la transition : l'attente du
+  // webhook peut durer une trentaine de secondes.
+  const [confirming, setConfirming] = useState(false);
   const client = useApolloClient();
-  const [updateTransaction] = useMutation(UPDATE_TRANSACTION, {
+  const [updateTransaction, { loading: updating }] = useMutation(UPDATE_TRANSACTION, {
     context: withEndpoint("transactions"),
   });
 
@@ -65,6 +68,7 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
   };
 
   const handlePaymentSuccess = async () => {
+    setConfirming(true);
     try {
       const settled = await waitForPayment();
       if (!settled) {
@@ -101,6 +105,8 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
     } catch (error) {
       console.error("Error updating transaction:", error);
       Alert.alert(i18n.t("error"), i18n.t("payment_completed_error_message"));
+    } finally {
+      setConfirming(false);
     }
   };
   return (
@@ -113,6 +119,7 @@ export default function PaymentRequiredContent({ transaction, role, status }) {
         color={Colors.primary_color}
         leftIcon={<CreditCard size={24} color={Colors.white} />}
         onPress={handleCompletePayment}
+        loading={confirming || updating}
       />
       <CancelTransaction transaction={transaction} />
       <StripeBottomSheet

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Text,
+  View,
   TouchableOpacity,
   StyleSheet,
   Modal,
@@ -40,7 +41,7 @@ const StripeBottomSheet = ({
 
   // La clé publiable vient du serveur : c'est aussi ce qui signale que
   // stripeservice tourne (il est éteint en développement).
-  const { data: stripeConfigData } = useQuery(STRIPE_CONFIG, {
+  const { data: stripeConfigData, error: stripeConfigError } = useQuery(STRIPE_CONFIG, {
     context: withEndpoint("stripe"),
     // Clé immuable, et inutile tant que la feuille est fermée : sans cela la
     // valeur par défaut cache-and-network la relirait à chaque montage.
@@ -52,6 +53,16 @@ const StripeBottomSheet = ({
   });
 
   const publishableKey = stripeConfigData?.stripeConfig?.publishableKey;
+  // Sans clé la feuille n'a rien à montrer : on le dit et on la referme, plutôt
+  // que de laisser le bouton « payer » sans effet.
+  const configFailed = visible && !publishableKey && Boolean(stripeConfigError);
+  useEffect(() => {
+    if (!configFailed) return;
+    Alert.alert(i18n.t("error"), i18n.t("payment_unavailable"));
+    onClose();
+    // onClose change à chaque rendu du parent : seul l'échec doit déclencher.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configFailed]);
 
   // Affichage seulement : le montant et la devise du paiement sont décidés par
   // le serveur, à partir de la transaction. On montre donc ce qui sera débité
@@ -144,7 +155,17 @@ const StripeBottomSheet = ({
     }
   };
 
-  if (!internalVisible || !publishableKey) return null;
+  if (!internalVisible) return null;
+  if (!publishableKey) {
+    // Clé en cours de lecture : un voile d'attente plutôt qu'un appui sans effet.
+    return visible && !stripeConfigError ? (
+      <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+        <View style={[styles.overlay, styles.waiting]}>
+          <SafeActivityIndicator />
+        </View>
+      </Modal>
+    ) : null;
+  }
 
   return (
     <StripeProvider publishableKey={publishableKey}>
@@ -231,6 +252,10 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  waiting: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   sheet: {
     position: "absolute",

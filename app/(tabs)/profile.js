@@ -59,6 +59,7 @@ const ProfileScreen = () => {
   const {
     data: listingsData,
     loading: isLoadingListings,
+    error: listingsError,
     refetch: refetchListings,
   } = useQuery(TRIPS_BY_USER, {
     context: withEndpoint("trips"),
@@ -78,6 +79,7 @@ const ProfileScreen = () => {
   const {
     data: reviewsData,
     loading: isLoadingReviews,
+    error: reviewsError,
     refetch: refetchReviews,
   } = useQuery(REVIEWS_BY_REVIEWEE, {
     context: withEndpoint("reviews"),
@@ -119,6 +121,8 @@ const ProfileScreen = () => {
             title={i18n.t("reviews")}
             onViewAll={handleAllReviews}
             loading={isLoadingReviews && !reviewsData}
+            error={reviewsError && !reviewsData}
+            onRetry={refetchReviews}
             isEmpty={reviews.length === 0}
             emptyText={i18n.t("no_reviews_yet")}
           >
@@ -138,6 +142,8 @@ const ProfileScreen = () => {
             title={i18n.t("active_listings")}
             onViewAll={handleAllListing}
             loading={isLoadingListings && !listingsData}
+            error={listingsError && !listingsData}
+            onRetry={refetchListings}
             isEmpty={listings.length === 0}
             emptyText={i18n.t("no_active_listings")}
           >

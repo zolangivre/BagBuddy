@@ -486,6 +486,8 @@ export default {
   loading: "Chargement...",
   payment_failed: "Paiement refusé",
   invalid_payment_request: "Cette demande de paiement n'est pas valide.",
+  payment_unavailable:
+    "Le paiement est indisponible pour le moment. Réessayez dans quelques instants.",
 
   profile_updated_successfully: "Votre profil a été mis à jour.",
   profile_update_error: "Impossible de mettre à jour votre profil.",
@@ -583,7 +585,6 @@ export default {
   account_error_phone_invalid:
     "Numéro invalide : 6 à 32 caractères, chiffres, espaces et + ( ) . - uniquement.",
   account_error_save: "Enregistrement impossible pour le moment. Réessayez.",
-  account_error_load: "Impossible de charger votre profil. Vérifiez votre connexion.",
 
   // --- Recherche et filtres ---
   filter_where_to: "Où envoyer vos kilos ?",

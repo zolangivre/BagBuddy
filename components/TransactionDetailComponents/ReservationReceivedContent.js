@@ -18,7 +18,7 @@ export default function ReservationReceivedContent({
   role,
   status,
 }) {
-  const [updateTransaction] = useMutation(UPDATE_TRANSACTION, {
+  const [updateTransaction, { loading: updating }] = useMutation(UPDATE_TRANSACTION, {
     context: withEndpoint("transactions"),
   });
 
@@ -111,11 +111,13 @@ export default function ReservationReceivedContent({
       <StatusCard status={status} transaction={transaction} />
       <Button
         onPress={handleAcceptRequest}
+        loading={updating}
         text={i18n.t("accept_request")}
         leftIcon={<CheckCircle size={24} color={Colors.white} />}
       />
       <Button
         onPress={handleDeclineRequest}
+        disabled={updating}
         text={i18n.t("decline_request")}
         leftIcon={<XCircle size={24} color={Colors.white} />}
         color={Colors.error_color}

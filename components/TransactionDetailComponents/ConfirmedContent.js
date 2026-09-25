@@ -13,7 +13,7 @@ import { TRANSACTION_STATUS } from "@/constants/transaction-status";
 import i18n from "@/i18n";
 
 export default function ConfirmedContent({ transaction, role, status }) {
-  const [updateTransaction] = useMutation(UPDATE_TRANSACTION, {
+  const [updateTransaction, { loading: updating }] = useMutation(UPDATE_TRANSACTION, {
     context: withEndpoint("transactions"),
   });
 
@@ -69,6 +69,7 @@ export default function ConfirmedContent({ transaction, role, status }) {
       {role === "buyer" && (
         <Button
           onPress={handleConfirmed}
+          loading={updating}
           text={i18n.t("mark_as_completed")}
           color={Colors.success_color}
         />

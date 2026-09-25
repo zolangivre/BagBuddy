@@ -17,6 +17,7 @@ import { withEndpoint } from "@/lib/apolloClient";
 import i18n from "@/i18n";
 import LoadingScreen from "@/components/LoadingScreen";
 import ReportMemberModal from "@/components/ReportMemberModal";
+import ErrorState from "@/components/ErrorState";
 
 const ProfileView = () => {
   const { theme: colorScheme } = useThemeContext();
@@ -54,7 +55,12 @@ const ProfileView = () => {
   // Les avis reçus et la moyenne vivent dans le même schéma : une seule requête
   // là où le REST en demandait deux. Le compteur de transactions, lui, est servi
   // par un autre service, donc par un autre endpoint.
-  const { data: reviewData, loading: reviewsLoading } = useQuery(REVIEW_SUMMARY, {
+  const {
+    data: reviewData,
+    error: reviewsError,
+    loading: reviewsLoading,
+    refetch: refetchReviews,
+  } = useQuery(REVIEW_SUMMARY, {
     context: withEndpoint("reviews"),
     variables: { revieweeId: parsedUserInfo.sub },
   });
@@ -67,7 +73,10 @@ const ProfileView = () => {
   const reviews = reviewData?.reviewsByReviewee ?? [];
   const averageRating = reviewData?.averageRating ?? null;
   const numberOfTransactions = countData?.transactionCount ?? null;
-  const isLoading = reviewsLoading || countLoading;
+  // Un refetch ne remplace pas l'écran par un spinner. Un compteur illisible
+  // s'affiche « N/A » ; des avis illisibles, eux, ont leur message d'erreur,
+  // pour ne pas passer pour « pas encore d'avis ».
+  const isLoading = (reviewsLoading && !reviewData) || (countLoading && !countData);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -168,7 +177,15 @@ const ProfileView = () => {
           </View>
           {/* Review List */}
           <View style={{ gap: 16, marginBottom: 50 }}>
-            {reviews.length > 0 ? (
+            {reviewsError && !reviewData ? (
+              <ErrorState
+                onRetry={refetchReviews}
+                style={[
+                  globalStyles.card,
+                  { backgroundColor: theme.background_card, minHeight: 0 },
+                ]}
+              />
+            ) : reviews.length > 0 ? (
               reviews.map((review) => (
                 <View
                   style={[

@@ -4,15 +4,19 @@ import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SafeActivityIndicator } from "@/components/SafeActivityIndicator";
+import ErrorState from "@/components/ErrorState";
 
 /**
  * Carte d'aperçu du profil (avis, annonces) : titre, lien « voir tout », puis
- * un spinner, un message vide ou les lignes passées en enfants.
+ * un spinner, une erreur (sans données à montrer), un message vide ou les
+ * lignes passées en enfants.
  */
 export default function ProfileSectionCard({
   title,
   onViewAll,
   loading,
+  error,
+  onRetry,
   isEmpty,
   emptyText,
   children,
@@ -36,6 +40,8 @@ export default function ProfileSectionCard({
           <View style={styles.placeholder}>
             <SafeActivityIndicator size="medium" />
           </View>
+        ) : error ? (
+          <ErrorState onRetry={onRetry} style={styles.error} />
         ) : isEmpty ? (
           <View style={[styles.placeholder, styles.empty]}>
             <Text
@@ -84,6 +90,11 @@ const styles = StyleSheet.create({
   empty: {
     flex: 1,
     padding: 20,
+  },
+  error: {
+    flex: 0,
+    minHeight: 0,
+    padding: 12,
   },
   row: {
     flexDirection: "row",

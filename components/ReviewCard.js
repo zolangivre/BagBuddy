@@ -54,6 +54,7 @@ const ReviewCard = ({ review, editMode }) => {
     } catch (error) {
       console.error("Error submitting review:", error);
       Alert.alert(i18n.t("error"), i18n.t("review_updated_error_message"));
+      return false;
     }
   };
   return (
