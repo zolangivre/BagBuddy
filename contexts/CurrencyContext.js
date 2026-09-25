@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import * as Localization from "expo-localization";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -56,16 +56,26 @@ export const CurrencyProvider = ({ children }) => {
     await AsyncStorage.setItem("userCurrency", newCurrency);
   };
 
+  // Un Intl.NumberFormat coûte cher à construire sur Hermes, et `format`
+  // tourne à chaque rendu de chaque carte : un formateur par devise, recréé
+  // seulement quand la locale change.
+  const formatters = useMemo(() => new Map(), [locale]);
   const formatIn = useCallback(
-    (amount, code) =>
-      new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency: code,
-        currencyDisplay: "symbol",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount),
-    [locale]
+    (amount, code) => {
+      let formatter = formatters.get(code);
+      if (!formatter) {
+        formatter = new Intl.NumberFormat(locale, {
+          style: "currency",
+          currency: code,
+          currencyDisplay: "symbol",
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        formatters.set(code, formatter);
+      }
+      return formatter.format(amount);
+    },
+    [formatters, locale]
   );
 
   /** Montant du serveur (EUR) dans la devise d'affichage. */

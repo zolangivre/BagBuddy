@@ -25,6 +25,7 @@ import ReviewCard from "@/components/ReviewCard";
 import { AuthContext } from "@/contexts/AuthContext";
 import { router } from "expo-router";
 import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
+import { quietly } from "@/utils/quietly";
 import Currency from "@/components/Currency";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
@@ -99,10 +100,10 @@ const ProfileScreen = () => {
   const totalSpent = statsData?.totalSpent ?? null;
 
   const refetchAll = useCallback(() => {
-    refetchListings();
-    refetchStats();
-    refetchReviews();
-    refetchProfile();
+    quietly(refetchListings);
+    quietly(refetchStats);
+    quietly(refetchReviews);
+    quietly(refetchProfile);
   }, [refetchListings, refetchStats, refetchReviews, refetchProfile]);
   useRefetchOnFocus(refetchAll, !skipUser);
 
@@ -117,7 +118,7 @@ const ProfileScreen = () => {
           <ProfileSectionCard
             title={i18n.t("reviews")}
             onViewAll={handleAllReviews}
-            loading={isLoadingReviews}
+            loading={isLoadingReviews && !reviewsData}
             isEmpty={reviews.length === 0}
             emptyText={i18n.t("no_reviews_yet")}
           >
@@ -136,7 +137,7 @@ const ProfileScreen = () => {
           <ProfileSectionCard
             title={i18n.t("active_listings")}
             onViewAll={handleAllListing}
-            loading={isLoadingListings}
+            loading={isLoadingListings && !listingsData}
             isEmpty={listings.length === 0}
             emptyText={i18n.t("no_active_listings")}
           >

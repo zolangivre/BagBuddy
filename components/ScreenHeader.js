@@ -5,7 +5,7 @@ import ButtonIcon from "@/components/ButtonIcon";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
-import i18n from "@/i18n";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * En-tête des écrans empilés : retour, titre, et une action facultative à
@@ -15,6 +15,7 @@ import i18n from "@/i18n";
 export default function ScreenHeader({ title, onBack, right = null }) {
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
+  const { i18n } = useLanguage();
 
   return (
     <View

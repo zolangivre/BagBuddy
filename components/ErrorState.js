@@ -4,6 +4,7 @@ import Colors from "@/theme/Colors";
 import Button from "@/components/Button";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { quietly } from "@/utils/quietly";
 
 /**
  * À la place du contenu quand sa requête a échoué. Sans lui, un écran dont le
@@ -26,7 +27,7 @@ export default function ErrorState({ onRetry, style }) {
       {onRetry ? (
         <Button
           text={i18n.t("retry")}
-          onPress={() => onRetry()}
+          onPress={() => quietly(onRetry)}
           style={styles.button}
         />
       ) : null}

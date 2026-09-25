@@ -5,6 +5,7 @@ import Colors from "@/theme/Colors";
 import ButtonIcon from "@/components/ButtonIcon";
 import ScreenHeader from "@/components/ScreenHeader";
 import { PlusCircle } from "lucide-react-native";
+import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
 import { TRIPS_BY_USER } from "@/lib/graphql/trips";
 import { withEndpoint } from "@/lib/apolloClient";
@@ -15,6 +16,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorState from "@/components/ErrorState";
 import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
+import { quietly } from "@/utils/quietly";
 
 export default function AllListingsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -81,8 +83,8 @@ export default function AllListingsScreen() {
         }
         refreshControl={
           <RefreshControl
-            refreshing={networkStatus === 4}
-            onRefresh={refetch}
+            refreshing={networkStatus === NetworkStatus.refetch}
+            onRefresh={() => quietly(refetch)}
           />
         }
         showsVerticalScrollIndicator={false}

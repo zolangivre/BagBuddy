@@ -12,6 +12,7 @@ import FilterSheet from "@/components/FilterSheet";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import Label from "@/components/Label";
 import i18n from "@/i18n";
+import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
 import { MY_TRANSACTIONS } from "@/lib/graphql/transactions";
 import { withEndpoint } from "@/lib/apolloClient";
@@ -25,6 +26,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { BASE_CURRENCY } from "@/lib/exchangeRates";
 import ErrorState from "@/components/ErrorState";
 import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
+import { quietly } from "@/utils/quietly";
 import {
   countActiveFilters,
   currencySymbol,
@@ -68,7 +70,7 @@ export default function TransactionsScreen() {
   // Seul le premier chargement remplace la liste par un spinner : un refetch
   // (retour sur l'onglet, tirer pour rafraîchir) garde l'ancienne à l'écran.
   const isLoading = loading && !data;
-  const isRefreshing = networkStatus === 4;
+  const isRefreshing = networkStatus === NetworkStatus.refetch;
 
   const transactions = data?.myTransactions ?? [];
   const numberOfTransactions = transactions.length;
@@ -244,7 +246,10 @@ export default function TransactionsScreen() {
         ListHeaderComponent={header}
         ListEmptyComponent={emptyList}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={() => quietly(refetch)}
+          />
         }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 130 }}

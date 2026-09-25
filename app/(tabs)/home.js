@@ -15,6 +15,7 @@ import OptionSheet from "@/components/OptionSheet";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import i18n from "@/i18n";
 import { AuthContext } from "@/contexts/AuthContext";
+import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
 import {
   SEARCH_TRIPS,
@@ -41,6 +42,7 @@ import TripAlertCta from "@/components/TripAlertCta";
 import Button from "@/components/Button";
 import ErrorState from "@/components/ErrorState";
 import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
+import { quietly } from "@/utils/quietly";
 
 export default function HomeScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -106,12 +108,12 @@ export default function HomeScreen() {
   const averagePrice = overview?.averagePricePerKg ?? 0;
 
   useRefetchOnFocus(refetch);
-  // 4 = NetworkStatus.refetch : seul le geste « tirer pour rafraîchir » (ou un
-  // retour sur l'écran) affiche le spinner du haut, pas « charger plus ».
-  const isRefreshing = networkStatus === 4;
+  // Seul le geste « tirer pour rafraîchir » (ou un retour sur l'écran) affiche
+  // le spinner du haut, pas « charger plus ».
+  const isRefreshing = networkStatus === NetworkStatus.refetch;
 
   const handleLoadMore = () => {
-    fetchMore({
+    quietly(() => fetchMore({
       variables: { offset: filteredListings.length },
       updateQuery: (previous, { fetchMoreResult }) => {
         if (!fetchMoreResult?.results) return previous;
@@ -126,7 +128,7 @@ export default function HomeScreen() {
           },
         };
       },
-    });
+    }));
   };
 
   // Les filtres partent dans les variables de la requête : le serveur rend la
@@ -283,7 +285,10 @@ export default function HomeScreen() {
         }
         refreshControl={
           mode === "buy" ? (
-            <RefreshControl refreshing={isRefreshing} onRefresh={refetch} />
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => quietly(refetch)}
+            />
           ) : undefined
         }
         showsVerticalScrollIndicator={false}

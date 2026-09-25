@@ -4,6 +4,7 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 import Colors from "@/theme/Colors";
 import { globalStyles } from "@/theme/Styles";
 import ScreenHeader from "@/components/ScreenHeader";
+import { NetworkStatus } from "@apollo/client";
 import { useQuery } from "@apollo/client/react";
 import { REVIEWS_BY_REVIEWEE } from "@/lib/graphql/reviews";
 import { withEndpoint } from "@/lib/apolloClient";
@@ -12,6 +13,8 @@ import ReviewCard from "@/components/ReviewCard";
 import { AuthContext } from "@/contexts/AuthContext";
 import LoadingScreen from "@/components/LoadingScreen";
 import ErrorState from "@/components/ErrorState";
+import useRefetchOnFocus from "@/hooks/useRefetchOnFocus";
+import { quietly } from "@/utils/quietly";
 
 export default function AllReviewsScreen() {
   const { theme: colorScheme } = useThemeContext();
@@ -26,6 +29,8 @@ export default function AllReviewsScreen() {
       skip: !userInfo?.sub,
     }
   );
+
+  useRefetchOnFocus(refetch, Boolean(userInfo?.sub));
 
   const reviews = data?.reviewsByReviewee ?? [];
   const isLoading = (loading && !data) || !userInfo?.sub;
@@ -68,8 +73,8 @@ export default function AllReviewsScreen() {
         }
         refreshControl={
           <RefreshControl
-            refreshing={networkStatus === 4}
-            onRefresh={refetch}
+            refreshing={networkStatus === NetworkStatus.refetch}
+            onRefresh={() => quietly(refetch)}
           />
         }
         showsVerticalScrollIndicator={false}

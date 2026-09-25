@@ -19,7 +19,7 @@ import Colors from "@/theme/Colors";
 import { typography } from "@/theme/Fonts";
 import { globalStyles } from "@/theme/Styles";
 import { useThemeContext } from "@/contexts/ThemeContext";
-import i18n from "@/i18n";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Cadre commun des écrans de connexion, d'inscription et de mot de passe
@@ -41,6 +41,7 @@ export default function AuthScreen({
   const { theme: colorScheme } = useThemeContext();
   const theme = Colors[colorScheme] ?? Colors.light;
   const insets = useSafeAreaInsets();
+  const { i18n } = useLanguage();
 
   return (
     <LinearGradient

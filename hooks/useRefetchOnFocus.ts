@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react";
 import { useFocusEffect } from "expo-router";
+import { quietly } from "@/utils/quietly";
 
 /**
  * Relit une requête quand l'écran reprend le focus (retour depuis un écran
@@ -19,7 +20,7 @@ export default function useRefetchOnFocus(
         firstFocus.current = false;
         return;
       }
-      if (enabled) refetch();
+      if (enabled) quietly(refetch);
     }, [refetch, enabled])
   );
 }

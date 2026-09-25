@@ -22,8 +22,14 @@ const TOKEN_ENDPOINT = `${KEYCLOAK_URL}/protocol/openid-connect/token`;
 const REFRESH_TOKEN_KEY = "bagbuddy.refreshToken";
 
 // Au-delà, on laisse l'utilisateur sur l'écran d'accueil plutôt que de garder
-// le splash indéfiniment quand Keycloak ne répond pas.
+// le splash indéfiniment quand Keycloak ne répond pas. La reprise continue
+// derrière : elle connectera l'utilisateur dès qu'elle aboutit.
 const RESTORE_TIMEOUT_MS = 8000;
+
+// Keycloak injoignable au lancement : on réessaie avec le refresh token sauvé,
+// de plus en plus espacé, plutôt que de faire retaper le mot de passe.
+const RESTORE_RETRY_MIN_MS = 5000;
+const RESTORE_RETRY_MAX_MS = 60000;
 
 // Le splash reste affiché tant que la session précédente n'est pas relue :
 // sans ça, l'écran d'accueil déconnecté clignoterait avant l'accueil connecté.
@@ -57,7 +63,8 @@ export interface AuthState {
 }
 
 type AuthAction =
-  | { type: "SIGN_IN"; payload: TokenResponse; userInfo?: KeycloakUserInfo }
+  | { type: "SIGN_IN"; payload: TokenResponse; userInfo: KeycloakUserInfo }
+  | { type: "TOKENS"; payload: TokenResponse }
   | { type: "USER_INFO"; payload: KeycloakUserInfo }
   | { type: "RESTORED" }
   | { type: "SIGN_OUT" };
@@ -88,19 +95,26 @@ export class AuthError extends Error {
 }
 
 /**
- * Keycloak répond `invalid_grant` aussi bien pour un mot de passe faux que pour
- * un compte désactivé ou bloqué après trop d'essais : le détail n'est que dans
- * la description.
+ * Keycloak répond `invalid_grant` aussi bien pour un mot de passe faux (ou un
+ * refresh token mort) que pour un compte désactivé ou bloqué après trop
+ * d'essais : le détail n'est que dans la description. Toute autre erreur
+ * (`invalid_scope`, `unauthorized_client`, `invalid_client`…) vient de la
+ * configuration du realm, pas de l'utilisateur : ce n'est pas son mot de passe.
  */
 export function authErrorCode(
-  status: number,
+  error: string | undefined,
   description: string | undefined
 ): AuthErrorCode {
+  if (error !== "invalid_grant") return "unavailable";
   if (description && /disabled|not fully set up|temporarily/i.test(description)) {
     return "account_disabled";
   }
-  return status === 400 || status === 401 ? "invalid_credentials" : "unavailable";
+  return "invalid_credentials";
 }
+
+/** Le refresh token ne resservira pas : la session est finie. */
+const isSessionEnded = (code: AuthErrorCode) =>
+  code === "invalid_credentials" || code === "account_disabled";
 
 async function postToken(params: Record<string, string>): Promise<TokenResponse> {
   let response;
@@ -115,17 +129,14 @@ async function postToken(params: Record<string, string>): Promise<TokenResponse>
   }
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
-    throw new AuthError(authErrorCode(response.status, payload?.error_description));
+    const code = authErrorCode(payload?.error, payload?.error_description);
+    if (code === "unavailable") {
+      // Souvent une erreur de configuration du realm : à voir en développement.
+      console.warn("Keycloak token error", response.status, payload?.error);
+    }
+    throw new AuthError(code);
   }
   return response.json();
-}
-
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new AuthError("unavailable")), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
 async function fetchUserInfo(accessToken: string): Promise<KeycloakUserInfo> {
@@ -185,7 +196,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           accessToken: action.payload.access_token,
           idToken: action.payload.id_token ?? prev.idToken,
           refreshToken: action.payload.refresh_token,
-          userInfo: action.userInfo ?? prev.userInfo,
+          userInfo: action.userInfo,
+        };
+      // Un refresh ne connecte personne : pendant une reprise de session,
+      // isSignedIn attend que l'identité soit chargée.
+      case "TOKENS":
+        return {
+          ...prev,
+          accessToken: action.payload.access_token,
+          idToken: action.payload.id_token ?? prev.idToken,
+          refreshToken: action.payload.refresh_token,
         };
       case "USER_INFO":
         return { ...prev, userInfo: action.payload };
@@ -207,8 +227,16 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refreshToken: null,
   });
   // Un seul refresh à la fois : les requêtes lancées pendant qu'il tourne
-  // attendent la même promesse au lieu d'en envoyer chacune un.
-  const refreshPromiseRef = useRef<Promise<TokenResponse> | null>(null);
+  // attendent la même promesse au lieu d'en envoyer chacune un. La promesse est
+  // rangée avec le refresh token qu'elle échange : celle d'une session
+  // précédente (reprise restée pendante) ne répond pas pour la session courante.
+  const refreshRef = useRef<{
+    refreshToken: string;
+    promise: Promise<TokenResponse>;
+  } | null>(null);
+  // Change à chaque connexion ou déconnexion explicite : une reprise de
+  // session encore en cours sait alors qu'elle n'a plus rien à reprendre.
+  const sessionRef = useRef(0);
 
   const storeTokens = useCallback((tokens: TokenResponse) => {
     tokensRef.current = {
@@ -226,33 +254,36 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const refreshTokens = useCallback((): Promise<TokenResponse> => {
-    if (!refreshPromiseRef.current) {
-      const { refreshToken } = tokensRef.current;
-      if (!refreshToken) return Promise.reject(new Error("No refresh token"));
-      refreshPromiseRef.current = postToken({
-        grant_type: "refresh_token",
-        client_id: CLIENT_ID,
-        refresh_token: refreshToken,
-      })
-        .then((tokens) => {
-          // Session fermée (ou reprise abandonnée) pendant l'appel : ces
-          // jetons n'appartiennent plus à personne.
-          if (tokensRef.current.refreshToken !== refreshToken) {
-            throw new Error("Session closed during refresh");
-          }
-          storeTokens(tokens);
-          dispatch({ type: "SIGN_IN", payload: tokens });
-          return tokens;
-        })
-        .finally(() => {
-          refreshPromiseRef.current = null;
-        });
+    const { refreshToken } = tokensRef.current;
+    if (!refreshToken) return Promise.reject(new Error("No refresh token"));
+    if (refreshRef.current?.refreshToken === refreshToken) {
+      return refreshRef.current.promise;
     }
-    return refreshPromiseRef.current as Promise<TokenResponse>;
+    const promise = postToken({
+      grant_type: "refresh_token",
+      client_id: CLIENT_ID,
+      refresh_token: refreshToken,
+    })
+      .then((tokens) => {
+        // Session fermée ou remplacée pendant l'appel : ces jetons
+        // n'appartiennent plus à personne.
+        if (tokensRef.current.refreshToken !== refreshToken) {
+          throw new Error("Session closed during refresh");
+        }
+        storeTokens(tokens);
+        dispatch({ type: "TOKENS", payload: tokens });
+        return tokens;
+      })
+      .finally(() => {
+        if (refreshRef.current?.promise === promise) refreshRef.current = null;
+      });
+    refreshRef.current = { refreshToken, promise };
+    return promise;
   }, [storeTokens]);
 
   const signOut = useCallback(async () => {
     const { refreshToken } = tokensRef.current;
+    sessionRef.current += 1;
     clearTokens();
     dispatch({ type: "SIGN_OUT" });
     // Le cache contient le profil et les transactions du compte qui part :
@@ -281,9 +312,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const tokens = await refreshTokens();
       return tokens.access_token;
     } catch (err) {
-      // Refresh token expiré ou révoqué : la session est finie. Une panne
-      // réseau, elle, ne doit pas déconnecter : la requête suivante réessaiera.
-      if (err instanceof AuthError && err.code === "invalid_credentials") {
+      // Refresh token expiré ou révoqué, compte désactivé : la session est
+      // finie. Une panne réseau, elle, ne doit pas déconnecter : la requête
+      // suivante réessaiera.
+      if (err instanceof AuthError && isSessionEnded(err.code)) {
         await signOut();
       }
       throw err;
@@ -293,35 +325,60 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Reprend la session du lancement précédent, s'il y en a une.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    let restored = false;
+    let splashTimer: ReturnType<typeof setTimeout> | undefined;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let retryDelay = RESTORE_RETRY_MIN_MS;
+    const session = sessionRef.current;
+    // Faux dès que l'utilisateur s'est connecté ou déconnecté lui-même.
+    const stillRestoring = () => !cancelled && sessionRef.current === session;
+
+    const finishRestoring = () => {
+      if (cancelled || restored) return;
+      restored = true;
+      clearTimeout(splashTimer);
+      dispatch({ type: "RESTORED" });
+      SplashScreen.hideAsync().catch(() => {});
+    };
+
+    const attempt = async () => {
       try {
-        const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-        if (!refreshToken) return;
-        tokensRef.current = { accessToken: null, refreshToken };
-        const tokens = await withTimeout(refreshTokens(), RESTORE_TIMEOUT_MS);
-        const userInfo = await withTimeout(
-          fetchUserInfo(tokens.access_token),
-          RESTORE_TIMEOUT_MS
-        );
-        if (!cancelled) dispatch({ type: "USER_INFO", payload: userInfo });
+        const tokens = await refreshTokens();
+        const userInfo = await fetchUserInfo(tokens.access_token);
+        if (stillRestoring()) dispatch({ type: "SIGN_IN", payload: tokens, userInfo });
       } catch (e) {
-        // Jeton refusé : il ne resservira pas. Keycloak injoignable : on le
-        // garde pour le prochain lancement.
-        if (e instanceof AuthError && e.code === "invalid_credentials") {
+        if (!stillRestoring()) return;
+        if (e instanceof AuthError && isSessionEnded(e.code)) {
+          // Jeton refusé ou compte désactivé : il ne resservira pas.
           clearTokens();
         } else {
-          tokensRef.current = { accessToken: null, refreshToken: null };
+          // Keycloak injoignable : le jeton reste valable, on le garde (en
+          // mémoire et pour le prochain lancement) et on réessaie.
+          retryTimer = setTimeout(attempt, retryDelay);
+          retryDelay = Math.min(retryDelay * 2, RESTORE_RETRY_MAX_MS);
         }
-        if (!cancelled) dispatch({ type: "SIGN_OUT" });
       } finally {
-        if (!cancelled) {
-          dispatch({ type: "RESTORED" });
-          SplashScreen.hideAsync().catch(() => {});
-        }
+        finishRestoring();
       }
+    };
+
+    (async () => {
+      const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY).catch(
+        () => null
+      );
+      if (!refreshToken || !stillRestoring()) {
+        finishRestoring();
+        return;
+      }
+      tokensRef.current = { accessToken: null, refreshToken };
+      splashTimer = setTimeout(finishRestoring, RESTORE_TIMEOUT_MS);
+      attempt();
     })();
+
     return () => {
       cancelled = true;
+      clearTimeout(splashTimer);
+      clearTimeout(retryTimer);
     };
     // Une seule fois, au montage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -350,6 +407,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           scope: "openid profile email offline_access",
         });
         const userInfo = await fetchUserInfo(tokens.access_token);
+        sessionRef.current += 1;
         storeTokens(tokens);
         dispatch({ type: "SIGN_IN", payload: tokens, userInfo });
         return tokens.access_token;
